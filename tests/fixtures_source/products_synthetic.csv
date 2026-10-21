@@ -1,0 +1,4 @@
+ProductID,ProductName,Category,UnitPrice
+P-SYN-01,Sample A,A,100
+P-SYN-02,"Sample, Premium",B,50
+P-SYN-03,Sample C,C,75

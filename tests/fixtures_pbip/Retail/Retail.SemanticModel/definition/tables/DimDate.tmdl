@@ -1,0 +1,21 @@
+table DimDate
+
+	column Date
+		dataType: dateTime
+		sourceColumn: Date
+		summarizeBy: none
+
+	column Year
+		dataType: int64
+		sourceColumn: Year
+		summarizeBy: none
+
+	column MonthNumber
+		dataType: int64
+		sourceColumn: MonthNumber
+		summarizeBy: none
+
+	partition DimDate = m
+		mode: import
+		source =
+			#table(type table [Date = datetime, Year = number, MonthNumber = number], {{#datetime(2026, 9, 1, 0, 0, 0), 2026, 9}})

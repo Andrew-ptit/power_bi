@@ -1,0 +1,10 @@
+table DimProduct
+
+	column ProductID
+		dataType: string
+		sourceColumn: ProductID
+		summarizeBy: none
+
+	partition DimProduct = m
+		mode: import
+		source = #table(type table [ProductID = text], {{"P-01"}})

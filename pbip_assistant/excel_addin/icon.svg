@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Reqwise-excel-mcp">
+  <rect width="64" height="64" rx="14" fill="#0d6b50"/>
+  <path fill="#fff" d="M14 14h36v36H14z" opacity=".16"/>
+  <path fill="#fff" d="M20 21h24v6H27v8h14v6H27v9h-7z"/>
+  <circle cx="45" cy="45" r="7" fill="#a8e9d5"/>
+</svg>

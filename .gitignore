@@ -1,0 +1,5 @@
+__pycache__/
+*.py[cod]
+tools/excel_addin/.certs/
+*_AI_copy_*.xlsx
+

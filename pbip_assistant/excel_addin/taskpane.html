@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reqwise-excel-mcp · Excel task pane</title>
+  <link rel="stylesheet" href="/assets/taskpane.css">
+  <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+  <script src="/assets/taskpane.js" defer></script>
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand-wrap">
+      <div class="brand-eyebrow">
+        <span class="brand-tag">REQWISE</span>
+        <span class="mcp-pill">MCP</span>
+      </div>
+      <h1 class="brand-title">Reqwise-excel-mcp</h1>
+      <span class="sr-only">Excel task pane</span>
+    </div>
+    <span id="connection-badge" class="badge badge-wait">Đang kết nối</span>
+  </header>
+
+  <div class="connection-toolbar" aria-label="Trạng thái và thiết lập phân tích">
+    <div class="connection-status-row">
+      <p id="codex-status" class="connection-status">Đang kiểm tra Codex…</p>
+    </div>
+    <div class="connection-controls">
+      <span class="shortcut-hint"><kbd>Ctrl</kbd>+<kbd>Enter</kbd> Phân tích & đọc lại</span>
+      <div class="separator-select-wrap">
+        <label for="formula-list-separator">Dấu công thức</label>
+        <select id="formula-list-separator" title="Dấu ngăn đối số công thức trên máy bạn">
+          <option value=";" selected>; (máy bạn)</option>
+          <option value=",">,</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <nav class="tab-bar" aria-label="Chức năng">
+    <button id="tab-assistant-button" class="tab-button active" type="button" aria-selected="true">Trợ lý</button>
+    <button id="tab-pq-button" class="tab-button" type="button" aria-selected="false">PQ_Code-M</button>
+  </nav>
+
+  <main>
+    <div id="tab-assistant" class="tab-content">
+    <section class="card" aria-labelledby="workbook-title">
+      <div class="section-heading">
+        <div>
+          <p class="step">01 · Workbook</p>
+          <h2 id="workbook-title">Workbook đang mở</h2>
+        </div>
+        <button id="refresh-button" class="button button-ghost" type="button">Đọc lại</button>
+      </div>
+      <dl class="facts">
+        <div><dt>Tệp</dt><dd id="workbook-name">—</dd></div>
+        <div><dt>Sheet hiện tại</dt><dd id="active-sheet">—</dd></div>
+        <div><dt>Schema</dt><dd id="schema-summary">—</dd></div>
+        <div><dt>ExcelApi</dt><dd id="api-version">—</dd></div>
+      </dl>
+      <p id="workbook-message" class="hint">Task pane chỉ đọc metadata và tối đa 20 dòng preview.</p>
+    </section>
+
+    <section class="card" aria-labelledby="prompt-title">
+      <p class="step">02 · Yêu cầu</p>
+      <h2 id="prompt-title">Bạn muốn xử lý dữ liệu thế nào?</h2>
+      <label class="sr-only" for="prompt">Yêu cầu xử lý dữ liệu</label>
+      <textarea id="prompt" maxlength="4000" rows="9" placeholder="Ví dụ: Phân tích cột Mã đơn hàng thô và đề xuất công thức tách mã phân bổ, mã vận đơn gốc, hậu tố."></textarea>
+      <div class="prompt-footer">
+        <span id="prompt-count">0 / 4000</span>
+        <button id="analyze-button" class="button button-primary" type="button" disabled>Phân tích workbook</button>
+      </div>
+    </section>
+
+    <section id="plan-section" class="card hidden" aria-labelledby="plan-title">
+      <p class="step">03 · Kế hoạch</p>
+      <h2 id="plan-title">Kế hoạch đề xuất</h2>
+      <div id="plan-status"></div>
+      <div class="analysis-text">
+        <h3>Nhận xét</h3>
+        <p id="plan-summary"></p>
+        <div id="analysis-notes"></div>
+      </div>
+      <div id="warning-list" class="notice notice-warning hidden"></div>
+      <section id="code-section" class="code-section hidden" aria-label="Công thức và code có thể sao chép">
+        <h3>Công thức / code đề xuất</h3>
+        <p class="hint">Mỗi khối chỉ chứa code để bạn sao chép riêng; đây vẫn là đề xuất chưa chạy trên Excel.</p>
+        <div id="operation-list" class="operation-list"></div>
+        <div id="code-list" class="code-list"></div>
+      </section>
+    </section>
+
+    <section id="preview-section" class="card hidden" aria-labelledby="preview-title">
+      <p class="step">04 · Preview</p>
+      <div class="section-heading">
+        <h2 id="preview-title">Mẫu dữ liệu nguồn</h2>
+        <span class="badge">SOURCE</span>
+      </div>
+      <p id="preview-label" class="hint"></p>
+      <div class="preview-block">
+        <h3>Dữ liệu Excel đã đọc</h3>
+        <div id="before-table" class="table-scroll"></div>
+      </div>
+    </section>
+
+    <section id="approval-section" class="card hidden" aria-labelledby="approval-title">
+      <p class="step">05 · Duyệt</p>
+      <h2 id="approval-title">Tạo bản copy và chạy Excel</h2>
+      <div class="notice notice-safe">
+        Workbook nguồn không được ghi. File kết quả mới sẽ nằm cạnh file nguồn.
+      </div>
+      <label class="approval-check">
+        <input id="approval-check" type="checkbox">
+        <span>Tôi đã xem công thức, vùng đích và mẫu dữ liệu nguồn; chưa có kết quả sau khi chạy.</span>
+      </label>
+      <button id="apply-button" class="button button-apply" type="button" disabled>Duyệt, tạo copy và chạy Excel</button>
+      <p id="apply-progress" class="hint" aria-live="polite"></p>
+    </section>
+
+    <section id="result-section" class="card hidden" aria-labelledby="result-title">
+      <p class="step">06 · Runtime</p>
+      <div class="section-heading">
+        <h2 id="result-title">Kết quả Excel</h2>
+        <span id="runtime-badge" class="badge">—</span>
+      </div>
+      <dl class="facts">
+        <div><dt>Bản copy</dt><dd id="copy-path">—</dd></div>
+        <div><dt>Excel</dt><dd id="excel-version">—</dd></div>
+        <div><dt>Đối chiếu fixture</dt><dd id="reconcile-status">—</dd></div>
+      </dl>
+      <div id="runtime-table" class="table-scroll"></div>
+    </section>
+    </div>
+
+    <div id="tab-pq" class="tab-content hidden">
+      <nav class="mode-bar" aria-label="Chế độ Power Query">
+        <button id="pq2-mode-button" class="tab-button active" type="button" aria-selected="true">Typed Steps</button>
+        <button id="pq-advanced-mode-button" class="tab-button" type="button" aria-selected="false">M nâng cao · Tin cậy</button>
+      </nav>
+
+      <div id="pq2-mode" class="tab-content">
+        <section id="pqpc-section" class="card history-section collapsed" aria-labelledby="pqpc-title">
+          <header class="section-head">
+            <div>
+              <p class="kicker">01 · PROBLEM CHAIN</p>
+              <h2 id="pqpc-title">Các vấn đề dữ liệu</h2>
+              <p class="sub" id="pqpc-head-summary">Chưa có lịch sử</p>
+            </div>
+            <span id="pqpc-status" class="badge badge-wait sr-only" hidden>ĐANG KIỂM TRA</span>
+            <div class="head-actions">
+              <button id="pqpc-history-toggle" class="icon-button" type="button" aria-label="Mở lịch sử vấn đề" aria-expanded="false" data-tooltip="Mở hoặc thu gọn lịch sử">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" class="icon history-toggle-icon" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+              </button>
+              <button id="pqpc-clear-history" class="icon-button danger" type="button" aria-label="Xóa sạch lịch sử" data-tooltip="Xóa sạch toàn bộ lịch sử Problem Chain" disabled>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" class="icon" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v5M14 11v5"/></svg>
+              </button>
+              <button id="pqpc-new-problem" class="icon-button primary" type="button" aria-label="Tạo vấn đề gốc mới" data-tooltip="Tạo một vấn đề gốc độc lập">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" class="icon" aria-hidden="true"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.4 2.6a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>
+              </button>
+            </div>
+          </header>
+          <div id="pqpc-content" class="content history-content hidden">
+            <p id="pqpc-support" class="notice notice-warning hidden" aria-live="polite"></p>
+            <label id="pqpc-source-changed-wrap" class="approval-check">
+              <input id="pqpc-source-changed" type="checkbox">
+              <span>Nguồn dữ liệu đã thay đổi — đánh dấu một lần để tăng phiên bản dữ liệu. Cache cũ được giữ để xem, nhưng chỉ tính lại revision khi cần.</span>
+            </label>
+            <p id="pqpc-data-version" class="hint">Phiên bản dữ liệu: 0</p>
+            <div id="pqpc-timeline" class="problem-chain-timeline" aria-live="polite"></div>
+            <p id="pqpc-empty" class="hint">Chưa có lịch sử. Vấn đề đầu tiên sẽ tạo revision gốc.</p>
+            <div id="pqpc-composer-host" class="problem-chain-composer-host">
+            <section id="pqpc-branch-editor" class="composer hidden" aria-labelledby="pqpc-branch-title">
+              <p id="pqpc-branch-mode" class="kicker">TẠO NHÁNH</p>
+              <h3 id="pqpc-branch-title" class="sr-only">Tạo nhánh từ revision</h3>
+              <p id="pqpc-branch-explanation" class="hint sr-only"></p>
+              <label id="pqpc-composer-label" for="pqpc-branch-prompt">Yêu cầu mới</label>
+              <textarea id="pqpc-branch-prompt" rows="4" maxlength="4000"></textarea>
+              <div id="pqpc-clarification" class="clarification-panel hidden" role="group" aria-labelledby="pqpc-clarification-title">
+                <p id="pqpc-clarification-title" class="clarification-title">Cần bạn làm rõ</p>
+                <p class="hint">Trả lời để phân tích tiếp yêu cầu này. Chưa tạo revision hoặc thay đổi HEAD.</p>
+                <div id="pqpc-clarification-questions"></div>
+                <details id="pqpc-clarification-notes" class="clarification-notes hidden">
+                  <summary id="pqpc-clarification-notes-summary">Ghi chú khác</summary>
+                  <ul id="pqpc-clarification-notes-list"></ul>
+                </details>
+              </div>
+              <div class="composer-actions">
+                <button id="pqpc-branch-cancel" class="button" type="button">Hủy</button>
+                <button id="pqpc-branch-submit" class="button primary" type="button">Tạo nhánh</button>
+              </div>
+              <p id="pqpc-branch-status" class="hint" role="status" aria-live="polite"></p>
+              <div class="sr-only" aria-hidden="true" style="display:none;">
+                <textarea id="pqpc-prompt" rows="1" maxlength="4000"></textarea>
+                <span id="pqpc-prompt-count">0 / 4000</span>
+                <button id="pqpc-create-button" class="button button-primary" type="button" disabled>Tạo vấn đề đầu tiên</button>
+              </div>
+            </section>
+            </div>
+            <div id="pqpc-impact-section" class="notice notice-warning hidden" aria-live="polite">
+              <strong>Ảnh hưởng trên nhánh cũ</strong>
+              <p id="pqpc-impact-summary"></p>
+              <ul id="pqpc-impact-list"></ul>
+            </div>
+            <p id="pqpc-progress" class="hint history-feedback" aria-live="polite"></p>
+          </div>
+        </section>
+
+        <section id="pq2-standalone-prompt-section" class="card" aria-labelledby="pq2-prompt-title">
+          <p class="step">01 · Yêu cầu có cấu trúc</p>
+          <h2 id="pq2-prompt-title">Tạo pipeline an toàn</h2>
+          <p id="pq2-source-context" class="hint">Typed Steps chỉ dùng Table/usedRange trong workbook đang mở.</p>
+          <textarea id="pq2-prompt" rows="5" maxlength="4000" placeholder="Ví dụ: Lọc Gross Revenue trên 1000, thêm Profit = Gross Revenue - Discount Value và sắp xếp giảm dần."></textarea>
+          <button id="pq2-plan-button" class="button button-primary" type="button" disabled>Codex tạo Typed Steps</button>
+          <p class="hint">Codex chỉ đề xuất operation có kiểu. M được compiler cục bộ sinh và không hiển thị trong chế độ này.</p>
+        </section>
+
+        <section id="pq2-plan-section" class="card hidden" aria-labelledby="pq2-plan-title">
+          <header class="section-head">
+            <div>
+              <p class="kicker">02 · REVISION</p>
+              <h2 id="pq2-plan-title">Các bước xử lý <span id="pq2-step-count" class="operation-count"></span></h2>
+              <p class="sub" id="pq2-revision-owner">—</p>
+            </div>
+            <span id="pq2-status" class="badge badge-wait sr-only" hidden>—</span>
+            <div class="head-actions">
+              <div class="info-wrap">
+                <button id="pq2-revision-info" class="icon-button" type="button" aria-label="Xem yêu cầu và lưu ý" aria-expanded="false" data-tooltip="Yêu cầu và lưu ý">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" class="icon" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                </button>
+                <span id="pq2-info-alert" class="alert-dot" aria-hidden="true" hidden></span>
+              </div>
+              <button id="pq2-add-step" class="icon-button" type="button" aria-label="Thêm bước" data-tooltip="Thêm bước">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" class="icon" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg>
+              </button>
+            </div>
+          </header>
+          <div class="content">
+            <section id="pq2-info-panel" class="info-panel" hidden>
+              <div class="info-line">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" class="icon small" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg>
+                <span><strong>Yêu cầu:</strong> <span id="pq2-summary" class="analysis-text"></span></span>
+              </div>
+              <div class="info-line">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" class="icon small" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                <span id="pq2-revision" class="hint"></span>
+              </div>
+              <div id="pq2-notes" class="notice notice-warning hidden"></div>
+            </section>
+            <div id="pq2-blockers" class="notice notice-warning hidden"></div>
+            <ol id="pq2-step-list" class="steps typed-step-list"></ol>
+            <p id="pq2-step-feedback" class="step-feedback hint" aria-live="polite">Chỉ mở một bước tại một thời điểm.</p>
+          </div>
+        </section>
+
+        <section id="pq2-editor" class="card hidden" aria-labelledby="pq2-editor-title">
+          <p class="step">Chỉnh step</p>
+          <h2 id="pq2-editor-title">Step có kiểu</h2>
+          <label for="pq2-variable">Tên biến PascalCase</label>
+          <input id="pq2-variable" type="text" maxlength="64">
+          <label for="pq2-description">Mô tả</label>
+          <input id="pq2-description" type="text" maxlength="500">
+          <label for="pq2-operation">Operation</label>
+          <select id="pq2-operation"></select>
+          <label for="pq2-inputs">Input steps</label>
+          <select id="pq2-inputs" multiple size="5"></select>
+          <div id="pq2-parameters" class="typed-fields"></div>
+          <div class="confirm-actions">
+            <button id="pq2-editor-cancel" class="button button-ghost" type="button">Hủy</button>
+            <button id="pq2-editor-save" class="button button-primary" type="button">Tạo revision</button>
+          </div>
+        </section>
+
+        <section id="pq2-run-section" class="card hidden" aria-labelledby="pq2-preview-title">
+          <p class="step">03 · Excel runtime preview</p>
+          <h2 id="pq2-preview-title">Chạy trên workbook tạm</h2>
+          <button id="pq2-preview-button" class="button button-primary" type="button" disabled>Chạy preview</button>
+          <p id="pq2-progress" class="hint" aria-live="polite"></p>
+        </section>
+
+        <section id="pq2-preview-section" class="card hidden" aria-labelledby="pq2-result-title">
+          <div class="section-heading">
+            <div><p class="step">04 · Review và duyệt</p><h2 id="pq2-result-title">Excel runtime preview</h2></div>
+            <span id="pq2-result-badge" class="badge badge-simulated">RUNTIME PREVIEW</span>
+          </div>
+          <p id="pq2-counts" class="hint"></p>
+          <h3>Trước</h3><div id="pq2-before-table" class="table-scroll"></div>
+          <h3>Sau</h3><div id="pq2-after-table" class="table-scroll"></div>
+          <div class="notice notice-safe">Preview này chứng minh Excel đã refresh trên bản tạm; không chứng minh logic nghiệp vụ đúng.</div>
+          <button id="pq2-approve-button" class="button button-apply" type="button" disabled>Duyệt revision và ghi values</button>
+          <button id="pq2-cancel-preview-button" class="button button-ghost hidden" type="button" disabled>Hủy Preview mới</button>
+        </section>
+
+        <section id="pq2-diagnostic-section" class="card diagnostic-card hidden" aria-labelledby="pq2-diagnostic-title">
+          <div class="section-head">
+            <div><p class="step">Chẩn đoán step · Không ghi sheet</p><h2 id="pq2-diagnostic-title">Chẩn đoán</h2></div>
+            <span id="pq2-diagnostic-badge" class="badge badge-simulated">STAGING</span>
+          </div>
+          <p id="pq2-diagnostic-counts" class="hint"></p>
+          <div id="pq2-diagnostic-error-block" class="notice notice-warning hidden">
+            <strong>Mẫu lỗi (tối đa 5)</strong>
+            <ul id="pq2-diagnostic-errors"></ul>
+          </div>
+          <h3>Mẫu kiểm tra kết quả</h3>
+          <div id="pq2-diagnostic-table" class="table-scroll"></div>
+          <p class="hint">Kết quả này chỉ để xem/chẩn đoán step. Xác nhận chỉ lưu cache trong phiên; không ghi PQ_Typed_Result hoặc sheet nguồn.</p>
+          <div class="diagnostic-actions">
+            <button id="pq2-diagnostic-cancel" class="button button-ghost" type="button">Hủy staging</button>
+            <button id="pq2-diagnostic-confirm" class="button button-primary" type="button">Xác nhận và lưu cache step</button>
+          </div>
+          <p id="pq2-diagnostic-progress" class="hint" aria-live="polite"></p>
+        </section>
+
+        <section id="pq2-repair-section" class="card hidden" aria-labelledby="pq2-repair-title">
+          <p class="step">Auto-fix proposal</p>
+          <h2 id="pq2-repair-title">Phương án sửa</h2>
+          <p id="pq2-diagnosis" class="analysis-text"></p>
+          <div id="pq2-patch-list" class="typed-step-list"></div>
+        </section>
+      </div>
+
+      <div id="pq-advanced-mode" class="tab-content hidden">
+      <div id="pq-trusted-policy-status" class="notice notice-warning">Advanced M đang bị khóa cho tới khi coordinator cung cấp Trusted Mode policy hợp lệ.</div>
+      <section class="card" aria-labelledby="pq-prompt-title">
+        <p class="step">01 · Yêu cầu</p>
+        <h2 id="pq-prompt-title">Bạn cần xử lý gì?</h2>
+        <p id="pq-source-context" class="hint">Dùng workbook và sheet đang hoạt động trong Excel.</p>
+        <textarea id="pq-prompt" rows="5" maxlength="4000" placeholder="Ví dụ: Bỏ dòng rỗng, Ma_Don_Hang trống/null và duplicate trên toàn bộ cột."></textarea>
+        <button id="pq-propose-button" class="button button-primary" type="button" disabled>Codex đề xuất M</button>
+        <p id="pq-proposal-note" class="hint">Bấm đề xuất sẽ gửi prompt và tối đa 20 dòng × 200 cột của sheet/Table hiện hành tới OpenAI qua Codex; không gửi cả workbook. Bạn phải review M trước khi chạy.</p>
+      </section>
+      <section class="card" aria-labelledby="pq-code-title">
+        <p class="step">02 · Power Query M</p>
+        <h2 id="pq-code-title">Xem và sửa code M</h2>
+        <textarea id="pq-code" class="code-editor" rows="15" spellcheck="false" placeholder="let&#10;  Source = Excel.CurrentWorkbook(){[Name=&quot;PQ_Input&quot;]}[Content]&#10;in&#10;  Source"></textarea>
+        <p class="hint">M dùng dấu <code>,</code> trong cú pháp, không dùng dấu <code>;</code> của công thức Excel.</p>
+        <div id="pq-warnings" class="notice notice-warning hidden"></div>
+      </section>
+      <section class="card" aria-labelledby="pq-run-title">
+        <p class="step">03 · Chạy thử</p>
+        <h2 id="pq-run-title">Chạy và tạo sheet kết quả</h2>
+        <button id="pq-preview-button" class="button button-primary" type="button" disabled>Chạy thử và mở sheet kết quả</button>
+        <p id="pq-progress" class="hint" aria-live="polite"></p>
+      </section>
+      <section id="pq-preview-section" class="card hidden" aria-labelledby="pq-preview-title">
+        <p class="step">04 · Review và áp dụng</p>
+        <h2 id="pq-preview-title">Excel runtime preview</h2>
+        <p id="pq-counts" class="hint"></p>
+        <h3>Trước</h3><div id="pq-before-table" class="table-scroll"></div>
+        <h3>Sau</h3><div id="pq-after-table" class="table-scroll"></div>
+        <p id="pq-preview-note" class="hint"></p>
+        <button id="pq-apply-source-button" class="button button-apply" type="button" disabled>Áp dụng vào sheet nguồn</button>
+      </section>
+      </div>
+    </div>
+
+    <section id="error-panel" class="card error-card hidden" aria-live="assertive">
+      <p class="step">Cần xử lý</p>
+      <h2 id="error-code">Lỗi</h2>
+      <p id="error-detail"></p>
+    </section>
+  </main>
+
+  <div id="pq-confirm-overlay" class="confirm-overlay hidden">
+    <section class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="pq-confirm-title" aria-describedby="pq-confirm-detail">
+      <p class="step">Xác nhận lần đầu</p>
+      <h2 id="pq-confirm-title">Chạy M trên workbook tạm?</h2>
+      <p id="pq-confirm-workbook" class="hint"></p>
+      <p id="pq-confirm-detail">M có thể đọc toàn bộ workbook export, file/web/database, dùng credential Excel hoặc gây side effect ngoài workbook. Workbook tạm không phải sandbox. Bước chạy thử chưa ghi workbook đang mở.</p>
+      <div class="confirm-actions">
+        <button id="pq-confirm-cancel" class="button button-ghost" type="button">Hủy</button>
+        <button id="pq-confirm-continue" class="button button-primary" type="button">Đồng ý, chạy thử</button>
+      </div>
+    </section>
+  </div>
+
+  <footer>Codex phân tích qua OpenAI khi bạn yêu cầu · Preview tạo sheet kết quả values-only · Apply ghi nguồn sau xác nhận</footer>
+</body>
+</html>

@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PQ Typed Steps v2 plan revision",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion", "planId", "snapshotId", "revision", "planStatus", "summary",
+    "questions", "assumptions", "warnings", "hardBlockers", "sources", "steps",
+    "finalOutputStepId", "changeSet", "validation", "preview", "approval"
+  ],
+  "properties": {
+    "schemaVersion": {"const": "2.0"},
+    "planId": {"type": "string", "pattern": "^plan_[a-f0-9]{24}$"},
+    "snapshotId": {"type": "string", "pattern": "^snap_[a-f0-9]{24}$"},
+    "revision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["revisionId", "parentRevisionId", "createdAt", "changeReason", "reviewHash"],
+      "properties": {
+        "revisionId": {"type": "string", "pattern": "^rev_[a-f0-9]{24}$"},
+        "parentRevisionId": {"type": ["string", "null"]},
+        "createdAt": {"type": "string"},
+        "changeReason": {"type": "string", "maxLength": 500},
+        "reviewHash": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"}
+      }
+    },
+    "planStatus": {"enum": ["needsClarification", "blocked", "reviewReady"]},
+    "summary": {"type": "string", "maxLength": 3000},
+    "questions": {"type": "array", "maxItems": 20, "items": {"type": "string"}},
+    "assumptions": {"type": "array", "maxItems": 20, "items": {"type": "string"}},
+    "warnings": {"type": "array", "maxItems": 20, "items": {"type": "string"}},
+    "hardBlockers": {"type": "array", "items": {"type": "object"}},
+    "sources": {"type": "array", "maxItems": 20, "items": {"type": "object"}},
+    "steps": {"type": "array", "maxItems": 50, "items": {"type": "object"}},
+    "finalOutputStepId": {"type": ["string", "null"]},
+    "changeSet": {"type": "array", "items": {"type": "object"}},
+    "validation": {"type": "object"},
+    "preview": {"type": ["object", "null"]},
+    "approval": {"type": "object"}
+  }
+}

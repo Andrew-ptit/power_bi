@@ -1,0 +1,410 @@
+<div id="problem-chain-wireframe" class="viz-dotted-background">
+  <style>
+    #problem-chain-wireframe {
+      --pc-bg: light-dark(#f3f6f4, #111816);
+      --pc-panel: light-dark(#ffffff, #18211e);
+      --pc-panel-2: light-dark(#f7faf8, #202b27);
+      --pc-text: light-dark(#17231f, #eef7f3);
+      --pc-muted: light-dark(#61716b, #a5b8b1);
+      --pc-border: light-dark(#dce6e1, #33443e);
+      --pc-green: light-dark(#0b7055, #70d9b6);
+      --pc-green-soft: light-dark(#e3f3ed, #173b31);
+      --pc-danger: light-dark(#b33d3d, #ff9b9b);
+      padding: 18px;
+      color: var(--pc-text);
+      font-family: Aptos, "Segoe UI", sans-serif;
+    }
+    #problem-chain-wireframe * { box-sizing: border-box; }
+    #problem-chain-wireframe .pc-pane {
+      width: min(100%, 430px);
+      margin: 0 auto;
+      background: var(--pc-bg);
+      border: 1px solid var(--pc-border);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 12px 34px color-mix(in srgb, var(--pc-text) 10%, transparent);
+    }
+    #problem-chain-wireframe .pc-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 18px 18px 14px;
+      background: var(--pc-panel);
+      border-bottom: 1px solid var(--pc-border);
+    }
+    #problem-chain-wireframe h2,
+    #problem-chain-wireframe p { margin: 0; }
+    #problem-chain-wireframe h2 { font-size: 18px; font-weight: 500; }
+    #problem-chain-wireframe .pc-subtitle { margin-top: 3px; color: var(--pc-muted); font-size: 12px; }
+    #problem-chain-wireframe .pc-icon-button {
+      width: 38px;
+      height: 38px;
+      border: 1px solid var(--pc-border);
+      border-radius: 11px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--pc-muted);
+      background: var(--pc-panel);
+    }
+    #problem-chain-wireframe .pc-icon-button:hover,
+    #problem-chain-wireframe .pc-icon-button:focus-visible {
+      color: var(--pc-green);
+      border-color: var(--pc-green);
+      background: var(--pc-green-soft);
+    }
+    #problem-chain-wireframe .pc-icon-button.primary {
+      color: light-dark(#ffffff, #10231d);
+      background: var(--pc-green);
+      border-color: var(--pc-green);
+    }
+    #problem-chain-wireframe .pc-icon-button.danger:hover,
+    #problem-chain-wireframe .pc-icon-button.danger:focus-visible { color: var(--pc-danger); border-color: var(--pc-danger); }
+    #problem-chain-wireframe .pc-toolbar { display: flex; gap: 8px; }
+    #problem-chain-wireframe .pc-body { padding: 14px; }
+    #problem-chain-wireframe .pc-source {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--pc-muted);
+      font-size: 12px;
+      margin: 0 4px 12px;
+    }
+    #problem-chain-wireframe .pc-tree,
+    #problem-chain-wireframe .pc-children { list-style: none; padding: 0; margin: 0; }
+    #problem-chain-wireframe .pc-children {
+      margin-left: 22px;
+      padding-left: 12px;
+      border-left: 1px solid var(--pc-border);
+    }
+    #problem-chain-wireframe .pc-node { position: relative; margin: 7px 0; }
+    #problem-chain-wireframe .pc-children > .pc-node::before {
+      content: "";
+      position: absolute;
+      left: -13px;
+      top: 24px;
+      width: 12px;
+      border-top: 1px solid var(--pc-border);
+    }
+    #problem-chain-wireframe .pc-node-row {
+      display: grid;
+      grid-template-columns: 28px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 7px;
+      min-height: 54px;
+      padding: 7px 8px;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      background: var(--pc-panel);
+    }
+    #problem-chain-wireframe .pc-node-row:hover { border-color: var(--pc-border); }
+    #problem-chain-wireframe .pc-node-row.selected { background: var(--pc-green-soft); border-color: color-mix(in srgb, var(--pc-green) 42%, transparent); }
+    #problem-chain-wireframe .pc-toggle {
+      width: 28px;
+      height: 34px;
+      border: 0;
+      background: transparent;
+      color: var(--pc-muted);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #problem-chain-wireframe .pc-toggle.no-children { opacity: .3; }
+    #problem-chain-wireframe .pc-label {
+      border: 0;
+      padding: 0;
+      min-width: 0;
+      text-align: left;
+      color: inherit;
+      background: transparent;
+    }
+    #problem-chain-wireframe .pc-name { display: flex; align-items: center; gap: 7px; font-weight: 500; }
+    #problem-chain-wireframe .pc-summary {
+      display: block;
+      margin-top: 3px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      color: var(--pc-muted);
+      font-size: 12px;
+    }
+    #problem-chain-wireframe .pc-badge {
+      padding: 2px 7px;
+      border-radius: 999px;
+      color: var(--pc-green);
+      background: var(--pc-panel);
+      font-size: 10px;
+      letter-spacing: .04em;
+    }
+    #problem-chain-wireframe .pc-actions { display: flex; gap: 3px; opacity: .58; }
+    #problem-chain-wireframe .pc-node-row:hover .pc-actions,
+    #problem-chain-wireframe .pc-node-row:focus-within .pc-actions { opacity: 1; }
+    #problem-chain-wireframe .pc-actions .pc-icon-button { width: 32px; height: 32px; border-color: transparent; background: transparent; }
+    #problem-chain-wireframe .pc-node.collapsed > .pc-children { display: none; }
+    #problem-chain-wireframe .pc-node.expanded > .pc-node-row .pc-chevron { transform: rotate(90deg); }
+    #problem-chain-wireframe .pc-chevron { transition: transform 160ms ease; }
+    #problem-chain-wireframe .pc-composer {
+      margin-top: 14px;
+      padding: 13px;
+      border: 1px solid var(--pc-border);
+      border-radius: 12px;
+      background: var(--pc-panel);
+    }
+    #problem-chain-wireframe .pc-composer[hidden] { display: none; }
+    #problem-chain-wireframe .pc-branch-prompt {
+      display: block;
+      margin: 7px 0 8px 35px;
+      padding: 12px;
+      border-radius: 11px;
+      background: var(--pc-panel);
+      border: 1px solid var(--pc-green);
+    }
+    #problem-chain-wireframe .pc-branch-prompt[hidden] { display: none; }
+    #problem-chain-wireframe .pc-branch-prompt textarea { min-height: 155px; }
+    #problem-chain-wireframe .pc-prompt-label { display: block; margin-bottom: 7px; font-size: 12px; font-weight: 500; }
+    #problem-chain-wireframe .pc-composer-head { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 9px; }
+    #problem-chain-wireframe .pc-mode { color: var(--pc-green); font-size: 12px; font-weight: 500; }
+    #problem-chain-wireframe textarea {
+      width: 100%;
+      min-height: 78px;
+      resize: vertical;
+      color: var(--pc-text);
+      background: var(--pc-panel-2);
+      border: 1px solid var(--pc-border);
+      border-radius: 10px;
+      padding: 10px;
+      font: inherit;
+    }
+    #problem-chain-wireframe .pc-composer-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 9px; }
+    #problem-chain-wireframe .pc-button {
+      min-height: 36px;
+      padding: 0 13px;
+      border: 1px solid var(--pc-border);
+      border-radius: 9px;
+      color: var(--pc-text);
+      background: var(--pc-panel);
+    }
+    #problem-chain-wireframe .pc-button.primary { color: light-dark(#ffffff, #10231d); background: var(--pc-green); border-color: var(--pc-green); }
+    #problem-chain-wireframe .pc-feedback { min-height: 18px; margin: 10px 4px 0; color: var(--pc-muted); font-size: 12px; }
+    @media (max-width: 430px) {
+      #problem-chain-wireframe { padding: 8px; }
+      #problem-chain-wireframe .pc-actions { opacity: 1; }
+      #problem-chain-wireframe .pc-node-row { grid-template-columns: 26px minmax(0, 1fr); }
+      #problem-chain-wireframe .pc-actions { grid-column: 2; justify-content: flex-end; }
+    }
+  </style>
+
+  <section class="pc-pane" aria-label="Wireframe cây lịch sử vấn đề">
+    <header class="pc-header">
+      <div>
+        <h2>Lịch sử vấn đề</h2>
+        <p class="pc-subtitle" id="pc-head-label">HEAD: Vấn đề 2.1 · 4 revision</p>
+      </div>
+      <div class="pc-toolbar">
+        <button class="pc-icon-button primary cursor-interaction" type="button" id="pc-new-problem" aria-label="Tạo vấn đề mới" data-tooltip="Tạo vấn đề mới từ HEAD">
+          <i data-lucide="square-pen" aria-hidden="true"></i>
+        </button>
+      </div>
+    </header>
+
+    <div class="pc-body">
+      <div class="pc-source"><i data-lucide="table-2" aria-hidden="true"></i><span>Nguồn: tblSales · dữ liệu chưa thay đổi</span></div>
+      <ul class="pc-tree">
+        <li class="pc-node expanded" data-node-id="r1" data-parent-id="">
+          <div class="pc-node-row">
+            <button class="pc-toggle cursor-interaction" type="button" aria-label="Thu gọn Vấn đề 1" aria-expanded="true"><i class="pc-chevron" data-lucide="chevron-right" aria-hidden="true"></i></button>
+            <button class="pc-label cursor-interaction" type="button">
+              <span class="pc-name">Vấn đề 1</span>
+              <span class="pc-summary">Đọc dữ liệu bán hàng và chuẩn hóa kiểu cột</span>
+            </button>
+            <div class="pc-actions">
+              <button class="pc-icon-button cursor-interaction pc-branch" type="button" aria-label="Làm tiếp từ Vấn đề 1" data-tooltip="Tạo nhánh từ đây"><i data-lucide="git-fork" aria-hidden="true"></i></button>
+            </div>
+          </div>
+          <ul class="pc-children">
+            <li class="pc-node expanded" data-node-id="r2" data-parent-id="r1">
+              <div class="pc-node-row">
+                <button class="pc-toggle cursor-interaction" type="button" aria-label="Thu gọn Vấn đề 2" aria-expanded="true"><i class="pc-chevron" data-lucide="chevron-right" aria-hidden="true"></i></button>
+                <button class="pc-label cursor-interaction" type="button">
+                  <span class="pc-name">Vấn đề 2</span>
+                  <span class="pc-summary">Lọc đơn Completed và giữ các cột cần thiết</span>
+                </button>
+                <div class="pc-actions">
+                  <button class="pc-icon-button cursor-interaction pc-branch" type="button" aria-label="Làm tiếp từ Vấn đề 2" data-tooltip="Tạo nhánh từ đây"><i data-lucide="git-fork" aria-hidden="true"></i></button>
+                  <button class="pc-icon-button cursor-interaction pc-redo" type="button" aria-label="Sửa Vấn đề 2" data-tooltip="Sửa vấn đề"><i data-lucide="square-pen" aria-hidden="true"></i></button>
+                  <button class="pc-icon-button danger cursor-interaction" type="button" aria-label="Xóa Vấn đề 2" data-tooltip="Xóa vấn đề"><i data-lucide="trash-2" aria-hidden="true"></i></button>
+                </div>
+              </div>
+              <ul class="pc-children">
+                <li class="pc-node" data-node-id="r21" data-parent-id="r2">
+                  <div class="pc-node-row selected">
+                    <button class="pc-toggle no-children" type="button" aria-hidden="true" disabled><i data-lucide="circle" aria-hidden="true"></i></button>
+                    <button class="pc-label cursor-interaction" type="button">
+                      <span class="pc-name">Vấn đề 2.1 <span class="pc-badge">HEAD</span></span>
+                      <span class="pc-summary">Đổi Qty thành integer và thêm QualityFlag</span>
+                    </button>
+                    <div class="pc-actions">
+                      <button class="pc-icon-button cursor-interaction pc-branch" type="button" aria-label="Làm tiếp từ Vấn đề 2.1" data-tooltip="Tạo nhánh từ đây"><i data-lucide="git-fork" aria-hidden="true"></i></button>
+                      <button class="pc-icon-button danger cursor-interaction" type="button" aria-label="Xóa Vấn đề 2.1" data-tooltip="Xóa vấn đề"><i data-lucide="trash-2" aria-hidden="true"></i></button>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </li>
+            <li class="pc-node collapsed" data-node-id="r3" data-parent-id="r1">
+              <div class="pc-node-row">
+                <button class="pc-toggle cursor-interaction" type="button" aria-label="Mở Vấn đề 3" aria-expanded="false"><i class="pc-chevron" data-lucide="chevron-right" aria-hidden="true"></i></button>
+                <button class="pc-label cursor-interaction" type="button">
+                  <span class="pc-name">Vấn đề 3</span>
+                  <span class="pc-summary">Bản làm lại của Vấn đề 2</span>
+                </button>
+                <div class="pc-actions">
+                  <button class="pc-icon-button cursor-interaction pc-branch" type="button" aria-label="Làm tiếp từ Vấn đề 3" data-tooltip="Tạo nhánh từ đây"><i data-lucide="git-fork" aria-hidden="true"></i></button>
+                  <button class="pc-icon-button cursor-interaction pc-redo" type="button" aria-label="Sửa Vấn đề 3" data-tooltip="Sửa vấn đề"><i data-lucide="square-pen" aria-hidden="true"></i></button>
+                  <button class="pc-icon-button danger cursor-interaction" type="button" aria-label="Xóa Vấn đề 3" data-tooltip="Xóa vấn đề"><i data-lucide="trash-2" aria-hidden="true"></i></button>
+                </div>
+              </div>
+              <ul class="pc-children">
+                <li class="pc-node" data-node-id="r31" data-parent-id="r3">
+                  <div class="pc-node-row">
+                    <button class="pc-toggle no-children" type="button" aria-hidden="true" disabled><i data-lucide="circle" aria-hidden="true"></i></button>
+                    <button class="pc-label cursor-interaction" type="button">
+                      <span class="pc-name">Vấn đề 3.1</span>
+                      <span class="pc-summary">Một nhánh thay thế đang được giữ lại</span>
+                    </button>
+                    <div class="pc-actions">
+                      <button class="pc-icon-button cursor-interaction pc-branch" type="button" aria-label="Làm tiếp từ Vấn đề 3.1" data-tooltip="Tạo nhánh từ đây"><i data-lucide="git-fork" aria-hidden="true"></i></button>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </ul>
+
+      <section class="pc-composer" id="pc-new-composer" hidden>
+        <div class="pc-composer-head">
+          <div>
+            <p class="pc-mode">VẤN ĐỀ MỚI</p>
+            <p>Tạo tiếp từ HEAD hiện tại</p>
+          </div>
+          <button class="pc-icon-button cursor-interaction" id="pc-new-close" type="button" aria-label="Đóng"><i data-lucide="x" aria-hidden="true"></i></button>
+        </div>
+        <label class="sr-only" for="pc-new-prompt">Yêu cầu</label>
+        <textarea id="pc-new-prompt" placeholder="Mô tả vấn đề xử lý dữ liệu tiếp theo…"></textarea>
+        <div class="pc-composer-actions">
+          <button class="pc-button cursor-interaction" id="pc-new-cancel" type="button">Hủy</button>
+          <button class="pc-button primary cursor-interaction" id="pc-new-submit" type="button">Tạo vấn đề</button>
+        </div>
+      </section>
+      <section class="pc-branch-prompt" id="pc-branch-prompt" hidden>
+        <label class="pc-prompt-label" for="pc-branch-input">Yêu cầu mới</label>
+        <textarea id="pc-branch-input"></textarea>
+        <div class="pc-composer-actions">
+          <button class="pc-button cursor-interaction" id="pc-branch-cancel" type="button">Hủy</button>
+          <button class="pc-button primary cursor-interaction" id="pc-branch-submit" type="button">Tạo nhánh</button>
+        </div>
+      </section>
+      <p class="pc-feedback" id="pc-feedback" aria-live="polite">Chọn một vấn đề cha để mở các vấn đề con.</p>
+    </div>
+  </section>
+
+  <script>
+    (() => {
+      const root = document.getElementById("problem-chain-wireframe");
+      const newComposer = root.querySelector("#pc-new-composer");
+      const branchPrompt = root.querySelector("#pc-branch-prompt");
+      const feedback = root.querySelector("#pc-feedback");
+      const newPrompt = root.querySelector("#pc-new-prompt");
+      const branchInput = root.querySelector("#pc-branch-input");
+      const branchSubmit = root.querySelector("#pc-branch-submit");
+      const headLabel = root.querySelector("#pc-head-label");
+      let branchMode = "branch";
+      let branchTarget = null;
+
+      function nodeName(node) {
+        return node.querySelector(":scope > .pc-node-row .pc-name")?.childNodes[0]?.textContent.trim() || "revision";
+      }
+      function select(node) {
+        root.querySelectorAll(".pc-node-row.selected").forEach((row) => row.classList.remove("selected"));
+        node.querySelector(":scope > .pc-node-row").classList.add("selected");
+        root.querySelectorAll(".pc-badge").forEach((badge) => badge.remove());
+        const badge = document.createElement("span");
+        badge.className = "pc-badge";
+        badge.textContent = "HEAD";
+        node.querySelector(":scope > .pc-node-row .pc-name").appendChild(badge);
+        headLabel.textContent = `HEAD: ${nodeName(node)} · 4 revision`;
+        feedback.textContent = `${nodeName(node)} đã trở thành HEAD.`;
+      }
+      function toggle(node) {
+        const hasChildren = Boolean(node.querySelector(":scope > .pc-children"));
+        if (!hasChildren) return;
+        const willExpand = !node.classList.contains("expanded");
+        if (willExpand) {
+          const parentList = node.parentElement;
+          [...parentList.children].forEach((sibling) => {
+            if (sibling !== node && sibling.classList.contains("pc-node")) {
+              sibling.classList.remove("expanded");
+              sibling.classList.add("collapsed");
+              sibling.querySelector(":scope > .pc-node-row .pc-toggle")?.setAttribute("aria-expanded", "false");
+            }
+          });
+        }
+        node.classList.toggle("expanded", willExpand);
+        node.classList.toggle("collapsed", !willExpand);
+        node.querySelector(":scope > .pc-node-row .pc-toggle")?.setAttribute("aria-expanded", String(willExpand));
+        feedback.textContent = willExpand ? `Đã mở ${nodeName(node)} và thu gọn nhánh cha cùng cấp khác.` : `Đã thu gọn ${nodeName(node)}.`;
+      }
+      function openBranchPrompt(kind, node) {
+        select(node);
+        branchMode = kind;
+        branchTarget = node;
+        const childList = node.querySelector(":scope > .pc-children");
+        node.insertBefore(branchPrompt, childList || null);
+        branchInput.placeholder = kind === "redo"
+          ? `Nhập yêu cầu để sửa ${nodeName(node)}…`
+          : `Nhập yêu cầu nối tiếp ${nodeName(node)}…`;
+        branchSubmit.textContent = kind === "redo" ? "Tạo bản sửa" : "Tạo nhánh";
+        branchPrompt.hidden = false;
+        newComposer.hidden = true;
+        branchInput.focus();
+      }
+      function openNewProblem() {
+        branchPrompt.hidden = true;
+        newComposer.hidden = false;
+        newPrompt.focus();
+      }
+      function closeNewProblem() { newComposer.hidden = true; newPrompt.value = ""; }
+
+      root.querySelectorAll(".pc-node").forEach((node) => {
+        node.querySelector(":scope > .pc-node-row .pc-toggle")?.addEventListener("click", () => toggle(node));
+        node.querySelector(":scope > .pc-node-row .pc-label")?.addEventListener("click", () => { select(node); toggle(node); });
+        node.querySelector(":scope > .pc-node-row .pc-branch")?.addEventListener("click", () => openBranchPrompt("branch", node));
+        node.querySelector(":scope > .pc-node-row .pc-redo")?.addEventListener("click", () => openBranchPrompt("redo", node));
+      });
+      root.querySelector("#pc-new-problem").addEventListener("click", openNewProblem);
+      root.querySelector("#pc-new-close").addEventListener("click", closeNewProblem);
+      root.querySelector("#pc-new-cancel").addEventListener("click", closeNewProblem);
+      root.querySelector("#pc-new-submit").addEventListener("click", () => {
+        feedback.textContent = newPrompt.value.trim() ? "Đã mô phỏng tạo vấn đề mới từ HEAD." : "Hãy nhập yêu cầu trước khi tạo.";
+        if (newPrompt.value.trim()) closeNewProblem();
+      });
+      root.querySelector("#pc-branch-cancel").addEventListener("click", () => {
+        branchPrompt.hidden = true;
+        branchInput.value = "";
+      });
+      branchSubmit.addEventListener("click", () => {
+        const value = branchInput.value.trim();
+        feedback.textContent = value
+          ? `${branchMode === "redo" ? "Bản sửa" : "Nhánh con"} của ${nodeName(branchTarget)} đã được mô phỏng.`
+          : "Hãy nhập yêu cầu cho nhánh.";
+        if (value) {
+          branchPrompt.hidden = true;
+          branchInput.value = "";
+        }
+      });
+    })();
+  </script>
+</div>

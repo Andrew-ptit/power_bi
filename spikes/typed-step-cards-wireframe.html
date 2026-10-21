@@ -1,0 +1,301 @@
+<div id="typed-step-wireframe" class="viz-dotted-background">
+  <style>
+    #typed-step-wireframe {
+      --ts-bg: light-dark(#f3f6f4, #111816);
+      --ts-panel: light-dark(#ffffff, #18211e);
+      --ts-soft: light-dark(#f6faf8, #202b27);
+      --ts-text: light-dark(#17231f, #eef7f3);
+      --ts-muted: light-dark(#65756f, #a8bbb4);
+      --ts-border: light-dark(#dce6e1, #33443e);
+      --ts-green: light-dark(#0b7055, #70d9b6);
+      --ts-green-soft: light-dark(#e4f3ed, #173b31);
+      --ts-warning: light-dark(#8a5a00, #ffd479);
+      --ts-warning-soft: light-dark(#fff6dd, #392e16);
+      --ts-danger: light-dark(#b33d3d, #ff9b9b);
+      padding: 18px;
+      color: var(--ts-text);
+      font-family: Aptos, "Segoe UI", sans-serif;
+    }
+    #typed-step-wireframe * { box-sizing: border-box; }
+    #typed-step-wireframe .ts-pane {
+      width: min(100%, 430px);
+      margin: 0 auto;
+      border: 1px solid var(--ts-border);
+      border-radius: 18px;
+      overflow: hidden;
+      background: var(--ts-bg);
+      box-shadow: 0 12px 34px color-mix(in srgb, var(--ts-text) 10%, transparent);
+    }
+    #typed-step-wireframe .ts-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 17px 17px 14px;
+      background: var(--ts-panel);
+      border-bottom: 1px solid var(--ts-border);
+    }
+    #typed-step-wireframe h2,
+    #typed-step-wireframe p { margin: 0; }
+    #typed-step-wireframe h2 { font-size: 18px; font-weight: 500; }
+    #typed-step-wireframe .ts-kicker { color: var(--ts-green); font-size: 11px; font-weight: 500; letter-spacing: .08em; }
+    #typed-step-wireframe .ts-header-actions { display: flex; align-items: center; gap: 8px; }
+    #typed-step-wireframe .ts-status {
+      padding: 4px 8px;
+      border-radius: 999px;
+      color: var(--ts-green);
+      background: var(--ts-green-soft);
+      font-size: 11px;
+    }
+    #typed-step-wireframe .ts-icon-button {
+      width: 36px;
+      height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--ts-border);
+      border-radius: 10px;
+      color: var(--ts-muted);
+      background: var(--ts-panel);
+    }
+    #typed-step-wireframe .ts-icon-button:hover,
+    #typed-step-wireframe .ts-icon-button:focus-visible { color: var(--ts-green); border-color: var(--ts-green); background: var(--ts-green-soft); }
+    #typed-step-wireframe .ts-info-wrap { position: relative; }
+    #typed-step-wireframe .ts-alert-dot { position: absolute; right: 5px; top: 5px; width: 7px; height: 7px; border-radius: 50%; background: var(--ts-warning); }
+    #typed-step-wireframe .ts-info-panel { margin: 0 0 11px; padding: 11px; border-radius: 11px; background: var(--ts-panel); border: 1px solid var(--ts-border); }
+    #typed-step-wireframe .ts-info-panel[hidden] { display: none; }
+    #typed-step-wireframe .ts-info-line { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 8px; align-items: start; color: var(--ts-muted); font-size: 12px; }
+    #typed-step-wireframe .ts-info-line + .ts-info-line { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--ts-border); }
+    #typed-step-wireframe .ts-body { padding: 13px; }
+    #typed-step-wireframe .ts-context {
+      margin-bottom: 11px;
+      border-radius: 11px;
+      background: var(--ts-panel);
+      border: 1px solid var(--ts-border);
+      overflow: hidden;
+    }
+    #typed-step-wireframe .ts-context-button,
+    #typed-step-wireframe .ts-warning-button {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 20px minmax(0, 1fr) 20px;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 11px;
+      border: 0;
+      color: inherit;
+      background: transparent;
+      text-align: left;
+    }
+    #typed-step-wireframe .ts-context-title { display: block; font-size: 12px; color: var(--ts-muted); }
+    #typed-step-wireframe .ts-context-summary { display: block; margin-top: 2px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    #typed-step-wireframe .ts-context-detail { padding: 0 39px 11px; color: var(--ts-muted); font-size: 12px; }
+    #typed-step-wireframe .ts-context.collapsed .ts-context-detail { display: none; }
+    #typed-step-wireframe .ts-context.expanded .ts-context-chevron { transform: rotate(180deg); }
+    #typed-step-wireframe .ts-warning {
+      margin-bottom: 12px;
+      border-radius: 10px;
+      color: var(--ts-warning);
+      background: var(--ts-warning-soft);
+    }
+    #typed-step-wireframe .ts-warning-detail { padding: 0 39px 11px; font-size: 12px; }
+    #typed-step-wireframe .ts-warning.collapsed .ts-warning-detail { display: none; }
+    #typed-step-wireframe .ts-warning.expanded .ts-warning-chevron { transform: rotate(180deg); }
+    #typed-step-wireframe .ts-list { list-style: none; margin: 0; padding: 0; }
+    #typed-step-wireframe .ts-step { margin: 7px 0; border: 1px solid var(--ts-border); border-radius: 12px; background: var(--ts-panel); overflow: hidden; }
+    #typed-step-wireframe .ts-step.is-open { border-color: color-mix(in srgb, var(--ts-green) 48%, transparent); }
+    #typed-step-wireframe .ts-step-main {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 32px minmax(0, 1fr) 22px;
+      align-items: center;
+      gap: 9px;
+      padding: 11px;
+      border: 0;
+      color: inherit;
+      background: transparent;
+      text-align: left;
+    }
+    #typed-step-wireframe .ts-step-index {
+      width: 30px;
+      height: 30px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 9px;
+      color: var(--ts-green);
+      background: var(--ts-green-soft);
+      font-size: 12px;
+      font-weight: 500;
+    }
+    #typed-step-wireframe .ts-step-name { display: flex; align-items: center; gap: 7px; font-weight: 500; }
+    #typed-step-wireframe .ts-op { color: var(--ts-muted); font-size: 11px; font-weight: 400; }
+    #typed-step-wireframe .ts-final { padding: 2px 6px; border-radius: 999px; color: var(--ts-green); background: var(--ts-green-soft); font-size: 10px; }
+    #typed-step-wireframe .ts-step-summary { display: block; margin-top: 4px; color: var(--ts-muted); font-size: 12px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    #typed-step-wireframe .ts-step.is-open .ts-step-chevron { transform: rotate(180deg); }
+    #typed-step-wireframe .ts-detail { padding: 0 11px 11px 52px; }
+    #typed-step-wireframe .ts-step:not(.is-open) .ts-detail { display: none; }
+    #typed-step-wireframe .ts-facts { display: flex; flex-wrap: wrap; gap: 7px 13px; padding-top: 9px; border-top: 1px solid var(--ts-border); color: var(--ts-muted); font-size: 12px; }
+    #typed-step-wireframe .ts-fact-button { padding: 0; border: 0; color: var(--ts-green); background: transparent; text-decoration: underline; text-underline-offset: 2px; }
+    #typed-step-wireframe .ts-actions { display: flex; align-items: center; gap: 5px; margin-top: 11px; }
+    #typed-step-wireframe .ts-actions .ts-icon-button { width: 34px; height: 34px; background: var(--ts-soft); }
+    #typed-step-wireframe .ts-run {
+      width: 34px;
+      height: 34px;
+      margin-left: auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--ts-border);
+      border-radius: 9px;
+      color: var(--ts-green);
+      background: var(--ts-green-soft);
+    }
+    #typed-step-wireframe .ts-cache-dot { display: inline-block; width: 7px; height: 7px; margin-right: 5px; border-radius: 50%; background: var(--ts-muted); opacity: .55; }
+    #typed-step-wireframe .ts-menu { position: relative; }
+    #typed-step-wireframe .ts-menu-popover {
+      position: absolute;
+      left: 0;
+      top: 39px;
+      z-index: 2;
+      min-width: 150px;
+      padding: 5px;
+      border: 1px solid var(--ts-border);
+      border-radius: 10px;
+      background: var(--ts-panel);
+      box-shadow: 0 10px 24px color-mix(in srgb, var(--ts-text) 15%, transparent);
+    }
+    #typed-step-wireframe .ts-menu-popover[hidden] { display: none; }
+    #typed-step-wireframe .ts-menu-popover button { width: 100%; padding: 8px; border: 0; border-radius: 7px; color: inherit; background: transparent; text-align: left; }
+    #typed-step-wireframe .ts-menu-popover button:hover { background: var(--ts-soft); }
+    #typed-step-wireframe .ts-menu-popover .danger { color: var(--ts-danger); }
+    #typed-step-wireframe .ts-feedback { min-height: 18px; margin: 10px 3px 0; color: var(--ts-muted); font-size: 12px; }
+    @media (max-width: 390px) {
+      #typed-step-wireframe { padding: 8px; }
+      #typed-step-wireframe .ts-status { display: none; }
+      #typed-step-wireframe .ts-detail { padding-left: 11px; }
+    }
+  </style>
+
+  <section class="ts-pane" aria-label="Đề xuất giao diện các bước xử lý">
+    <header class="ts-header">
+      <div>
+        <p class="ts-kicker">02 · REVISION</p>
+        <h2>Các bước xử lý <span class="ts-op">3 bước · HEAD</span></h2>
+      </div>
+      <div class="ts-header-actions">
+        <div class="ts-info-wrap">
+          <button class="ts-icon-button cursor-interaction" id="ts-info-button" type="button" aria-label="Xem yêu cầu và lưu ý" aria-expanded="false" data-tooltip="Yêu cầu và lưu ý"><i data-lucide="info" aria-hidden="true"></i></button>
+          <span class="ts-alert-dot" aria-hidden="true"></span>
+        </div>
+        <button class="ts-icon-button cursor-interaction" type="button" aria-label="Thêm bước xử lý" data-tooltip="Thêm bước"><i data-lucide="plus" aria-hidden="true"></i></button>
+      </div>
+    </header>
+
+    <div class="ts-body">
+      <section class="ts-info-panel" id="ts-info-panel" hidden>
+        <p class="ts-info-line"><i data-lucide="message-square-text" aria-hidden="true"></i><span><strong>Yêu cầu:</strong> Loại Cancelled → chuẩn hóa ProductCode → giữ mã “SP-”.</span></p>
+        <p class="ts-info-line"><i data-lucide="triangle-alert" aria-hidden="true"></i><span>Mẫu kiểm tra có giới hạn; dữ liệu chưa xem có thể chứa mẫu khác.</span></p>
+      </section>
+
+      <ol class="ts-list">
+        <li class="ts-step" data-step="SalesSource">
+          <button class="ts-step-main cursor-interaction" type="button" aria-expanded="false">
+            <span class="ts-step-index">1</span>
+            <span><span class="ts-step-name">SalesSource <span class="ts-op">Nguồn bảng</span></span><span class="ts-step-summary">Đọc bảng bán hàng · 13 cột</span></span>
+            <i class="ts-step-chevron" data-lucide="chevron-down" aria-hidden="true"></i>
+          </button>
+          <div class="ts-detail">
+            <div class="ts-facts"><span>workbook → 13 cột</span><button class="ts-fact-button cursor-interaction" type="button">Xem cấu trúc</button><span data-tooltip="Chưa có cache"><span class="ts-cache-dot"></span>Cache</span></div>
+            <div class="ts-actions">
+              <button class="ts-icon-button cursor-interaction" type="button" aria-label="Sửa SalesSource" data-tooltip="Sửa bước"><i data-lucide="square-pen" aria-hidden="true"></i></button>
+              <div class="ts-menu">
+                <button class="ts-icon-button cursor-interaction ts-more" type="button" aria-label="Thêm thao tác cho SalesSource" data-tooltip="Thêm thao tác"><i data-lucide="ellipsis" aria-hidden="true"></i></button>
+                <div class="ts-menu-popover" hidden><button type="button">Đặt làm kết quả cuối</button><button type="button">Di chuyển xuống</button><button class="danger" type="button">Xóa bước</button></div>
+              </div>
+              <button class="ts-run cursor-interaction" type="button" aria-label="Chạy đến SalesSource" data-tooltip="Chạy đến bước này"><i data-lucide="play" aria-hidden="true"></i></button>
+            </div>
+          </div>
+        </li>
+
+        <li class="ts-step is-open" data-step="ExcludeCancelled">
+          <button class="ts-step-main cursor-interaction" type="button" aria-expanded="true">
+            <span class="ts-step-index">2</span>
+            <span><span class="ts-step-name">ExcludeCancelled <span class="ts-op">Lọc dòng</span></span><span class="ts-step-summary">Loại các đơn có Status = Cancelled</span></span>
+            <i class="ts-step-chevron" data-lucide="chevron-down" aria-hidden="true"></i>
+          </button>
+          <div class="ts-detail">
+            <div class="ts-facts"><span>Sau SalesSource · 13 cột</span><button class="ts-fact-button cursor-interaction" type="button">Xem cấu trúc</button><span data-tooltip="Chưa có cache"><span class="ts-cache-dot"></span>Cache</span></div>
+            <div class="ts-actions">
+              <button class="ts-icon-button cursor-interaction" type="button" aria-label="Sửa ExcludeCancelled" data-tooltip="Sửa bước"><i data-lucide="square-pen" aria-hidden="true"></i></button>
+              <div class="ts-menu">
+                <button class="ts-icon-button cursor-interaction ts-more" type="button" aria-label="Thêm thao tác cho ExcludeCancelled" data-tooltip="Thêm thao tác"><i data-lucide="ellipsis" aria-hidden="true"></i></button>
+                <div class="ts-menu-popover" hidden><button type="button">Đặt làm kết quả cuối</button><button type="button">Di chuyển lên</button><button type="button">Di chuyển xuống</button><button class="danger" type="button">Xóa bước</button></div>
+              </div>
+              <button class="ts-run cursor-interaction" type="button" aria-label="Chạy đến ExcludeCancelled" data-tooltip="Chạy đến bước này"><i data-lucide="play" aria-hidden="true"></i></button>
+            </div>
+          </div>
+        </li>
+
+        <li class="ts-step" data-step="KeepProductCodes">
+          <button class="ts-step-main cursor-interaction" type="button" aria-expanded="false">
+            <span class="ts-step-index">3</span>
+            <span><span class="ts-step-name">KeepProductCodes <span class="ts-final">FINAL</span></span><span class="ts-step-summary">Chỉ giữ ProductCode bắt đầu bằng “SP-”</span></span>
+            <i class="ts-step-chevron" data-lucide="chevron-down" aria-hidden="true"></i>
+          </button>
+          <div class="ts-detail">
+            <div class="ts-facts"><span>Sau ExcludeCancelled · 13 cột</span><button class="ts-fact-button cursor-interaction" type="button">Xem cấu trúc</button><span data-tooltip="Chưa có cache"><span class="ts-cache-dot"></span>Cache</span></div>
+            <div class="ts-actions">
+              <button class="ts-icon-button cursor-interaction" type="button" aria-label="Sửa KeepProductCodes" data-tooltip="Sửa bước"><i data-lucide="square-pen" aria-hidden="true"></i></button>
+              <div class="ts-menu">
+                <button class="ts-icon-button cursor-interaction ts-more" type="button" aria-label="Thêm thao tác cho KeepProductCodes" data-tooltip="Thêm thao tác"><i data-lucide="ellipsis" aria-hidden="true"></i></button>
+                <div class="ts-menu-popover" hidden><button type="button">Di chuyển lên</button><button class="danger" type="button">Xóa bước</button></div>
+              </div>
+              <button class="ts-run cursor-interaction" type="button" aria-label="Chạy đến KeepProductCodes" data-tooltip="Chạy đến bước này"><i data-lucide="play" aria-hidden="true"></i></button>
+            </div>
+          </div>
+        </li>
+      </ol>
+      <p class="ts-feedback" id="ts-feedback" aria-live="polite">Chỉ mở một bước tại một thời điểm để giảm chiều dài panel.</p>
+    </div>
+  </section>
+
+  <script>
+    (() => {
+      const root = document.getElementById("typed-step-wireframe");
+      const feedback = root.querySelector("#ts-feedback");
+      const infoButton = root.querySelector("#ts-info-button");
+      const infoPanel = root.querySelector("#ts-info-panel");
+      infoButton.addEventListener("click", () => {
+        infoPanel.hidden = !infoPanel.hidden;
+        infoButton.setAttribute("aria-expanded", String(!infoPanel.hidden));
+      });
+      root.querySelectorAll(".ts-step-main").forEach((button) => {
+        button.addEventListener("click", () => {
+          const selected = button.closest(".ts-step");
+          const willOpen = !selected.classList.contains("is-open");
+          root.querySelectorAll(".ts-step").forEach((step) => {
+            step.classList.remove("is-open");
+            step.querySelector(".ts-step-main").setAttribute("aria-expanded", "false");
+            step.querySelector(".ts-menu-popover").hidden = true;
+          });
+          if (willOpen) {
+            selected.classList.add("is-open");
+            button.setAttribute("aria-expanded", "true");
+          }
+          feedback.textContent = willOpen ? `Đang xem ${selected.dataset.step}.` : "Đã thu gọn chi tiết bước.";
+        });
+      });
+      root.querySelectorAll(".ts-more").forEach((button) => {
+        button.addEventListener("click", () => {
+          const menu = button.nextElementSibling;
+          root.querySelectorAll(".ts-menu-popover").forEach((other) => { if (other !== menu) other.hidden = true; });
+          menu.hidden = !menu.hidden;
+        });
+      });
+      root.querySelectorAll(".ts-run").forEach((button) => {
+        button.addEventListener("click", () => { feedback.textContent = `Chạy chẩn đoán đến ${button.closest(".ts-step").dataset.step}; chưa ghi PQ_Typed_Result.`; });
+      });
+    })();
+  </script>
+</div>

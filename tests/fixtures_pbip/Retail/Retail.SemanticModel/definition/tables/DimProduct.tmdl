@@ -1,0 +1,21 @@
+table DimProduct
+
+	column ProductID
+		dataType: string
+		sourceColumn: ProductID
+		summarizeBy: none
+
+	column ProductName
+		dataType: string
+		sourceColumn: ProductName
+		summarizeBy: none
+
+	column Category
+		dataType: string
+		sourceColumn: Category
+		summarizeBy: none
+
+	partition DimProduct = m
+		mode: import
+		source =
+			#table(type table [ProductID = text, ProductName = text, Category = text], {{"P-01", "Sample A", "A"}})

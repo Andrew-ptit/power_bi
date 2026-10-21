@@ -1,0 +1,2 @@
+OrderID,CustomerID,OrderDate,ProductID,Quantity,Discount,PaymentMethod,Status,Age,City,SignupDate,CustomerSegment,ProductName,Category,UnitPrice,Sales,Sales
+SYN-001,C-SYN-01,2026-09-01,P-SYN-01,2,10,Card,Completed,29,South City,2024-01-10,Retail,Sample A,A,100,180,180

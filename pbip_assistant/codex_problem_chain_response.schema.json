@@ -1,0 +1,2047 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000
+    },
+    "questions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 1000
+      },
+      "maxItems": 20
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 1000
+      },
+      "maxItems": 20
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 1000
+      },
+      "maxItems": 20
+    },
+    "changeReason": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500
+    },
+    "changes": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 50,
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/insertStepChange"
+          },
+          {
+            "$ref": "#/$defs/updateStepChange"
+          },
+          {
+            "$ref": "#/$defs/deleteStepChange"
+          },
+          {
+            "$ref": "#/$defs/moveStepChange"
+          },
+          {
+            "$ref": "#/$defs/setFinalOutputChange"
+          }
+        ]
+      }
+    }
+  },
+  "required": [
+    "summary",
+    "questions",
+    "assumptions",
+    "warnings",
+    "changeReason",
+    "changes"
+  ],
+  "$defs": {
+    "clientRef": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]{0,63}$"
+    },
+    "variableName": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Za-z0-9]{0,63}$"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500
+    },
+    "columnName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "noInputs": {
+      "type": "array",
+      "maxItems": 0,
+      "items": {
+        "$ref": "#/$defs/clientRef"
+      }
+    },
+    "oneInput": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1,
+      "items": {
+        "$ref": "#/$defs/clientRef"
+      }
+    },
+    "twoInputs": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {
+        "$ref": "#/$defs/clientRef"
+      }
+    },
+    "appendInputs": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 20,
+      "items": {
+        "$ref": "#/$defs/clientRef"
+      }
+    },
+    "sourceParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "sourceId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "sourceId"
+      ]
+    },
+    "filterParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "predicate": {
+          "$ref": "#/$defs/expression"
+        },
+        "onEvaluationError": {
+          "enum": [
+            "block",
+            "keepRow",
+            "dropRow"
+          ]
+        }
+      },
+      "required": [
+        "predicate",
+        "onEvaluationError"
+      ]
+    },
+    "columnListParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "columns": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 200,
+          "items": {
+            "$ref": "#/$defs/columnName"
+          }
+        }
+      },
+      "required": [
+        "columns"
+      ]
+    },
+    "rename": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "column": {
+          "$ref": "#/$defs/columnName"
+        },
+        "newName": {
+          "$ref": "#/$defs/columnName"
+        }
+      },
+      "required": [
+        "column",
+        "newName"
+      ]
+    },
+    "renameParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "renames": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 200,
+          "items": {
+            "$ref": "#/$defs/rename"
+          }
+        }
+      },
+      "required": [
+        "renames"
+      ]
+    },
+    "conversion": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "column": {
+          "$ref": "#/$defs/columnName"
+        },
+        "targetType": {
+          "enum": [
+            "any",
+            "text",
+            "number",
+            "integer",
+            "logical",
+            "date",
+            "datetime",
+            "datetimezone",
+            "time",
+            "duration"
+          ]
+        },
+        "culture": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 100
+        }
+      },
+      "required": [
+        "column",
+        "targetType",
+        "culture"
+      ]
+    },
+    "changeTypesParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "conversions": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 200,
+          "items": {
+            "$ref": "#/$defs/conversion"
+          }
+        }
+      },
+      "required": [
+        "conversions"
+      ]
+    },
+    "addColumnParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "newColumnName": {
+          "$ref": "#/$defs/columnName"
+        },
+        "dataType": {
+          "enum": [
+            "any",
+            "text",
+            "number",
+            "integer",
+            "logical",
+            "date",
+            "datetime",
+            "datetimezone",
+            "time",
+            "duration"
+          ]
+        },
+        "expression": {
+          "$ref": "#/$defs/expression"
+        },
+        "onEvaluationError": {
+          "enum": [
+            "block",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "newColumnName",
+        "dataType",
+        "expression",
+        "onEvaluationError"
+      ]
+    },
+    "sortKey": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "column": {
+          "$ref": "#/$defs/columnName"
+        },
+        "direction": {
+          "enum": [
+            "ascending",
+            "descending"
+          ]
+        }
+      },
+      "required": [
+        "column",
+        "direction"
+      ]
+    },
+    "sortParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "keys": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 200,
+          "items": {
+            "$ref": "#/$defs/sortKey"
+          }
+        }
+      },
+      "required": [
+        "keys"
+      ]
+    },
+    "distinctParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "scope": {
+          "enum": [
+            "all",
+            "columns"
+          ]
+        },
+        "columns": {
+          "anyOf": [
+            {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 200,
+              "items": {
+                "$ref": "#/$defs/columnName"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "scope",
+        "columns"
+      ]
+    },
+    "aggregation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "function": {
+          "enum": [
+            "rowCount",
+            "countNonNull",
+            "countDistinct",
+            "sum",
+            "average",
+            "min",
+            "max"
+          ]
+        },
+        "column": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "outputName": {
+          "$ref": "#/$defs/columnName"
+        }
+      },
+      "required": [
+        "function",
+        "column",
+        "outputName"
+      ]
+    },
+    "aggregationList": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 50,
+      "items": {
+        "$ref": "#/$defs/aggregation"
+      }
+    },
+    "groupParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "keyColumns": {
+          "type": "array",
+          "maxItems": 200,
+          "items": {
+            "$ref": "#/$defs/columnName"
+          }
+        },
+        "aggregations": {
+          "$ref": "#/$defs/aggregationList"
+        }
+      },
+      "required": [
+        "keyColumns",
+        "aggregations"
+      ]
+    },
+    "aggregateParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "aggregations": {
+          "$ref": "#/$defs/aggregationList"
+        }
+      },
+      "required": [
+        "aggregations"
+      ]
+    },
+    "appendParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaMode": {
+          "enum": [
+            "strict",
+            "union"
+          ]
+        }
+      },
+      "required": [
+        "schemaMode"
+      ]
+    },
+    "keyPair": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "leftColumn": {
+          "$ref": "#/$defs/columnName"
+        },
+        "rightColumn": {
+          "$ref": "#/$defs/columnName"
+        }
+      },
+      "required": [
+        "leftColumn",
+        "rightColumn"
+      ]
+    },
+    "mergeParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "keyPairs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 200,
+          "items": {
+            "$ref": "#/$defs/keyPair"
+          }
+        },
+        "joinKind": {
+          "enum": [
+            "inner",
+            "leftOuter",
+            "rightOuter",
+            "fullOuter",
+            "leftAnti",
+            "rightAnti"
+          ]
+        },
+        "nestedColumnName": {
+          "$ref": "#/$defs/columnName"
+        }
+      },
+      "required": [
+        "keyPairs",
+        "joinKind",
+        "nestedColumnName"
+      ]
+    },
+    "expandedColumn": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "column": {
+          "$ref": "#/$defs/columnName"
+        },
+        "newName": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1,
+          "maxLength": 200
+        }
+      },
+      "required": [
+        "column",
+        "newName"
+      ]
+    },
+    "expandParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "nestedColumn": {
+          "$ref": "#/$defs/columnName"
+        },
+        "columns": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 200,
+          "items": {
+            "$ref": "#/$defs/expandedColumn"
+          }
+        }
+      },
+      "required": [
+        "nestedColumn",
+        "columns"
+      ]
+    },
+    "literalExpression": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "literal"
+          ]
+        },
+        "valueType": {
+          "enum": [
+            "null",
+            "text",
+            "number",
+            "integer",
+            "logical",
+            "date",
+            "datetime"
+          ]
+        },
+        "value": {
+          "type": [
+            "string",
+            "number",
+            "integer",
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "valueType",
+        "value"
+      ]
+    },
+    "columnRefExpression": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "columnRef"
+          ]
+        },
+        "columnName": {
+          "$ref": "#/$defs/columnName"
+        }
+      },
+      "required": [
+        "kind",
+        "columnName"
+      ]
+    },
+    "compareExpression": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "compare"
+          ]
+        },
+        "operator": {
+          "enum": [
+            "eq",
+            "ne",
+            "gt",
+            "gte",
+            "lt",
+            "lte",
+            "contains",
+            "startsWith",
+            "endsWith",
+            "isNull",
+            "isNotNull"
+          ]
+        },
+        "left": {
+          "$ref": "#/$defs/expression"
+        },
+        "right": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/expression"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "operator",
+        "left",
+        "right"
+      ]
+    },
+    "arithmeticExpression": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "arithmetic"
+          ]
+        },
+        "operator": {
+          "enum": [
+            "add",
+            "subtract",
+            "multiply"
+          ]
+        },
+        "left": {
+          "$ref": "#/$defs/expression"
+        },
+        "right": {
+          "$ref": "#/$defs/expression"
+        }
+      },
+      "required": [
+        "kind",
+        "operator",
+        "left",
+        "right"
+      ]
+    },
+    "booleanExpression": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "boolean"
+          ]
+        },
+        "operator": {
+          "enum": [
+            "and",
+            "or"
+          ]
+        },
+        "operands": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 20,
+          "items": {
+            "$ref": "#/$defs/expression"
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "operator",
+        "operands"
+      ]
+    },
+    "notExpression": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "not"
+          ]
+        },
+        "operand": {
+          "$ref": "#/$defs/expression"
+        }
+      },
+      "required": [
+        "kind",
+        "operand"
+      ]
+    },
+    "ifThenElseExpression": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "ifThenElse"
+          ]
+        },
+        "condition": {
+          "$ref": "#/$defs/expression"
+        },
+        "then": {
+          "$ref": "#/$defs/expression"
+        },
+        "else": {
+          "$ref": "#/$defs/expression"
+        }
+      },
+      "required": [
+        "kind",
+        "condition",
+        "then",
+        "else"
+      ]
+    },
+    "coalesceExpression": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "coalesce"
+          ]
+        },
+        "values": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 20,
+          "items": {
+            "$ref": "#/$defs/expression"
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "values"
+      ]
+    },
+    "functionCallExpression": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "functionCall"
+          ]
+        },
+        "function": {
+          "enum": [
+            "text.trim",
+            "text.upper",
+            "text.lower",
+            "text.length",
+            "number.round",
+            "date.year",
+            "date.month",
+            "date.day"
+          ]
+        },
+        "args": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 2,
+          "items": {
+            "$ref": "#/$defs/expression"
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "function",
+        "args"
+      ]
+    },
+    "safeDivideExpression": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "safeDivide"
+          ]
+        },
+        "numerator": {
+          "$ref": "#/$defs/expression"
+        },
+        "denominator": {
+          "$ref": "#/$defs/expression"
+        },
+        "onZero": {
+          "enum": [
+            "error",
+            "null",
+            "zero"
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "numerator",
+        "denominator",
+        "onZero"
+      ]
+    },
+    "expression": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/literalExpression"
+        },
+        {
+          "$ref": "#/$defs/columnRefExpression"
+        },
+        {
+          "$ref": "#/$defs/compareExpression"
+        },
+        {
+          "$ref": "#/$defs/arithmeticExpression"
+        },
+        {
+          "$ref": "#/$defs/booleanExpression"
+        },
+        {
+          "$ref": "#/$defs/notExpression"
+        },
+        {
+          "$ref": "#/$defs/ifThenElseExpression"
+        },
+        {
+          "$ref": "#/$defs/coalesceExpression"
+        },
+        {
+          "$ref": "#/$defs/functionCallExpression"
+        },
+        {
+          "$ref": "#/$defs/safeDivideExpression"
+        }
+      ]
+    },
+    "sourceWorkbookTableStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "clientRef": {
+          "$ref": "#/$defs/clientRef"
+        },
+        "variableName": {
+          "$ref": "#/$defs/variableName"
+        },
+        "actionDescription": {
+          "$ref": "#/$defs/description"
+        },
+        "operationType": {
+          "enum": [
+            "source.workbookTable"
+          ]
+        },
+        "inputs": {
+          "$ref": "#/$defs/noInputs"
+        },
+        "parameters": {
+          "$ref": "#/$defs/sourceParameters"
+        }
+      },
+      "required": [
+        "clientRef",
+        "variableName",
+        "actionDescription",
+        "operationType",
+        "inputs",
+        "parameters"
+      ]
+    },
+    "sourceUsedRangeStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "clientRef": {
+          "$ref": "#/$defs/clientRef"
+        },
+        "variableName": {
+          "$ref": "#/$defs/variableName"
+        },
+        "actionDescription": {
+          "$ref": "#/$defs/description"
+        },
+        "operationType": {
+          "enum": [
+            "source.usedRange"
+          ]
+        },
+        "inputs": {
+          "$ref": "#/$defs/noInputs"
+        },
+        "parameters": {
+          "$ref": "#/$defs/sourceParameters"
+        }
+      },
+      "required": [
+        "clientRef",
+        "variableName",
+        "actionDescription",
+        "operationType",
+        "inputs",
+        "parameters"
+      ]
+    },
+    "filterRowsStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "clientRef": {
+          "$ref": "#/$defs/clientRef"
+        },
+        "variableName": {
+          "$ref": "#/$defs/variableName"
+        },
+        "actionDescription": {
+          "$ref": "#/$defs/description"
+        },
+        "operationType": {
+          "enum": [
+            "table.filterRows"
+          ]
+        },
+        "inputs": {
+          "$ref": "#/$defs/oneInput"
+        },
+        "parameters": {
+          "$ref": "#/$defs/filterParameters"
+        }
+      },
+      "required": [
+        "clientRef",
+        "variableName",
+        "actionDescription",
+        "operationType",
+        "inputs",
+        "parameters"
+      ]
+    },
+    "selectColumnsStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "clientRef": {
+          "$ref": "#/$defs/clientRef"
+        },
+        "variableName": {
+          "$ref": "#/$defs/variableName"
+        },
+        "actionDescription": {
+          "$ref": "#/$defs/description"
+        },
+        "operationType": {
+          "enum": [
+            "table.selectColumns"
+          ]
+        },
+        "inputs": {
+          "$ref": "#/$defs/oneInput"
+        },
+        "parameters": {
+          "$ref": "#/$defs/columnListParameters"
+        }
+      },
+      "required": [
+        "clientRef",
+        "variableName",
+        "actionDescription",
+        "operationType",
+        "inputs",
+        "parameters"
+      ]
+    },
+    "removeColumnsStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "clientRef": {
+          "$ref": "#/$defs/clientRef"
+        },
+        "variableName": {
+          "$ref": "#/$defs/variableName"
+        },
+        "actionDescription": {
+          "$ref": "#/$defs/description"
+        },
+        "operationType": {
+          "enum": [
+            "table.removeColumns"
+          ]
+        },
+        "inputs": {
+          "$ref": "#/$defs/oneInput"
+        },
+        "parameters": {
+          "$ref": "#/$defs/columnListParameters"
+        }
+      },
+      "required": [
+        "clientRef",
+        "variableName",
+        "actionDescription",
+        "operationType",
+        "inputs",
+        "parameters"
+      ]
+    },
+    "renameColumnsStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "clientRef": {
+          "$ref": "#/$defs/clientRef"
+        },
+        "variableName": {
+          "$ref": "#/$defs/variableName"
+        },
+        "actionDescription": {
+          "$ref": "#/$defs/description"
+        },
+        "operationType": {
+          "enum": [
+            "table.renameColumns"
+          ]
+        },
+        "inputs": {
+          "$ref": "#/$defs/oneInput"
+        },
+        "parameters": {
+          "$ref": "#/$defs/renameParameters"
+        }
+      },
+      "required": [
+        "clientRef",
+        "variableName",
+        "actionDescription",
+        "operationType",
+        "inputs",
+        "parameters"
+      ]
+    },
+    "changeTypesStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "clientRef": {
+          "$ref": "#/$defs/clientRef"
+        },
+        "variableName": {
+          "$ref": "#/$defs/variableName"
+        },
+        "actionDescription": {
+          "$ref": "#/$defs/description"
+        },
+        "operationType": {
+          "enum": [
+            "table.changeTypes"
+          ]
+        },
+        "inputs": {
+          "$ref": "#/$defs/oneInput"
+        },
+        "parameters": {
+          "$ref": "#/$defs/changeTypesParameters"
+        }
+      },
+      "required": [
+        "clientRef",
+        "variableName",
+        "actionDescription",
+        "operationType",
+        "inputs",
+        "parameters"
+      ]
+    },
+    "addColumnStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "clientRef": {
+          "$ref": "#/$defs/clientRef"
+        },
+        "variableName": {
+          "$ref": "#/$defs/variableName"
+        },
+        "actionDescription": {
+          "$ref": "#/$defs/description"
+        },
+        "operationType": {
+          "enum": [
+            "table.addColumn"
+          ]
+        },
+        "inputs": {
+          "$ref": "#/$defs/oneInput"
+        },
+        "parameters": {
+          "$ref": "#/$defs/addColumnParameters"
+        }
+      },
+      "required": [
+        "clientRef",
+        "variableName",
+        "actionDescription",
+        "operationType",
+        "inputs",
+        "parameters"
+      ]
+    },
+    "sortRowsStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "clientRef": {
+          "$ref": "#/$defs/clientRef"
+        },
+        "variableName": {
+          "$ref": "#/$defs/variableName"
+        },
+        "actionDescription": {
+          "$ref": "#/$defs/description"
+        },
+        "operationType": {
+          "enum": [
+            "table.sortRows"
+          ]
+        },
+        "inputs": {
+          "$ref": "#/$defs/oneInput"
+        },
+        "parameters": {
+          "$ref": "#/$defs/sortParameters"
+        }
+      },
+      "required": [
+        "clientRef",
+        "variableName",
+        "actionDescription",
+        "operationType",
+        "inputs",
+        "parameters"
+      ]
+    },
+    "distinctRowsStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "clientRef": {
+          "$ref": "#/$defs/clientRef"
+        },
+        "variableName": {
+          "$ref": "#/$defs/variableName"
+        },
+        "actionDescription": {
+          "$ref": "#/$defs/description"
+        },
+        "operationType": {
+          "enum": [
+            "table.distinctRows"
+          ]
+        },
+        "inputs": {
+          "$ref": "#/$defs/oneInput"
+        },
+        "parameters": {
+          "$ref": "#/$defs/distinctParameters"
+        }
+      },
+      "required": [
+        "clientRef",
+        "variableName",
+        "actionDescription",
+        "operationType",
+        "inputs",
+        "parameters"
+      ]
+    },
+    "groupRowsStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "clientRef": {
+          "$ref": "#/$defs/clientRef"
+        },
+        "variableName": {
+          "$ref": "#/$defs/variableName"
+        },
+        "actionDescription": {
+          "$ref": "#/$defs/description"
+        },
+        "operationType": {
+          "enum": [
+            "table.groupRows"
+          ]
+        },
+        "inputs": {
+          "$ref": "#/$defs/oneInput"
+        },
+        "parameters": {
+          "$ref": "#/$defs/groupParameters"
+        }
+      },
+      "required": [
+        "clientRef",
+        "variableName",
+        "actionDescription",
+        "operationType",
+        "inputs",
+        "parameters"
+      ]
+    },
+    "aggregateRowsStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "clientRef": {
+          "$ref": "#/$defs/clientRef"
+        },
+        "variableName": {
+          "$ref": "#/$defs/variableName"
+        },
+        "actionDescription": {
+          "$ref": "#/$defs/description"
+        },
+        "operationType": {
+          "enum": [
+            "table.aggregateRows"
+          ]
+        },
+        "inputs": {
+          "$ref": "#/$defs/oneInput"
+        },
+        "parameters": {
+          "$ref": "#/$defs/aggregateParameters"
+        }
+      },
+      "required": [
+        "clientRef",
+        "variableName",
+        "actionDescription",
+        "operationType",
+        "inputs",
+        "parameters"
+      ]
+    },
+    "appendTablesStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "clientRef": {
+          "$ref": "#/$defs/clientRef"
+        },
+        "variableName": {
+          "$ref": "#/$defs/variableName"
+        },
+        "actionDescription": {
+          "$ref": "#/$defs/description"
+        },
+        "operationType": {
+          "enum": [
+            "table.appendTables"
+          ]
+        },
+        "inputs": {
+          "$ref": "#/$defs/appendInputs"
+        },
+        "parameters": {
+          "$ref": "#/$defs/appendParameters"
+        }
+      },
+      "required": [
+        "clientRef",
+        "variableName",
+        "actionDescription",
+        "operationType",
+        "inputs",
+        "parameters"
+      ]
+    },
+    "mergeTablesStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "clientRef": {
+          "$ref": "#/$defs/clientRef"
+        },
+        "variableName": {
+          "$ref": "#/$defs/variableName"
+        },
+        "actionDescription": {
+          "$ref": "#/$defs/description"
+        },
+        "operationType": {
+          "enum": [
+            "table.mergeTables"
+          ]
+        },
+        "inputs": {
+          "$ref": "#/$defs/twoInputs"
+        },
+        "parameters": {
+          "$ref": "#/$defs/mergeParameters"
+        }
+      },
+      "required": [
+        "clientRef",
+        "variableName",
+        "actionDescription",
+        "operationType",
+        "inputs",
+        "parameters"
+      ]
+    },
+    "expandTableColumnStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "clientRef": {
+          "$ref": "#/$defs/clientRef"
+        },
+        "variableName": {
+          "$ref": "#/$defs/variableName"
+        },
+        "actionDescription": {
+          "$ref": "#/$defs/description"
+        },
+        "operationType": {
+          "enum": [
+            "table.expandTableColumn"
+          ]
+        },
+        "inputs": {
+          "$ref": "#/$defs/oneInput"
+        },
+        "parameters": {
+          "$ref": "#/$defs/expandParameters"
+        }
+      },
+      "required": [
+        "clientRef",
+        "variableName",
+        "actionDescription",
+        "operationType",
+        "inputs",
+        "parameters"
+      ]
+    },
+    "stepReference": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^(?:stp_[0-9a-f]{24}|[a-z][a-z0-9_]{0,63})$"
+    },
+    "insertStepDraft": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/sourceWorkbookTableStep"
+        },
+        {
+          "$ref": "#/$defs/sourceUsedRangeStep"
+        },
+        {
+          "$ref": "#/$defs/filterRowsStep"
+        },
+        {
+          "$ref": "#/$defs/selectColumnsStep"
+        },
+        {
+          "$ref": "#/$defs/removeColumnsStep"
+        },
+        {
+          "$ref": "#/$defs/renameColumnsStep"
+        },
+        {
+          "$ref": "#/$defs/changeTypesStep"
+        },
+        {
+          "$ref": "#/$defs/addColumnStep"
+        },
+        {
+          "$ref": "#/$defs/sortRowsStep"
+        },
+        {
+          "$ref": "#/$defs/distinctRowsStep"
+        },
+        {
+          "$ref": "#/$defs/groupRowsStep"
+        },
+        {
+          "$ref": "#/$defs/aggregateRowsStep"
+        },
+        {
+          "$ref": "#/$defs/appendTablesStep"
+        },
+        {
+          "$ref": "#/$defs/mergeTablesStep"
+        },
+        {
+          "$ref": "#/$defs/expandTableColumnStep"
+        }
+      ]
+    },
+    "updateSourceWorkbookTableStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "variableName": {
+          "$ref": "#/$defs/variableName"
+        },
+        "actionDescription": {
+          "$ref": "#/$defs/description"
+        },
+        "operationType": {
+          "enum": [
+            "source.workbookTable"
+          ]
+        },
+        "inputs": {
+          "$ref": "#/$defs/noInputs"
+        },
+        "parameters": {
+          "$ref": "#/$defs/sourceParameters"
+        }
+      },
+      "required": [
+        "variableName",
+        "actionDescription",
+        "operationType",
+        "inputs",
+        "parameters"
+      ]
+    },
+    "updateSourceUsedRangeStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "variableName": {
+          "$ref": "#/$defs/variableName"
+        },
+        "actionDescription": {
+          "$ref": "#/$defs/description"
+        },
+        "operationType": {
+          "enum": [
+            "source.usedRange"
+          ]
+        },
+        "inputs": {
+          "$ref": "#/$defs/noInputs"
+        },
+        "parameters": {
+          "$ref": "#/$defs/sourceParameters"
+        }
+      },
+      "required": [
+        "variableName",
+        "actionDescription",
+        "operationType",
+        "inputs",
+        "parameters"
+      ]
+    },
+    "updateFilterRowsStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "variableName": {
+          "$ref": "#/$defs/variableName"
+        },
+        "actionDescription": {
+          "$ref": "#/$defs/description"
+        },
+        "operationType": {
+          "enum": [
+            "table.filterRows"
+          ]
+        },
+        "inputs": {
+          "$ref": "#/$defs/oneInput"
+        },
+        "parameters": {
+          "$ref": "#/$defs/filterParameters"
+        }
+      },
+      "required": [
+        "variableName",
+        "actionDescription",
+        "operationType",
+        "inputs",
+        "parameters"
+      ]
+    },
+    "updateSelectColumnsStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "variableName": {
+          "$ref": "#/$defs/variableName"
+        },
+        "actionDescription": {
+          "$ref": "#/$defs/description"
+        },
+        "operationType": {
+          "enum": [
+            "table.selectColumns"
+          ]
+        },
+        "inputs": {
+          "$ref": "#/$defs/oneInput"
+        },
+        "parameters": {
+          "$ref": "#/$defs/columnListParameters"
+        }
+      },
+      "required": [
+        "variableName",
+        "actionDescription",
+        "operationType",
+        "inputs",
+        "parameters"
+      ]
+    },
+    "updateRemoveColumnsStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "variableName": {
+          "$ref": "#/$defs/variableName"
+        },
+        "actionDescription": {
+          "$ref": "#/$defs/description"
+        },
+        "operationType": {
+          "enum": [
+            "table.removeColumns"
+          ]
+        },
+        "inputs": {
+          "$ref": "#/$defs/oneInput"
+        },
+        "parameters": {
+          "$ref": "#/$defs/columnListParameters"
+        }
+      },
+      "required": [
+        "variableName",
+        "actionDescription",
+        "operationType",
+        "inputs",
+        "parameters"
+      ]
+    },
+    "updateRenameColumnsStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "variableName": {
+          "$ref": "#/$defs/variableName"
+        },
+        "actionDescription": {
+          "$ref": "#/$defs/description"
+        },
+        "operationType": {
+          "enum": [
+            "table.renameColumns"
+          ]
+        },
+        "inputs": {
+          "$ref": "#/$defs/oneInput"
+        },
+        "parameters": {
+          "$ref": "#/$defs/renameParameters"
+        }
+      },
+      "required": [
+        "variableName",
+        "actionDescription",
+        "operationType",
+        "inputs",
+        "parameters"
+      ]
+    },
+    "updateChangeTypesStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "variableName": {
+          "$ref": "#/$defs/variableName"
+        },
+        "actionDescription": {
+          "$ref": "#/$defs/description"
+        },
+        "operationType": {
+          "enum": [
+            "table.changeTypes"
+          ]
+        },
+        "inputs": {
+          "$ref": "#/$defs/oneInput"
+        },
+        "parameters": {
+          "$ref": "#/$defs/changeTypesParameters"
+        }
+      },
+      "required": [
+        "variableName",
+        "actionDescription",
+        "operationType",
+        "inputs",
+        "parameters"
+      ]
+    },
+    "updateAddColumnStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "variableName": {
+          "$ref": "#/$defs/variableName"
+        },
+        "actionDescription": {
+          "$ref": "#/$defs/description"
+        },
+        "operationType": {
+          "enum": [
+            "table.addColumn"
+          ]
+        },
+        "inputs": {
+          "$ref": "#/$defs/oneInput"
+        },
+        "parameters": {
+          "$ref": "#/$defs/addColumnParameters"
+        }
+      },
+      "required": [
+        "variableName",
+        "actionDescription",
+        "operationType",
+        "inputs",
+        "parameters"
+      ]
+    },
+    "updateSortRowsStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "variableName": {
+          "$ref": "#/$defs/variableName"
+        },
+        "actionDescription": {
+          "$ref": "#/$defs/description"
+        },
+        "operationType": {
+          "enum": [
+            "table.sortRows"
+          ]
+        },
+        "inputs": {
+          "$ref": "#/$defs/oneInput"
+        },
+        "parameters": {
+          "$ref": "#/$defs/sortParameters"
+        }
+      },
+      "required": [
+        "variableName",
+        "actionDescription",
+        "operationType",
+        "inputs",
+        "parameters"
+      ]
+    },
+    "updateDistinctRowsStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "variableName": {
+          "$ref": "#/$defs/variableName"
+        },
+        "actionDescription": {
+          "$ref": "#/$defs/description"
+        },
+        "operationType": {
+          "enum": [
+            "table.distinctRows"
+          ]
+        },
+        "inputs": {
+          "$ref": "#/$defs/oneInput"
+        },
+        "parameters": {
+          "$ref": "#/$defs/distinctParameters"
+        }
+      },
+      "required": [
+        "variableName",
+        "actionDescription",
+        "operationType",
+        "inputs",
+        "parameters"
+      ]
+    },
+    "updateGroupRowsStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "variableName": {
+          "$ref": "#/$defs/variableName"
+        },
+        "actionDescription": {
+          "$ref": "#/$defs/description"
+        },
+        "operationType": {
+          "enum": [
+            "table.groupRows"
+          ]
+        },
+        "inputs": {
+          "$ref": "#/$defs/oneInput"
+        },
+        "parameters": {
+          "$ref": "#/$defs/groupParameters"
+        }
+      },
+      "required": [
+        "variableName",
+        "actionDescription",
+        "operationType",
+        "inputs",
+        "parameters"
+      ]
+    },
+    "updateAggregateRowsStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "variableName": {
+          "$ref": "#/$defs/variableName"
+        },
+        "actionDescription": {
+          "$ref": "#/$defs/description"
+        },
+        "operationType": {
+          "enum": [
+            "table.aggregateRows"
+          ]
+        },
+        "inputs": {
+          "$ref": "#/$defs/oneInput"
+        },
+        "parameters": {
+          "$ref": "#/$defs/aggregateParameters"
+        }
+      },
+      "required": [
+        "variableName",
+        "actionDescription",
+        "operationType",
+        "inputs",
+        "parameters"
+      ]
+    },
+    "updateAppendTablesStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "variableName": {
+          "$ref": "#/$defs/variableName"
+        },
+        "actionDescription": {
+          "$ref": "#/$defs/description"
+        },
+        "operationType": {
+          "enum": [
+            "table.appendTables"
+          ]
+        },
+        "inputs": {
+          "$ref": "#/$defs/appendInputs"
+        },
+        "parameters": {
+          "$ref": "#/$defs/appendParameters"
+        }
+      },
+      "required": [
+        "variableName",
+        "actionDescription",
+        "operationType",
+        "inputs",
+        "parameters"
+      ]
+    },
+    "updateMergeTablesStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "variableName": {
+          "$ref": "#/$defs/variableName"
+        },
+        "actionDescription": {
+          "$ref": "#/$defs/description"
+        },
+        "operationType": {
+          "enum": [
+            "table.mergeTables"
+          ]
+        },
+        "inputs": {
+          "$ref": "#/$defs/twoInputs"
+        },
+        "parameters": {
+          "$ref": "#/$defs/mergeParameters"
+        }
+      },
+      "required": [
+        "variableName",
+        "actionDescription",
+        "operationType",
+        "inputs",
+        "parameters"
+      ]
+    },
+    "updateExpandTableColumnStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "variableName": {
+          "$ref": "#/$defs/variableName"
+        },
+        "actionDescription": {
+          "$ref": "#/$defs/description"
+        },
+        "operationType": {
+          "enum": [
+            "table.expandTableColumn"
+          ]
+        },
+        "inputs": {
+          "$ref": "#/$defs/oneInput"
+        },
+        "parameters": {
+          "$ref": "#/$defs/expandParameters"
+        }
+      },
+      "required": [
+        "variableName",
+        "actionDescription",
+        "operationType",
+        "inputs",
+        "parameters"
+      ]
+    },
+    "updateStepDraft": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/updateSourceWorkbookTableStep"
+        },
+        {
+          "$ref": "#/$defs/updateSourceUsedRangeStep"
+        },
+        {
+          "$ref": "#/$defs/updateFilterRowsStep"
+        },
+        {
+          "$ref": "#/$defs/updateSelectColumnsStep"
+        },
+        {
+          "$ref": "#/$defs/updateRemoveColumnsStep"
+        },
+        {
+          "$ref": "#/$defs/updateRenameColumnsStep"
+        },
+        {
+          "$ref": "#/$defs/updateChangeTypesStep"
+        },
+        {
+          "$ref": "#/$defs/updateAddColumnStep"
+        },
+        {
+          "$ref": "#/$defs/updateSortRowsStep"
+        },
+        {
+          "$ref": "#/$defs/updateDistinctRowsStep"
+        },
+        {
+          "$ref": "#/$defs/updateGroupRowsStep"
+        },
+        {
+          "$ref": "#/$defs/updateAggregateRowsStep"
+        },
+        {
+          "$ref": "#/$defs/updateAppendTablesStep"
+        },
+        {
+          "$ref": "#/$defs/updateMergeTablesStep"
+        },
+        {
+          "$ref": "#/$defs/updateExpandTableColumnStep"
+        }
+      ]
+    },
+    "insertStepChange": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "insertStep"
+          ]
+        },
+        "afterStepId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "stepDraft": {
+          "$ref": "#/$defs/insertStepDraft"
+        }
+      },
+      "required": [
+        "type",
+        "afterStepId",
+        "stepDraft"
+      ]
+    },
+    "updateStepChange": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "updateStep"
+          ]
+        },
+        "stepId": {
+          "$ref": "#/$defs/stepReference"
+        },
+        "stepDraft": {
+          "$ref": "#/$defs/updateStepDraft"
+        }
+      },
+      "required": [
+        "type",
+        "stepId",
+        "stepDraft"
+      ]
+    },
+    "deleteStepChange": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "deleteStep"
+          ]
+        },
+        "stepId": {
+          "$ref": "#/$defs/stepReference"
+        }
+      },
+      "required": [
+        "type",
+        "stepId"
+      ]
+    },
+    "moveStepChange": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "moveStep"
+          ]
+        },
+        "stepId": {
+          "$ref": "#/$defs/stepReference"
+        },
+        "position": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 50
+        }
+      },
+      "required": [
+        "type",
+        "stepId",
+        "position"
+      ]
+    },
+    "setFinalOutputChange": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "setFinalOutput"
+          ]
+        },
+        "stepId": {
+          "$ref": "#/$defs/stepReference"
+        }
+      },
+      "required": [
+        "type",
+        "stepId"
+      ]
+    }
+  }
+}

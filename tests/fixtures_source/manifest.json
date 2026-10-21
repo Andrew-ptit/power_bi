@@ -1,0 +1,193 @@
+{
+  "files": {
+    "calendar_synthetic.csv": {
+      "bytes": 150,
+      "expected": {
+        "records": 7,
+        "result": "accept"
+      },
+      "sha256": "9d185ae2a52cfd00f5aa56499664390d530cbf45f02da18e5a6224c5c3bc6f81"
+    },
+    "customers_synthetic.csv": {
+      "bytes": 148,
+      "expected": {
+        "records": 4,
+        "result": "accept"
+      },
+      "sha256": "17fc5e25ad5ef686c522cc1681950b75ec81a328a84f69bb6f8d310324f49703"
+    },
+    "orders_ambiguous_discount.csv": {
+      "bytes": 391,
+      "expected": {
+        "delimiter": ";",
+        "records": 2,
+        "result": "needs_clarification",
+        "values": [
+          "10",
+          "0,10"
+        ]
+      },
+      "sha256": "5edbcb78389cae7d226ccf83b4e3454cbd52d3e7b0e19e27a04f94986e4a5dcd"
+    },
+    "orders_duplicate_header.csv": {
+      "bytes": 271,
+      "expected": {
+        "duplicate": [
+          "Sales"
+        ],
+        "result": "header_error"
+      },
+      "sha256": "dfd46fe0ea67d527653e938e7a3070696dc6f942e9760d4bbe6bfc5ee9d71ba0"
+    },
+    "orders_formula_no_cache.xlsx": {
+      "bytes": 9608,
+      "expected": {
+        "formula_cell": "P2",
+        "records": 6,
+        "result": "formula_cache_warning"
+      },
+      "sha256": "d1ca3f18657cb59b827f5314319465646e65fcce2fa16d48b801ebbfbbf9f896"
+    },
+    "orders_header_only.csv": {
+      "bytes": 163,
+      "expected": {
+        "records": 0,
+        "result": "accept"
+      },
+      "sha256": "07acf74c81d4dd9cdeee90a789b213e35e5d92211e2c5687ff00456ca2c14381"
+    },
+    "orders_invalid_utf8.csv": {
+      "bytes": 278,
+      "expected": {
+        "encoding": "utf-8",
+        "result": "encoding_error"
+      },
+      "sha256": "20e32fac0549b607bdf5ba46cd3e746dc2967dfe5ee598880a0b1a013a162d30"
+    },
+    "orders_quoted_multiline.csv": {
+      "bytes": 399,
+      "expected": {
+        "physical_lines": 4,
+        "records": 2,
+        "result": "accept"
+      },
+      "sha256": "3b90ff348a20a526922dc73ad4fb313b8ec6ca206676f582b860ccc7b3bfc353"
+    },
+    "orders_schema_drift.csv": {
+      "bytes": 277,
+      "expected": {
+        "added": [
+          "DiscountPct",
+          "Region"
+        ],
+        "missing": [
+          "Discount",
+          "OrderValue"
+        ],
+        "records": 1,
+        "result": "schema_drift"
+      },
+      "sha256": "daf6ad130e70563d8d49e7ceddf584eb8728128790af79c832e60eaaeb49ef99"
+    },
+    "orders_semicolon.csv": {
+      "bytes": 852,
+      "expected": {
+        "delimiter": ";",
+        "encoding": "utf-8",
+        "records": 6,
+        "result": "accept_with_warnings"
+      },
+      "sha256": "8285f60576b7a821f596af44c91fcfaab68021829b550423fcdb66285dbcbfa7"
+    },
+    "orders_short_row.csv": {
+      "bytes": 272,
+      "expected": {
+        "actual_columns": 16,
+        "bad_record": 2,
+        "expected_columns": 17,
+        "records": 1,
+        "result": "row_error"
+      },
+      "sha256": "3e2410973ac3a8afb81f51bcbb7a4fb36f24f3bb4d7b294adcf945599d691fde"
+    },
+    "orders_synthetic.csv": {
+      "bytes": 854,
+      "expected": {
+        "notes": [
+          "OrderDate includes ISO and DD/MM/YYYY; date interpretation requires review",
+          "Sales is a sample source field, not confirmed Net Sales"
+        ],
+        "nulls": {
+          "Age": 1,
+          "City": 1
+        },
+        "orphan_product_ids": [
+          "P-SYN-ORPHAN"
+        ],
+        "quantity_total": 6,
+        "records": 6,
+        "result": "accept_with_warnings",
+        "sales_total": "422.5",
+        "statuses": {
+          "Cancelled": 1,
+          "Completed": 4,
+          "Returned": 1
+        }
+      },
+      "sha256": "74b160346056112ac219bda243d5117f2b6eac58eea0ccd6ab6489de6bdc7df1"
+    },
+    "orders_synthetic.xlsx": {
+      "bytes": 9614,
+      "expected": {
+        "date_style_index": 1,
+        "formula_cached_value": "180",
+        "formula_cell": "P2",
+        "records": 6,
+        "result": "accept_with_warnings",
+        "table": "OrdersTable",
+        "table_ref": "A1:Q7"
+      },
+      "sha256": "c8efef25fb6c40baf1628e870a09bcfb4529ca434d6416c0991ea695e1dcc9ec"
+    },
+    "orders_utf8_bom.csv": {
+      "bytes": 857,
+      "expected": {
+        "delimiter": ",",
+        "encoding": "utf-8-sig",
+        "records": 6,
+        "result": "accept_with_warnings"
+      },
+      "sha256": "de35c9fdeca5d06a0697516b749d66a7d113838f9a2e5b5b8efb08f2436d145f"
+    },
+    "orders_wide_row.csv": {
+      "bytes": 282,
+      "expected": {
+        "actual_columns": 18,
+        "bad_record": 2,
+        "expected_columns": 17,
+        "records": 1,
+        "result": "row_error"
+      },
+      "sha256": "2222441b3dee327b1dc6bccf1c50d9da4d51c75a1a0288f1275baac19a9e8b02"
+    },
+    "products_synthetic.csv": {
+      "bytes": 124,
+      "expected": {
+        "records": 3,
+        "result": "accept"
+      },
+      "sha256": "7f561ffb2c0a13cdb7a14a9ab07785e5e6ff5eea3399b01c5178aa0bae100ee9"
+    }
+  },
+  "fixture_set": "W-02-source-v1",
+  "limitations": [
+    "Synthetic fixture only; no Power BI Desktop/runtime validation.",
+    "Expected totals describe source values, not a validated business KPI."
+  ],
+  "provenance": {
+    "header_sha256": "0b75ff896fbb168c0d49f969d22289b4e6ddf4d9ed6f221cde9d96bc8b21d4fd",
+    "schema_source": "clean_final_data.csv header names only",
+    "source_rows_used": 0,
+    "synthetic_records": true
+  }
+}

@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Local Data Profiler</title>
+  <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Bỏ qua điều hướng</a>
+  <div class="app-shell">
+    <aside class="plugin-panel" aria-label="Điều hướng quy trình">
+      <div>
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">DP</div>
+          <div>
+            <strong>Data Profiler</strong>
+            <span>Local workspace</span>
+          </div>
+        </div>
+        <div class="privacy-chip"><span></span> Chỉ chạy trên máy này</div>
+      </div>
+
+      <nav class="step-list" aria-label="Các bước xử lý">
+        <button class="step active" data-view="sources" type="button">
+          <span class="step-number">01</span>
+          <span><strong>Nguồn dữ liệu</strong><small>Chọn XLSX hoặc CSV</small></span>
+        </button>
+        <button class="step" data-view="profile" type="button" disabled>
+          <span class="step-number">02</span>
+          <span><strong>Data profile</strong><small>Preview và chất lượng</small></span>
+        </button>
+        <div class="step locked" aria-disabled="true">
+          <span class="step-number">03</span>
+          <span><strong>Mapping & AI</strong><small>Chưa triển khai</small></span>
+        </div>
+      </nav>
+
+      <div class="panel-footer">
+        <div class="scope-row"><span>Excel / CSV</span><strong>Sẵn sàng</strong></div>
+        <div class="scope-row"><span>Power BI</span><strong>Chưa chạy</strong></div>
+        <div class="scope-row"><span>AI</span><strong>Chưa chạy</strong></div>
+        <p>Nguồn gốc không bị chỉnh sửa. File upload là bản sao tạm và được xóa khi dừng server.</p>
+      </div>
+    </aside>
+
+    <main id="main-content">
+      <header class="topbar">
+        <div>
+          <span class="eyebrow">RAW DATA · READ ONLY</span>
+          <h1 id="page-title">Kiểm tra dữ liệu trước khi phân tích.</h1>
+        </div>
+        <div class="server-status" id="server-status"><span></span> Đang kết nối</div>
+      </header>
+
+      <section id="sources-view" class="view">
+        <div class="intro-grid">
+          <div>
+            <h2>Từ file thô đến dữ liệu có thể tin cậy.</h2>
+            <p>Kéo thả nhiều workbook hoặc CSV. Hệ thống đọc cấu trúc, kiểu dữ liệu, null, trùng lặp và lỗi từng dòng — không ghi ngược vào file nguồn.</p>
+          </div>
+          <div class="boundary-note">
+            <span class="note-icon">i</span>
+            <div><strong>Phạm vi bản thử này</strong><p>Chỉ nhập và profile dữ liệu. Không gọi AI, không tạo DAX và không cần Power BI.</p></div>
+          </div>
+        </div>
+
+        <div id="drop-zone" class="drop-zone" role="button" tabindex="0" aria-describedby="drop-help">
+          <input id="file-input" type="file" accept=".xlsx,.csv" multiple hidden>
+          <div class="upload-icon" aria-hidden="true">↥</div>
+          <h3>Thả file vào đây</h3>
+          <p id="drop-help">Hỗ trợ <strong>.xlsx</strong> và <strong>.csv</strong>, tối đa 64 MiB mỗi file</p>
+          <button id="browse-button" class="secondary-button" type="button">Chọn file từ máy</button>
+        </div>
+
+        <div class="section-heading">
+          <div><span class="eyebrow">FILES</span><h3>Danh sách nguồn</h3></div>
+          <button id="clear-button" class="text-button" type="button" disabled>Xóa tất cả</button>
+        </div>
+        <div id="empty-files" class="empty-state">
+          <div aria-hidden="true">▤</div>
+          <strong>Chưa có nguồn dữ liệu</strong>
+          <p>Thêm ít nhất một file để bắt đầu profile.</p>
+        </div>
+        <div id="file-list" class="file-list" aria-live="polite"></div>
+
+        <div class="action-bar">
+          <div><strong>Preview giới hạn 20 dòng</strong><span>Giá trị chỉ hiển thị trong trình duyệt local.</span></div>
+          <button id="analyze-button" class="primary-button" type="button" disabled>
+            <span>Phân tích dữ liệu</span><span aria-hidden="true">→</span>
+          </button>
+        </div>
+      </section>
+
+      <section id="profile-view" class="view" hidden>
+        <div class="result-heading">
+          <div><span class="eyebrow">STATIC PROFILE</span><h2>Kết quả kiểm tra dữ liệu</h2><p id="result-description">Kết quả đọc tĩnh, chưa phải kết luận nghiệp vụ.</p></div>
+          <button id="back-button" class="secondary-button" type="button">← Thay đổi nguồn</button>
+        </div>
+
+        <div id="blocking-banner" class="message-banner error" hidden></div>
+        <div id="warning-banner" class="message-banner warning" hidden></div>
+
+        <div class="metric-grid" id="metric-grid"></div>
+
+        <div class="results-layout">
+          <aside class="dataset-list">
+            <span class="eyebrow">DATASETS</span>
+            <div id="dataset-buttons"></div>
+          </aside>
+          <div class="result-card">
+            <div class="dataset-header">
+              <div><span id="dataset-kind" class="file-type">XLSX</span><h3 id="dataset-name">—</h3><p id="dataset-meta">—</p></div>
+              <span id="mapping-badge" class="status-badge">—</span>
+            </div>
+            <div class="tab-list" role="tablist" aria-label="Chi tiết profile">
+              <button class="tab active" data-tab="preview" role="tab" type="button">Dữ liệu mẫu</button>
+              <button class="tab" data-tab="columns" role="tab" type="button">Cột</button>
+              <button class="tab" data-tab="issues" role="tab" type="button">Vấn đề <span id="issue-count"></span></button>
+              <button class="tab" data-tab="schema" role="tab" type="button">So schema</button>
+            </div>
+            <div id="tab-preview" class="tab-panel"></div>
+            <div id="tab-columns" class="tab-panel" hidden></div>
+            <div id="tab-issues" class="tab-panel" hidden></div>
+            <div id="tab-schema" class="tab-panel" hidden></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="loading-overlay" class="loading-overlay" hidden>
+    <div class="loader-card"><span class="spinner"></span><strong>Đang đọc dữ liệu…</strong><p>Không đóng cửa sổ trong khi parser đang kiểm tra file.</p></div>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <script src="/assets/app.js" defer></script>
+</body>
+</html>

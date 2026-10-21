@@ -1,0 +1,13 @@
+{
+  "name": "local-data-copilot-excel-addin",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Development-only sideload metadata for the W-21 Excel task pane.",
+  "scripts": {
+    "excel:addin:start": "npx --yes office-addin-debugging@7.0.1 start tools/excel_addin/manifest.xml desktop --app excel --no-debug --no-live-reload --dev-server-port 3000",
+    "excel:addin:stop": "npx --yes office-addin-debugging@7.0.1 stop tools/excel_addin/manifest.xml desktop"
+  },
+  "devDependencies": {
+    "office-addin-debugging": "7.0.1"
+  }
+}

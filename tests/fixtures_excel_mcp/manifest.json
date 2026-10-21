@@ -1,0 +1,101 @@
+{
+  "business_rules": {
+    "commission_match": "largest Min Net Revenue less than or equal to Net Revenue",
+    "rank": "PERCENTRANK.INC >= 0.9 Top 10%; >= 0.8 Top 20%; otherwise Bottom",
+    "zero_denominator": "Return Rate is 0"
+  },
+  "expected_operations": [
+    "excel.formula_column.add:SalesTable[Net Revenue]",
+    "excel.formula_column.add:SalesTable[Return Rate]",
+    "excel.formula_column.add:SalesTable[Commission Value]",
+    "excel.formula_column.add:SalesTable[Sales Rank]"
+  ],
+  "expected_rows": [
+    {
+      "Commission Value": 42.5,
+      "Net Revenue": 850,
+      "Return Rate": 0.1,
+      "SaleID": "S-001",
+      "Sales Rank": "Bottom"
+    },
+    {
+      "Commission Value": 94.5,
+      "Net Revenue": 1350,
+      "Return Rate": 0.0,
+      "SaleID": "S-002",
+      "Sales Rank": "Bottom"
+    },
+    {
+      "Commission Value": 200.0,
+      "Net Revenue": 2000,
+      "Return Rate": 0.1,
+      "SaleID": "S-003",
+      "Sales Rank": "Top 20%"
+    },
+    {
+      "Commission Value": 30.0,
+      "Net Revenue": 600,
+      "Return Rate": 0.2,
+      "SaleID": "S-004",
+      "Sales Rank": "Bottom"
+    },
+    {
+      "Commission Value": 270.0,
+      "Net Revenue": 2700,
+      "Return Rate": 0.04,
+      "SaleID": "S-005",
+      "Sales Rank": "Top 10%"
+    },
+    {
+      "Commission Value": 84.0,
+      "Net Revenue": 1200,
+      "Return Rate": 0.25,
+      "SaleID": "S-006",
+      "Sales Rank": "Bottom"
+    }
+  ],
+  "fixture_set": "EXCEL-MCP-v1",
+  "formula_templates": {
+    "Commission Value": "=[@[Net Revenue]]*XLOOKUP([@[Net Revenue]],CommissionTable[Min Net Revenue],CommissionTable[Commission Rate],0,-1)",
+    "Net Revenue": "=[@[Gross Revenue]]-[@[Discount Value]]-[@[Return Value]]",
+    "Return Rate": "=IFERROR([@[Total Return Qty]]/[@[Total Sold Qty]],0)",
+    "Sales Rank": "=LET(p,PERCENTRANK.INC(SalesTable[Net Revenue],[@[Net Revenue]]),IFS(p>=0.9,\"Top 10%\",p>=0.8,\"Top 20%\",TRUE,\"Bottom\"))"
+  },
+  "limitations": [
+    "Synthetic data only; no business truth is implied.",
+    "Fixture generation and parser tests do not prove that Excel MCP or Excel calculation has run."
+  ],
+  "prompt": "Trong SalesTable:\n1. Tạo Net Revenue = Gross Revenue - Discount Value - Return Value.\n2. Tạo Return Rate = Total Return Qty / Total Sold Qty; nếu mẫu số bằng 0 thì trả 0.\n3. Tạo Commission Value bằng XLOOKUP gần đúng theo Min Net Revenue ở Dim_Commission.\n4. Xếp Sales Rank theo Net Revenue: percentile >= 90% là Top 10%, >= 80% là Top 20%, còn lại là Bottom.",
+  "synthetic": true,
+  "workbook": {
+    "bytes": 8905,
+    "name": "excel_mcp_sales_input.xlsx",
+    "sha256": "6e8ee702d1fab67cad03d180bfbae32396f189ff35bbc5c32437fbb5d44dfb96",
+    "sheets": {
+      "Dim_Commission": {
+        "columns": [
+          "Min Net Revenue",
+          "Commission Rate"
+        ],
+        "rows": 3,
+        "table": "CommissionTable"
+      },
+      "Sales": {
+        "columns": [
+          "SaleID",
+          "EmployeeID",
+          "Region",
+          "SaleDate",
+          "Gross Revenue",
+          "Discount Value",
+          "Return Value",
+          "Total Sold Qty",
+          "Total Return Qty"
+        ],
+        "rows": 6,
+        "table": "SalesTable"
+      }
+    },
+    "source_formula_cells": 0
+  }
+}

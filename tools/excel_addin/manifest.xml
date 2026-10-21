@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0"
+           xmlns:ov="http://schemas.microsoft.com/office/taskpaneappversionoverrides"
+           xsi:type="TaskPaneApp">
+  <Id>8435b339-8476-4d7a-b44c-210a31333b21</Id>
+  <Version>1.1.0.0</Version>
+  <ProviderName>Reqwise</ProviderName>
+  <DefaultLocale>vi-VN</DefaultLocale>
+  <DisplayName DefaultValue="Reqwise-excel-mcp"/>
+  <Description DefaultValue="Reqwise MCP cho Excel: Đọc dữ liệu, phân tích prompt, preview an toàn và áp dụng có kiểm soát."/>
+  <IconUrl DefaultValue="https://localhost:3079/assets/icon-64.png?channel=7c719ed439131c44dca2c0e3"/>
+  <SupportUrl DefaultValue="https://localhost:3079/taskpane.html?channel=7c719ed439131c44dca2c0e3"/>
+  <AppDomains>
+    <AppDomain>https://localhost:3079</AppDomain>
+  </AppDomains>
+  <Hosts>
+    <Host Name="Workbook"/>
+  </Hosts>
+  <Requirements>
+    <Sets DefaultMinVersion="1.4">
+      <Set Name="ExcelApi"/>
+    </Sets>
+  </Requirements>
+  <DefaultSettings>
+    <SourceLocation DefaultValue="https://localhost:3079/taskpane.html?channel=7c719ed439131c44dca2c0e3"/>
+  </DefaultSettings>
+  <Permissions>ReadWriteDocument</Permissions>
+  <VersionOverrides xmlns="http://schemas.microsoft.com/office/taskpaneappversionoverrides"
+                    xsi:type="VersionOverridesV1_0">
+    <Requirements>
+      <bt:Sets DefaultMinVersion="1.1">
+        <bt:Set Name="ExcelApi"/>
+      </bt:Sets>
+    </Requirements>
+    <Hosts>
+      <Host xsi:type="Workbook">
+        <DesktopFormFactor>
+          <FunctionFile resid="Commands.Url"/>
+          <ExtensionPoint xsi:type="PrimaryCommandSurface">
+            <OfficeTab id="TabHome">
+              <Group id="ReqwiseExcelMcp.Group">
+                <Label resid="Group.Label"/>
+                <Icon>
+                  <bt:Image size="16" resid="Icon.16"/>
+                  <bt:Image size="32" resid="Icon.32"/>
+                  <bt:Image size="80" resid="Icon.80"/>
+                </Icon>
+                <Control xsi:type="Button" id="ReqwiseExcelMcp.Open">
+                  <Label resid="Button.Label"/>
+                  <Supertip>
+                    <Title resid="Button.Label"/>
+                    <Description resid="Button.Description"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="Icon.16"/>
+                    <bt:Image size="32" resid="Icon.32"/>
+                    <bt:Image size="80" resid="Icon.80"/>
+                  </Icon>
+                  <Action xsi:type="ShowTaskpane">
+                    <TaskpaneId>ReqwiseExcelMcp.Taskpane</TaskpaneId>
+                    <SourceLocation resid="Taskpane.Url"/>
+                  </Action>
+                </Control>
+              </Group>
+            </OfficeTab>
+          </ExtensionPoint>
+        </DesktopFormFactor>
+      </Host>
+    </Hosts>
+    <Resources>
+      <bt:Images>
+        <bt:Image id="Icon.16" DefaultValue="https://localhost:3079/assets/icon-16.png?channel=7c719ed439131c44dca2c0e3"/>
+        <bt:Image id="Icon.32" DefaultValue="https://localhost:3079/assets/icon-32.png?channel=7c719ed439131c44dca2c0e3"/>
+        <bt:Image id="Icon.80" DefaultValue="https://localhost:3079/assets/icon-80.png?channel=7c719ed439131c44dca2c0e3"/>
+      </bt:Images>
+      <bt:Urls>
+        <bt:Url id="Commands.Url" DefaultValue="https://localhost:3079/commands.html?channel=7c719ed439131c44dca2c0e3"/>
+        <bt:Url id="Taskpane.Url" DefaultValue="https://localhost:3079/taskpane.html?channel=7c719ed439131c44dca2c0e3"/>
+      </bt:Urls>
+      <bt:ShortStrings>
+        <bt:String id="Group.Label" DefaultValue="Reqwise MCP"/>
+        <bt:String id="Button.Label" DefaultValue="Reqwise-excel-mcp"/>
+      </bt:ShortStrings>
+      <bt:LongStrings>
+        <bt:String id="Button.Description" DefaultValue="Đọc workbook, lập kế hoạch Typed Steps/M, preview an toàn và áp dụng có kiểm soát."/>
+      </bt:LongStrings>
+    </Resources>
+  </VersionOverrides>
+</OfficeApp>
