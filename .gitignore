@@ -3,3 +3,17 @@ __pycache__/
 tools/excel_addin/.certs/
 *_AI_copy_*.xlsx
 
+
+# Local build/runtime artifacts; sources and pinned lockfiles remain tracked.
+**/bin/
+**/obj/
+node_modules/
+.artifacts/
+*.log
+# User-owned inputs/demo outputs are intentionally outside source control.
+/demo_inputs/
+/w21_demo/
+/char.png
+/crop.png
+/*.xlsx
+/clean_final_data.csv

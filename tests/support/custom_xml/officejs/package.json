@@ -1,0 +1,7 @@
+{
+  "name": "custom-xml-independent-test-harness",
+  "private": true,
+  "scripts": {
+    "test": "node test_codec.js && node test_static.js && node test_taskpane_fake.js && node test_autorun_fake.js && node test_autorun_existing_fake.js && node test_server.js"
+  }
+}

@@ -1,11 +1,6 @@
-from dataclasses import dataclass
+"""Compatibility import for :mod:`pbip_assistant.core.errors`."""
 
+import importlib as _importlib
+import sys as _sys
 
-@dataclass
-class InputError(Exception):
-    code: str
-    path: str
-    detail: str
-
-    def __str__(self) -> str:
-        return f"{self.code}: {self.path}: {self.detail}"
+_sys.modules[__name__] = _importlib.import_module("pbip_assistant.core.errors")

@@ -25,7 +25,9 @@ MAX_TOTAL_BYTES = 128 * 1024 * 1024
 MAX_JSON_BYTES = 256 * 1024
 SUPPORTED_EXTENSIONS = frozenset({".xlsx", ".csv"})
 LOOPBACK_HOSTS = frozenset({"127.0.0.1", "localhost", "::1"})
-STATIC_ROOT = Path(__file__).with_name("web")
+from .core.resources import package_path
+
+STATIC_ROOT = package_path("web")
 
 
 @dataclass(frozen=True)

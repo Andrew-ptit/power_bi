@@ -18,7 +18,7 @@ from pbip_assistant.xlsx import profile_workbook
 
 
 ROOT = Path(__file__).resolve().parents[1]
-FIXTURE_ROOT = ROOT / "tests" / "fixtures_excel_mcp"
+FIXTURE_ROOT = ROOT / "tests" / "fixtures" / "excel"
 
 
 def _snapshot(path: Path) -> dict:

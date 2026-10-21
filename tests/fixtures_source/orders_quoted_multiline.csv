@@ -1,4 +1,0 @@
-OrderID,CustomerID,OrderDate,ProductID,Quantity,Discount,PaymentMethod,Status,Age,City,SignupDate,CustomerSegment,ProductName,Category,UnitPrice,Sales,OrderValue
-SYN-002,C-SYN-01,03/09/2026,P-SYN-02,1,0,Cash,Completed,29,South City,2024-01-10,Retail,"Sample, Premium",B,50,50,50
-SYN-006,C-SYN-04,2026-09-07,P-SYN-02,3,5,Cash,Completed,,West City,2025-02-14,Retail,"Sample
-Blend",B,50,142.5,142.5

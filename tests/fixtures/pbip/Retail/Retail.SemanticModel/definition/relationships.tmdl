@@ -1,0 +1,11 @@
+relationship 5d9a5ca1-d0ee-4b61-bc9b-27ec81a09ff1
+	fromColumn: FactOrders.ProductID
+	toColumn: DimProduct.ProductID
+
+relationship d75c1b27-ab11-4f8e-af0a-3181a50d6d8c
+	fromColumn: FactOrders.CustomerID
+	toColumn: DimCustomer.CustomerID
+
+relationship e8d6ab32-ae76-4273-a777-27fc50ac5bbf
+	fromColumn: FactOrders.OrderDate
+	toColumn: DimDate.Date

@@ -46,7 +46,7 @@ const PROBLEM_CHAIN_SCHEMA_VERSION = "1.0";
 const PROBLEM_CHAIN_PREVIEW_CACHE_LIMIT = 5;
 const PROBLEM_CHAIN_CACHE_CELL_CHARS = 256;
 
-// Lucide SVG icons (ISC License - see spikes/vendor/LUCIDE_LICENSE.txt)
+// Lucide SVG icons (ISC License - see third_party/lucide/LICENSE.txt)
 const LUCIDE_ICONS = {
   "chevron-down": '<path d="m6 9 6 6 6-6"/>',
   "chevron-right": '<path d="m9 18 6-6-6-6"/>',

@@ -1,0 +1,6 @@
+* text=auto eol=lf
+# Fixture hashes refer to exact bytes, including intentional CSV CRLF.
+/tests/fixtures/** -text
+/tests/fixtures_*/** -text
+*.xlsx -text
+*.png -text

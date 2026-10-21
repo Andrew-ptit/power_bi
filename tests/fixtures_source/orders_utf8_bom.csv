@@ -1,8 +1,0 @@
-﻿OrderID,CustomerID,OrderDate,ProductID,Quantity,Discount,PaymentMethod,Status,Age,City,SignupDate,CustomerSegment,ProductName,Category,UnitPrice,Sales,OrderValue
-SYN-001,C-SYN-01,2026-09-01,P-SYN-01,2,10,Card,Completed,29,South City,2024-01-10,Retail,Sample A,A,100,180,180
-SYN-002,C-SYN-01,03/09/2026,P-SYN-02,1,0,Cash,Completed,29,South City,2024-01-10,Retail,"Sample, Premium",B,50,50,50
-SYN-003,C-SYN-02,2026-09-04,P-SYN-01,-1,10,Card,Returned,34,North City,2023-05-03,Business,Sample A,A,100,-90,-90
-SYN-004,C-SYN-03,2026-09-05,P-SYN-03,0,0,Transfer,Cancelled,41,Central City,2022-08-20,Retail,Sample C,C,75,0,0
-SYN-005,C-SYN-02,2026-09-06,P-SYN-ORPHAN,1,30,Card,Completed,34,,2023-05-03,Business,Sample Orphan,D,200,140,140
-SYN-006,C-SYN-04,2026-09-07,P-SYN-02,3,5,Cash,Completed,,West City,2025-02-14,Retail,"Sample
-Blend",B,50,142.5,142.5

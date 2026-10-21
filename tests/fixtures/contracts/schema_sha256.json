@@ -1,0 +1,10 @@
+{
+  "baseline": "d9b6038",
+  "sha256": {
+    "codex_excel_response.schema.json": "b315c9d3473446591517b10e1b374704bbadce9049a47fd477502442e1a42834",
+    "codex_pq_response.schema.json": "84ba5cc9d4a1dc817f5ba81e5d28fb31b2662f49c441ebbf118ac129738e2e81",
+    "codex_pq_typed_response.schema.json": "c0aa0b021ad5cdbf7211ea4d6079a96454199ff8bd2f8f6f73f52798f4e0f2c1",
+    "codex_problem_chain_response.schema.json": "6f84bca1336556008c560ecf9dc66dc1755a54f00b48daa3dfbbfd66bbec284f",
+    "pq_typed_plan.schema.json": "ea358901c9f7580d1ab3361466a3e1b8fb558d6bc8a32a8a754adbf0048362b1"
+  }
+}

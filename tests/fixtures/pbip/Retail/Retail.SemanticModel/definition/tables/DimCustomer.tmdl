@@ -1,0 +1,21 @@
+table DimCustomer
+
+	column CustomerID
+		dataType: string
+		sourceColumn: CustomerID
+		summarizeBy: none
+
+	column City
+		dataType: string
+		sourceColumn: City
+		summarizeBy: none
+
+	column CustomerSegment
+		dataType: string
+		sourceColumn: CustomerSegment
+		summarizeBy: none
+
+	partition DimCustomer = m
+		mode: import
+		source =
+			#table(type table [CustomerID = text, City = text, CustomerSegment = text], {{"C-001", "South City", "Retail"}})

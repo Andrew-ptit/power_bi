@@ -249,6 +249,6 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("output", nargs="?", type=Path, default=Path("tests/fixtures_source"))
+    parser.add_argument("output", nargs="?", type=Path, default=Path("tests/fixtures/source"))
     args = parser.parse_args()
     print(generate(args.output))
