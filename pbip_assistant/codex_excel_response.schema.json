@@ -1,0 +1,38 @@
+{
+  "type": "object",
+  "properties": {
+    "summary": {"type": "string"},
+    "questions": {"type": "array", "items": {"type": "string"}},
+    "assumptions": {"type": "array", "items": {"type": "string"}},
+    "warnings": {"type": "array", "items": {"type": "string"}},
+    "codeBlocks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "language": {"type": "string", "enum": ["excel", "m", "dax", "other"]},
+          "label": {"type": "string"},
+          "code": {"type": "string"}
+        },
+        "required": ["language", "label", "code"],
+        "additionalProperties": false
+      }
+    },
+    "operations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "targetSheet": {"type": "string"},
+          "targetColumn": {"type": "string"},
+          "formula": {"type": "string"},
+          "reason": {"type": "string"}
+        },
+        "required": ["targetSheet", "targetColumn", "formula", "reason"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["summary", "questions", "assumptions", "warnings", "codeBlocks", "operations"],
+  "additionalProperties": false
+}

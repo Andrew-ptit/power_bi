@@ -45,6 +45,10 @@ class ArchitectureCompatibilityTests(unittest.TestCase):
                 path = schema_path(name)
                 self.assertEqual(path, package_path("schemas", name))
                 self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(), digest)
+            with self.subTest(schema=name, compatibility="legacy_resource_path"):
+                # Pre-refactor coordinators can retain the flat SCHEMA_PATH
+                # until restart. Canonical schemas remain the source of truth.
+                self.assertEqual(package_path(name).read_bytes(), schema_path(name).read_bytes())
         self.assertTrue(repository_path("tools", "excel_connector", "Invoke-PQCodeM.ps1").is_file())
         self.assertTrue(package_path("excel_addin", "taskpane.js").is_file())
 
