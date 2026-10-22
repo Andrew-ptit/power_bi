@@ -49,14 +49,130 @@ def _shared_strings(archive: zipfile.ZipFile) -> list[bytes]:
     return strings
 
 
-def _sheet_digest(archive: zipfile.ZipFile, path: str, strings: list[bytes]) -> str:
+def _canonical_style_node(element: ET.Element, *, omit_attributes: frozenset[str] = frozenset()) -> tuple:
+    """Keep opaque style content without depending on XML namespace prefixes."""
+    return (
+        element.tag,
+        tuple(sorted((key, value) for key, value in element.attrib.items() if key not in omit_attributes)),
+        element.text if element.text and element.text.strip() else "",
+        tuple(_canonical_style_node(child) for child in element),
+    )
+
+
+class _StyleCatalog:
+    """Resolve source formatting independently of package-wide style indices.
+
+    Importing a result sheet may append/reindex fonts and XFs. Only referenced
+    cell/base XFs and their resolved components affect source cell formatting.
+    Unmodeled global containers remain opaque and conservatively guarded.
+    """
+
+    _INDEXED_COLLECTIONS = frozenset({
+        "numFmts", "fonts", "fills", "borders", "cellStyleXfs", "cellXfs", "cellStyles",
+    })
+
+    def __init__(self, archive: zipfile.ZipFile, names: set[str]) -> None:
+        self.root = ET.fromstring(archive.read("xl/styles.xml")) if "xl/styles.xml" in names else None
+        self.collections: dict[str, list[ET.Element]] = {}
+        self.custom_formats: dict[int, ET.Element] = {}
+        self._cell_cache: dict[int, str] = {}
+        self._base_cache: dict[int, tuple] = {}
+        self._component_cache: dict[tuple[str, int], tuple] = {}
+        if self.root is not None:
+            for collection in self.root:
+                local_name = collection.tag.removeprefix(f"{{{MAIN}}}")
+                if local_name in self._INDEXED_COLLECTIONS:
+                    if local_name in self.collections:
+                        raise ValueError("Duplicate style collection")
+                    self.collections[local_name] = list(collection)
+            for number_format in self.collections.get("numFmts", []):
+                index = self._index(number_format.get("numFmtId"))
+                if index in self.custom_formats or number_format.get("formatCode") is None:
+                    raise ValueError("Invalid custom number format")
+                self.custom_formats[index] = number_format
+
+    @staticmethod
+    def _index(value: str | None) -> int:
+        index = int(value) if value is not None else 0
+        if index < 0:
+            raise ValueError("Negative style index")
+        return index
+
+    def _record(self, collection: str, index: int) -> ET.Element:
+        records = self.collections.get(collection, [])
+        if index >= len(records):
+            raise ValueError("Style reference is outside its collection")
+        return records[index]
+
+    def _component(self, collection: str, value: str | None) -> tuple:
+        index = self._index(value)
+        key = (collection, index)
+        if key not in self._component_cache:
+            self._component_cache[key] = _canonical_style_node(self._record(collection, index))
+        return self._component_cache[key]
+
+    def _number_format(self, value: str | None) -> tuple:
+        index = self._index(value)
+        if index in self.custom_formats:
+            return ("custom", _canonical_style_node(self.custom_formats[index], omit_attributes=frozenset({"numFmtId"})))
+        if index >= 164:
+            raise ValueError("Custom number format reference is missing")
+        return ("builtin", index)
+
+    def _xf(self, record: ET.Element, *, cell: bool) -> tuple:
+        references = {"numFmtId", "fontId", "fillId", "borderId"}
+        resolved = (
+            self._number_format(record.get("numFmtId")),
+            self._component("fonts", record.get("fontId")),
+            self._component("fills", record.get("fillId")),
+            self._component("borders", record.get("borderId")),
+        )
+        base = None
+        if cell:
+            references.add("xfId")
+            if record.get("xfId") is not None or self.collections.get("cellStyleXfs"):
+                base_index = self._index(record.get("xfId"))
+                if base_index not in self._base_cache:
+                    self._base_cache[base_index] = self._xf(self._record("cellStyleXfs", base_index), cell=False)
+                base = self._base_cache[base_index]
+        return (_canonical_style_node(record, omit_attributes=frozenset(references)), resolved, base)
+
+    def cell_style(self, value: str | None) -> str:
+        index = self._index(value)
+        if index not in self._cell_cache:
+            if self.root is None:
+                if index:
+                    raise ValueError("Cell references absent styles")
+                semantic = ("implicit-default-style",)
+            else:
+                semantic = self._xf(self._record("cellXfs", index), cell=True)
+            self._cell_cache[index] = hashlib.sha256(json.dumps(semantic, ensure_ascii=False, separators=(",", ":")).encode("utf-8")).hexdigest()
+        return self._cell_cache[index]
+
+    def opaque_globals(self) -> tuple:
+        if self.root is None:
+            return ()
+        return (
+            tuple(sorted(self.root.attrib.items())),
+            tuple(_canonical_style_node(node) for node in self.root
+                  if node.tag.removeprefix(f"{{{MAIN}}}") not in self._INDEXED_COLLECTIONS),
+        )
+
+
+def _sheet_digest(
+    archive: zipfile.ZipFile, path: str, strings: list[bytes], styles: _StyleCatalog | None = None,
+) -> str:
     digest = hashlib.sha256()
     with archive.open(path) as stream:
         for _, element in ET.iterparse(stream, events=("end",)):
+            if element.tag == f"{{{MAIN}}}col" and styles is not None and element.get("style") is not None:
+                _update(digest, "columnStyle", element.get("min"), element.get("max"), styles.cell_style(element.get("style")))
             if element.tag != f"{{{MAIN}}}row":
                 continue
+            if styles is not None and element.get("s") is not None:
+                _update(digest, "rowStyle", element.get("r"), styles.cell_style(element.get("s")))
             for cell in element.findall(f"{{{MAIN}}}c"):
-                cell_type = cell.get("t", "")
+                cell_type = cell.get("t", "n")
                 value = cell.findtext(f"{{{MAIN}}}v")
                 if cell_type == "s" and value is not None:
                     value = strings[int(value)].hex()
@@ -65,7 +181,7 @@ def _sheet_digest(archive: zipfile.ZipFile, path: str, strings: list[bytes]) -> 
                     value = hashlib.sha256("".join(node.text or "" for node in cell.iter(f"{{{MAIN}}}t")).encode("utf-8")).hexdigest()
                     cell_type = "text"
                 formula = cell.findtext(f"{{{MAIN}}}f")
-                _update(digest, cell.get("r"), cell_type, cell.get("s", ""), formula, value)
+                _update(digest, cell.get("r"), cell_type, styles.cell_style(cell.get("s")) if styles is not None else None, formula, value)
             element.clear()
     return digest.hexdigest()
 
@@ -79,6 +195,9 @@ def workbook_data_fingerprint(
 ) -> str:
     """Hash all worksheet cell values/formulas and PQ-visible workbook structure.
 
+    Referenced cell/row/column formatting is always guarded. ``include_styles``
+    retains the legacy distinction for conservative global style containers;
+    disabling it does not disable the source number/date-format guard.
     This is a stale-input guard, not a cryptographic attestation of Excel runtime.
     """
     try:
@@ -95,32 +214,42 @@ def workbook_data_fingerprint(
                 if node.get("TargetMode") != "External" and node.get("Type", "").endswith("/worksheet")
             }
             strings = _shared_strings(archive)
+            styles = _StyleCatalog(archive, names)
             digest = hashlib.sha256()
             sheets = workbook.findall(f"{{{MAIN}}}sheets/{{{MAIN}}}sheet")
             if typed_result_source_sheets is not None:
                 ignored_sheet_names = ignored_sheet_names | frozenset(
                     name for sheet in sheets
                     if (name := sheet.get("name")) is not None
-                    and re.fullmatch(r"PQ_Typed_Result(?:_[2-9][0-9]*)?", name)
+                    and re.fullmatch(r"PQ_Typed_Result(?:_(?:[2-9]|[1-9][0-9]+))?", name)
                     and name not in typed_result_source_sheets
                 )
             for sheet in sheets:
                 if sheet.get("name") in ignored_sheet_names:
                     continue
                 path = targets[sheet.get(f"{{{REL}}}id")]
-                _update(digest, "sheet", sheet.get("name"), _sheet_digest(archive, path, strings))
+                _update(digest, "sheet", sheet.get("name"), _sheet_digest(archive, path, strings, styles))
+            defined_names = []
             for name in workbook.findall(f"{{{MAIN}}}definedNames/{{{MAIN}}}definedName"):
                 local_sheet_id = name.get("localSheetId")
-                if local_sheet_id is not None and sheets[int(local_sheet_id)].get("name") in ignored_sheet_names:
-                    continue
-                _update(digest, "name", name.get("name"), name.get("localSheetId"), name.text)
+                scope = None
+                if local_sheet_id is not None:
+                    scope_index = int(local_sheet_id)
+                    if not 0 <= scope_index < len(sheets):
+                        raise ValueError("Defined name has an invalid worksheet scope")
+                    scope = sheets[scope_index].get("name")
+                    if scope in ignored_sheet_names:
+                        continue
+                defined_names.append((name.get("name"), scope, name.text))
+            for name, scope, expression in sorted(defined_names, key=lambda item: tuple(part or "" for part in item)):
+                _update(digest, "name", name, scope, expression)
             for path in sorted(name for name in names if re.fullmatch(r"xl/tables/table\d+\.xml", name)):
                 table = ET.fromstring(archive.read(path))
                 _update(digest, "table", table.get("name"), table.get("displayName"), table.get("ref"))
                 for column in table.findall(f"{{{MAIN}}}tableColumns/{{{MAIN}}}tableColumn"):
                     _update(digest, "column", column.get("id"), column.get("name"))
-            if include_styles and "xl/styles.xml" in names:
-                _update(digest, "styles", hashlib.sha256(ET.canonicalize(archive.read("xl/styles.xml").decode("utf-8")).encode("utf-8")).hexdigest())
+            if include_styles:
+                _update(digest, "styles", styles.opaque_globals())
             return digest.hexdigest()
     except (KeyError, ValueError, IndexError, ET.ParseError, zipfile.BadZipFile, OSError) as exc:
         raise InputError("WORKBOOK_FINGERPRINT_FAILED", "workbookBase64", "Cannot inspect the exported workbook data safely") from exc
