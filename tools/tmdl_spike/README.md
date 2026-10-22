@@ -22,8 +22,8 @@ This isolated proof of concept evaluates Microsoft's supported TOM/TMDL serializ
 Restore is intentionally explicit because it can access NuGet:
 
 ```powershell
-dotnet restore spikes/w06_tmdl/TmdlSpike.csproj --locked-mode
-py -m unittest discover -s spikes/w06_tmdl -p "test_*.py" -v
+dotnet restore tools/tmdl_spike/TmdlSpike.csproj --locked-mode
+py -m unittest discover -s tools/tmdl_spike -p "test_*.py" -v
 ```
 
 `packages.lock.json` is committed for the spike; `--locked-mode` prevents an unnoticed dependency change. Production uses the separate helper under `tools/tmdl_bridge` with its own lock file.

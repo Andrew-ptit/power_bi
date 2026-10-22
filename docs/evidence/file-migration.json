@@ -1,0 +1,769 @@
+{
+  "baseline": "4bdc2de",
+  "missingOldPaths": [
+    {
+      "baselinePath": "BPMN_MODEL.md",
+      "disposition": "Relocated to docs/current or docs/evidence; active contracts retained",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "CLAUDE_UI_IMPLEMENTATION_HANDOFF.md",
+      "disposition": "Relocated to docs/current or docs/evidence; active contracts retained",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "EXCEL_MCP_SPEC.md",
+      "disposition": "Relocated to docs/current or docs/evidence; active contracts retained",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "IMPLEMENTATION_PLAN.md",
+      "disposition": "Relocated to docs/current or docs/evidence; active contracts retained",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "PHASE1_CROSSCHECK.md",
+      "disposition": "Relocated to docs/current or docs/evidence; active contracts retained",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "PQ_CODE_M_SPEC.md",
+      "disposition": "Relocated to docs/current or docs/evidence; active contracts retained",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "PROBLEM_CHAIN_SPEC.md",
+      "disposition": "Relocated to docs/current or docs/evidence; active contracts retained",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "SPEC.md",
+      "disposition": "Relocated to docs/current or docs/evidence; active contracts retained",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "TYPED_STEP_DIAGNOSTICS_SPEC.md",
+      "disposition": "Relocated to docs/current or docs/evidence; active contracts retained",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "UI_RAW_DATA.md",
+      "disposition": "Relocated to docs/current or docs/evidence; active contracts retained",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "W21_EXCEL_TASKPANE_SPEC.md",
+      "disposition": "Relocated to docs/current or docs/evidence; active contracts retained",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/problem-chain-revision-combined-preview.html",
+      "disposition": "Relocated to docs/evidence/design",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/problem-chain-revision-combined-preview.png",
+      "disposition": "Relocated to docs/evidence/design",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/problem-chain-revision-combined-wireframe.html",
+      "disposition": "Relocated to docs/evidence/design",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/problem-chain-revision-icons-preview.png",
+      "disposition": "Relocated to docs/evidence/design",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/problem-chain-tree-wireframe.html",
+      "disposition": "Relocated to docs/evidence/design",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/problem_chain_custom_xml/officejs/MANUAL_EVIDENCE.md",
+      "disposition": "Retired duplicate spike source after promotion to tests/support and docs/evidence/history-storage; exact original in recovery baseline",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/problem_chain_custom_xml/officejs/README.md",
+      "disposition": "Retired duplicate spike source after promotion to tests/support and docs/evidence/history-storage; exact original in recovery baseline",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/problem_chain_custom_xml/officejs/manifest.xml",
+      "disposition": "Retired duplicate spike source after promotion to tests/support and docs/evidence/history-storage; exact original in recovery baseline",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/problem_chain_custom_xml/officejs/package.json",
+      "disposition": "Retired duplicate spike source after promotion to tests/support and docs/evidence/history-storage; exact original in recovery baseline",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/problem_chain_custom_xml/officejs/problem_chain_codec.js",
+      "disposition": "Retired duplicate spike source after promotion to tests/support and docs/evidence/history-storage; exact original in recovery baseline",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/problem_chain_custom_xml/officejs/server.js",
+      "disposition": "Retired duplicate spike source after promotion to tests/support and docs/evidence/history-storage; exact original in recovery baseline",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/problem_chain_custom_xml/officejs/taskpane.css",
+      "disposition": "Retired duplicate spike source after promotion to tests/support and docs/evidence/history-storage; exact original in recovery baseline",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/problem_chain_custom_xml/officejs/taskpane.html",
+      "disposition": "Retired duplicate spike source after promotion to tests/support and docs/evidence/history-storage; exact original in recovery baseline",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/problem_chain_custom_xml/officejs/taskpane.js",
+      "disposition": "Retired duplicate spike source after promotion to tests/support and docs/evidence/history-storage; exact original in recovery baseline",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/problem_chain_custom_xml/officejs/test_autorun_existing_fake.js",
+      "disposition": "Retired duplicate spike source after promotion to tests/support and docs/evidence/history-storage; exact original in recovery baseline",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/problem_chain_custom_xml/officejs/test_autorun_fake.js",
+      "disposition": "Retired duplicate spike source after promotion to tests/support and docs/evidence/history-storage; exact original in recovery baseline",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/problem_chain_custom_xml/officejs/test_codec.js",
+      "disposition": "Retired duplicate spike source after promotion to tests/support and docs/evidence/history-storage; exact original in recovery baseline",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/problem_chain_custom_xml/officejs/test_cross_oracle.py",
+      "disposition": "Retired duplicate spike source after promotion to tests/support and docs/evidence/history-storage; exact original in recovery baseline",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/problem_chain_custom_xml/officejs/test_server.js",
+      "disposition": "Retired duplicate spike source after promotion to tests/support and docs/evidence/history-storage; exact original in recovery baseline",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/problem_chain_custom_xml/officejs/test_static.js",
+      "disposition": "Retired duplicate spike source after promotion to tests/support and docs/evidence/history-storage; exact original in recovery baseline",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/problem_chain_custom_xml/officejs/test_taskpane_fake.js",
+      "disposition": "Retired duplicate spike source after promotion to tests/support and docs/evidence/history-storage; exact original in recovery baseline",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/problem_chain_custom_xml/package_oracle/Invoke-CustomXmlPackageSpike.ps1",
+      "disposition": "Retired duplicate spike source after promotion to tests/support and docs/evidence/history-storage; exact original in recovery baseline",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/problem_chain_custom_xml/package_oracle/README.md",
+      "disposition": "Retired duplicate spike source after promotion to tests/support and docs/evidence/history-storage; exact original in recovery baseline",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/problem_chain_custom_xml/package_oracle/__init__.py",
+      "disposition": "Retired duplicate spike source after promotion to tests/support and docs/evidence/history-storage; exact original in recovery baseline",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/problem_chain_custom_xml/package_oracle/oracle.py",
+      "disposition": "Retired duplicate spike source after promotion to tests/support and docs/evidence/history-storage; exact original in recovery baseline",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/problem_chain_custom_xml/package_oracle/run_spike.py",
+      "disposition": "Retired duplicate spike source after promotion to tests/support and docs/evidence/history-storage; exact original in recovery baseline",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/problem_chain_custom_xml/reports/PHASE1_CROSSCHECK.md",
+      "disposition": "Retired duplicate spike source after promotion to tests/support and docs/evidence/history-storage; exact original in recovery baseline",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/problem_chain_custom_xml/reports/WAVE0_SUMMARY.md",
+      "disposition": "Retired duplicate spike source after promotion to tests/support and docs/evidence/history-storage; exact original in recovery baseline",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/problem_chain_custom_xml/reports/adversarial_audit.md",
+      "disposition": "Retired duplicate spike source after promotion to tests/support and docs/evidence/history-storage; exact original in recovery baseline",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/problem_chain_custom_xml/reports/officejs_autorun_audit.md",
+      "disposition": "Retired duplicate spike source after promotion to tests/support and docs/evidence/history-storage; exact original in recovery baseline",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/problem_chain_custom_xml/reports/package_security_crosscheck.md",
+      "disposition": "Retired duplicate spike source after promotion to tests/support and docs/evidence/history-storage; exact original in recovery baseline",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/problem_chain_custom_xml/security/ACCEPTANCE_MATRIX.md",
+      "disposition": "Retired duplicate spike source after promotion to tests/support and docs/evidence/history-storage; exact original in recovery baseline",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/problem_chain_custom_xml/security/THREAT_MODEL.md",
+      "disposition": "Retired duplicate spike source after promotion to tests/support and docs/evidence/history-storage; exact original in recovery baseline",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/problem_chain_custom_xml/security/__init__.py",
+      "disposition": "Retired duplicate spike source after promotion to tests/support and docs/evidence/history-storage; exact original in recovery baseline",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/problem_chain_custom_xml/security/contract_validator.py",
+      "disposition": "Retired duplicate spike source after promotion to tests/support and docs/evidence/history-storage; exact original in recovery baseline",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/problem_chain_custom_xml/security/test_contract_validator.py",
+      "disposition": "Retired duplicate spike source after promotion to tests/support and docs/evidence/history-storage; exact original in recovery baseline",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/typed-step-cards-wireframe.html",
+      "disposition": "Relocated to docs/evidence/design",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/vendor/LUCIDE_LICENSE.txt",
+      "disposition": "Relocated to third_party/lucide/LICENSE.txt",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/w06_tmdl/Program.cs",
+      "disposition": "Relocated to tools/tmdl_spike",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/w06_tmdl/README.md",
+      "disposition": "Relocated to tools/tmdl_spike",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/w06_tmdl/TmdlSpike.csproj",
+      "disposition": "Relocated to tools/tmdl_spike",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/w06_tmdl/fixtures/invalid/database.tmdl",
+      "disposition": "Relocated to tools/tmdl_spike",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/w06_tmdl/fixtures/invalid/model.tmdl",
+      "disposition": "Relocated to tools/tmdl_spike",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/w06_tmdl/fixtures/invalid/tables/Broken.tmdl",
+      "disposition": "Relocated to tools/tmdl_spike",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/w06_tmdl/fixtures/valid/database.tmdl",
+      "disposition": "Relocated to tools/tmdl_spike",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/w06_tmdl/fixtures/valid/model.tmdl",
+      "disposition": "Relocated to tools/tmdl_spike",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/w06_tmdl/fixtures/valid/relationships.tmdl",
+      "disposition": "Relocated to tools/tmdl_spike",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/w06_tmdl/fixtures/valid/tables/DimProduct.tmdl",
+      "disposition": "Relocated to tools/tmdl_spike",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/w06_tmdl/fixtures/valid/tables/FactOrders.tmdl",
+      "disposition": "Relocated to tools/tmdl_spike",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/w06_tmdl/packages.lock.json",
+      "disposition": "Relocated to tools/tmdl_spike",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "spikes/w06_tmdl/test_spike.py",
+      "disposition": "Relocated to tools/tmdl_spike",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/fixtures.py",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/fixtures_excel_mcp/excel_mcp_sales_input.xlsx",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/fixtures_excel_mcp/manifest.json",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/fixtures_pbip/Retail/Retail.Report/definition.pbir",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/fixtures_pbip/Retail/Retail.Report/definition/pages/a01b02c03d04e05f06a0/page.json",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/fixtures_pbip/Retail/Retail.Report/definition/pages/a01b02c03d04e05f06a0/visuals/b11c12d13e14f15a16b1/visual.json",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/fixtures_pbip/Retail/Retail.Report/definition/pages/pages.json",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/fixtures_pbip/Retail/Retail.Report/definition/report.json",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/fixtures_pbip/Retail/Retail.Report/definition/version.json",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/fixtures_pbip/Retail/Retail.SemanticModel/definition.pbism",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/fixtures_pbip/Retail/Retail.SemanticModel/definition/database.tmdl",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/fixtures_pbip/Retail/Retail.SemanticModel/definition/model.tmdl",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/fixtures_pbip/Retail/Retail.SemanticModel/definition/relationships.tmdl",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/fixtures_pbip/Retail/Retail.SemanticModel/definition/tables/DimCustomer.tmdl",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/fixtures_pbip/Retail/Retail.SemanticModel/definition/tables/DimDate.tmdl",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/fixtures_pbip/Retail/Retail.SemanticModel/definition/tables/DimProduct.tmdl",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/fixtures_pbip/Retail/Retail.SemanticModel/definition/tables/FactOrders.tmdl",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/fixtures_pbip/Retail/Retail.pbip",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/fixtures_pbip/manifest.json",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/fixtures_pq/external_sample.csv",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/fixtures_source/calendar_synthetic.csv",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/fixtures_source/customers_synthetic.csv",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/fixtures_source/manifest.json",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/fixtures_source/orders_ambiguous_discount.csv",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/fixtures_source/orders_duplicate_header.csv",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/fixtures_source/orders_formula_no_cache.xlsx",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/fixtures_source/orders_header_only.csv",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/fixtures_source/orders_invalid_utf8.csv",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/fixtures_source/orders_quoted_multiline.csv",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/fixtures_source/orders_schema_drift.csv",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/fixtures_source/orders_semicolon.csv",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/fixtures_source/orders_short_row.csv",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/fixtures_source/orders_synthetic.csv",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/fixtures_source/orders_synthetic.xlsx",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/fixtures_source/orders_utf8_bom.csv",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/fixtures_source/orders_wide_row.csv",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/fixtures_source/products_synthetic.csv",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/taskpane_advanced_policy.js",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/taskpane_advanced_policy_crosscheck.js",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/taskpane_code_blocks.js",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/taskpane_diagnostic_ui_guard.js",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/taskpane_live_analyze.js",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/taskpane_pq.js",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/taskpane_pq_source_apply.js",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/taskpane_pq_typed.js",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/taskpane_pq_write.js",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/taskpane_problem_chain.js",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/taskpane_shortcut.js",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/taskpane_usedrange.js",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/test_advanced_policy_crosscheck.py",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/test_codex_excel.py",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/test_coordinator_runtime.py",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/test_coordinator_server_crosscheck.py",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/test_csv_source.py",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/test_excel_addin_server.py",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/test_excel_connector.py",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/test_excel_mcp_fixtures.py",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/test_excel_plan.py",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/test_fixture_integration.py",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/test_pbip.py",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/test_pbip_fixtures.py",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/test_pbir.py",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/test_planning.py",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/test_pq_api.py",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/test_pq_code_m.py",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/test_pq_runtime.py",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/test_pq_typed.py",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/test_pq_typed_api.py",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/test_pq_typed_schema.py",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/test_pq_typed_schema_crosscheck.py",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/test_problem_chain_custom_xml_package.py",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/test_problem_chain_phase1.py",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/test_problem_chain_phase1_crosscheck.py",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/test_problem_chain_phase2_adversarial.py",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/test_problem_chain_result_cache.py",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/test_problem_chain_structured_requests.py",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/test_problem_chain_wave0_adversarial.py",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/test_reference_schema.py",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/test_source_fixtures.py",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/test_source_schema.py",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/test_source_workflow.py",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/test_step_diagnostic_sampler.py",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/test_taskpane_js.py",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/test_tmdl.py",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/test_typed_step_diagnostics.py",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/test_webapp.py",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/test_workbook_fingerprint.py",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/test_workflow.py",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/test_xlsx.py",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    },
+    {
+      "baselinePath": "tests/test_xlsx_advanced.py",
+      "disposition": "Relocated to capability tests/fixtures/support; see tests/case_migration.json",
+      "recoverFrom": "baseline/pre-1.2.0-byte-exact"
+    }
+  ],
+  "testCasesDeleted": 0,
+  "personalInputsDeleted": 0,
+  "certificatesDeleted": 0,
+  "legacySchemaAliases": 5
+}

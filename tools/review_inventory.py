@@ -12,7 +12,7 @@ from pathlib import Path
 import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
-BASELINE = "baseline/pre-1.2.0"
+BASELINE = "baseline/pre-1.2.0-byte-exact"
 
 
 def functions(tree: ast.AST, prefix: str = ""):
@@ -63,7 +63,7 @@ def main() -> None:
             continue
         source = subprocess.check_output(["git", "show", f"{BASELINE}:{path}"], cwd=ROOT)
         for name, node in functions(ast.parse(source.decode("utf-8-sig"))):
-            candidates = current[name]
+            candidates = current["snapshot_workbook" if name == "_snapshot" else name]
             same = [location for location, item in candidates if body(item) == body(node)]
             destinations = same or [location for location, _ in candidates]
             calls = call_names(node)

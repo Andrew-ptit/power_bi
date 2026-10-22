@@ -2,7 +2,7 @@
 
 | Thuộc tính | Giá trị |
 |---|---|
-| Nguồn | [SPEC.md](./SPEC.md) v0.5 và [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md) |
+| Nguồn | [SPEC.md](SPEC.md) v0.5 và [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) |
 | Figma | File `Demo_Figma`, trang `Page 1` |
 | Phiên bản | BPMN v0.5, cập nhật 03/10/2026 |
 | Trạng thái | Đã vẽ native BPMN, đồng bộ inventory và kiểm tra cấu trúc/hình học |

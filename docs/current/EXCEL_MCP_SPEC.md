@@ -254,7 +254,7 @@ session_ready → snapshot_ready → plan_draft
 
 ## 10. Fixture và prompt nghiệm thu
 
-Fixture tổng hợp được tạo bởi `examples/excel_mcp_fixtures.py` tại `tests/fixtures_excel_mcp/`:
+Fixture tổng hợp được tạo bởi `examples/excel_mcp_fixtures.py` tại `tests/fixtures/excel/`:
 
 - `excel_mcp_sales_input.xlsx`
   - `Sales` / `SalesTable`: 6 dòng, 9 cột nguồn.

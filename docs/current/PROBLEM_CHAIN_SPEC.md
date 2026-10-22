@@ -4,12 +4,12 @@
 
 | Field | Value |
 |---|---|
-| Version | 1.6 |
+| Version | 1.7 |
 | Date | 2026-10-21 |
-| Status | Phase 2 implemented; automated regression passed; live Codex branch smoke and manual sideload pending |
+| Status | Existing implementation refactored; automated 385/0 fail/4 skip and live Codex 2/2 passed; live Office.js release journeys partially exercised; see release report |
 | Owner | Local Data Copilot |
 | Scope | Excel task pane — Typed Steps only |
-| Related specifications | `PQ_CODE_M_SPEC.md`, `IMPLEMENTATION_PLAN.md`, `TYPED_STEP_DIAGNOSTICS_SPEC.md` (proposed feature, not implemented) |
+| Related specifications | `PQ_CODE_M_SPEC.md`, `IMPLEMENTATION_PLAN.md`, `TYPED_STEP_DIAGNOSTICS_SPEC.md` (S0?S4 implemented; runtime/manual release gates remain open) |
 | Wave 0 decision | Passed and accepted on 2026-10-14 |
 
 ### Change log
@@ -22,6 +22,7 @@
 | 1.3 | 2026-10-17 | Added bounded full-result cache and explicit checkout-to-result action with changed-source fallback. |
 | 1.4 | 2026-10-17 | Added session `dataVersion`, retained old cache, unconfirmed staging and post-confirmation cache promotion. |
 | 1.5 | 2026-10-18 | Added explicit branch/edit modes, tree UI and conservative descendant impact reports without replaying old revisions. |
+| 1.7 | 2026-10-21 | Cancelled annotation/diff/runtime-summary roadmap; reserved null fields remain for persisted-history compatibility. |
 | 1.6 | 2026-10-21 | Added interactive clarification before root/branch/edit revision creation; answers complete the current request without changing HEAD until a valid candidate is committed. |
 
 ## 2. Objective
@@ -36,9 +37,9 @@ Problem Chain never treats an AI answer as approval, never uses Advanced M to by
 |---|---|---|
 | Wave 0 | Office.js Custom XML add/get/set/delete, package integrity, Save/reopen and Save As spike | Passed |
 | Phase 1 | Linear revision chain, persistence, checkout, continuation planning and head-bound runtime actions | Automated full regression passed; user reported successful workbook test; formal sideload trace not retained |
-| Phase 1.1 | Session-only versioned staging/display/full-result caches and checkout-to-result | Code updated; current revision not retested at user request; manual task-pane check pending |
-| Phase 2 | Explicit branch creation, tree UI and impact analysis | Automated pass; live Codex branch smoke and manual Excel gate pending |
-| Phase 3 | Name/note editing, semantic/runtime diff and persisted runtime summary | Not started |
+| Phase 1.1 | Session-only versioned staging/display/full-result caches and checkout-to-result | Refactor full regression passed; live checkout safely fell back on cache miss; full cache-hit and recovery sideload gates remain open |
+| Phase 2 | Explicit branch creation, tree UI and impact analysis | Refactor full regression and two live Codex branch tests passed; disposable Office.js continuation committed; full manual branch/recovery matrix remains open |
+
 
 An ordinary continuation still requires the current leaf HEAD. Creating another child requires the explicit `branch` action; the server never infers branch intent from the currently viewed revision.
 
@@ -72,7 +73,7 @@ An ordinary continuation still requires the current leaf HEAD. Creating another 
 ### 4.2 Out of scope
 
 - Branch merge, multi-user collaboration or conflict auto-merge.
-- Editing annotations or runtime comparison UI.
+- Editing annotations, runtime comparison UI and persisted runtime summaries are excluded permanently from this release scope. Reserved schema fields remain null for compatibility.
 - Persisting preview rows, approval tokens, workbook bytes or sample rows **in workbook history** by default. Phase 1.1 full-result bytes remain session-only.
 - Advanced M Problem Chain.
 - Automatic Save, Save As, source-cell write or query/connection persistence.

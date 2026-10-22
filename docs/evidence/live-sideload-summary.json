@@ -1,0 +1,73 @@
+{
+  "codeCommit": "55bd442",
+  "layer": "live Office.js + Codex + Excel16",
+  "xmlPartCount": 1,
+  "historyHash": "sha256:9686bc64bd4d9a9e7131c33d79eb54d2d0b8c792ccecf346f4b545014d7060c0",
+  "canonicalBytes": 11869,
+  "revisionCount": 2,
+  "headRevisionId": "rev_1f6a4cf80de7b1601a967fe5",
+  "revisions": [
+    {
+      "revisionId": "rev_1f6a4cf80de7b1601a967fe5",
+      "parentRevisionId": null,
+      "steps": 3,
+      "reviewHash": "sha256:a57ea7a5ba62e2e6afd274ef738e1a93c7c7010c366d872a0c53d77d571bb6a4"
+    },
+    {
+      "revisionId": "rev_b6fa8e94b8b9533588ba405b",
+      "parentRevisionId": "rev_1f6a4cf80de7b1601a967fe5",
+      "steps": 4,
+      "reviewHash": "sha256:9004a206399c5871b9b92e97e28f31582ff8f1849edf1f0aadd22d7b1ece96f2"
+    }
+  ],
+  "sourceSemanticEqual": true,
+  "sourceSemanticBefore": "36ce27e3c199f7ea0f4ac08a92538f1dfcfa66a2cdf2576311a6b5a643bc488c",
+  "sourceSemanticAfter": "36ce27e3c199f7ea0f4ac08a92538f1dfcfa66a2cdf2576311a6b5a643bc488c",
+  "resultDimensions": {
+    "rows": 4,
+    "columns": 2
+  },
+  "cacheCheckout": "HEAD committed; conservative cache miss displayed; no automatic write",
+  "sampleRowsLogged": false,
+  "verificationDates": [
+    "2026-10-21",
+    "2026-10-22"
+  ],
+  "reopen": {
+    "status": "Pass",
+    "visibleRevisionCount": 2,
+    "head": "root",
+    "visibleHeadSteps": 3,
+    "runtimeAuthorityRestored": false
+  },
+  "advancedUsedRange": {
+    "status": "Pass for exercised path",
+    "source": "synthetic PQ_Typed_Result usedRange",
+    "beforeRows": 4,
+    "afterRows": 2,
+    "columns": 2,
+    "oldTailClearObserved": true,
+    "separateTrustedAcknowledgement": true,
+    "separateApplyConfirmation": true,
+    "cancelBeforeExport": "No run-sheet request; no result write",
+    "automaticSave": false,
+    "independentSavedPackageAfterApply": "Not run; workbook was intentionally not automatically saved"
+  },
+  "tableCollision": {
+    "status": "Blocked",
+    "setup": "9-column synthetic SalesTable with adjacent sentinel; 10-column M preview prepared",
+    "failure": "TOKEN_EXPIRED; new bootstrap observed; old operation was not replayed",
+    "recovery": "Native UI input contention prevented safe completion after refresh/retry",
+    "sourceWriteAttempted": false
+  },
+  "remainingLiveGates": [
+    "Table resize/apply and occupied-adjacent-cell block",
+    "cache-hit restore success",
+    "live stale-source and CAS recovery matrix",
+    "write/read-back failure and unknown-state recovery",
+    "integrated manual step editing and subtree deletion"
+  ],
+  "restoredManifestSha256": "2124352F676DCD2C8F30BCA75CF038BBD8008444779322372122E4A15EEC0BCE",
+  "ownedServerStopped": true,
+  "nativeUiVerificationComplete": false
+}

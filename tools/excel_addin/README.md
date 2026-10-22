@@ -4,7 +4,7 @@
 
 - Windows và Excel Desktop Microsoft 365/Office 16 có `XLOOKUP`, `LET`, `IFS` và `Formula2`.
 - Python chạy được lệnh test của repository.
-- Fixture đã lưu local: `tests/fixtures_excel_mcp/excel_mcp_sales_input.xlsx`.
+- Fixture đã lưu local: `tests/fixtures/excel/excel_mcp_sales_input.xlsx`.
 - Ít nhất một cổng trong pool `3079` xuống `3072` còn trống.
 
 ## 1. Tạo HTTPS certificate cho localhost

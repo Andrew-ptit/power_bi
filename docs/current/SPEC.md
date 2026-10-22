@@ -10,7 +10,7 @@
 | Người duyệt | Product owner, BI lead, kỹ thuật, bảo mật — cần chỉ định |
 | Trạng thái | Draft; đã chốt xử lý cục bộ, bản copy PBIP và tạo biểu đồ theo yêu cầu |
 
-Sơ đồ quy trình để review trước implementation: [BPMN — Luồng Excel + PBIP](./BPMN_MODEL.md), được vẽ trong file Figma `Demo_Figma` → `Page 1`. Bản vẽ hiện phản ánh v0.3; vòng phản biện và nhánh xác nhận rủi ro của v0.5 được ghi trong [kế hoạch triển khai](./IMPLEMENTATION_PLAN.md) và cần cập nhật lên Figma trước khi coi sơ đồ là baseline.
+Sơ đồ quy trình để review trước implementation: [BPMN — Luồng Excel + PBIP](BPMN_MODEL.md), được vẽ trong file Figma `Demo_Figma` → `Page 1`. Bản vẽ hiện phản ánh v0.3; vòng phản biện và nhánh xác nhận rủi ro của v0.5 được ghi trong [kế hoạch triển khai](IMPLEMENTATION_PLAN.md) và cần cập nhật lên Figma trước khi coi sơ đồ là baseline.
 
 | Phiên bản | Thay đổi |
 |---|---|
@@ -42,7 +42,7 @@ Sản phẩm cho phép người dùng đưa `.xlsx`/`.csv` và PBIP vào một p
 - Phân tích mục tiêu và cấu trúc dữ liệu để đề xuất loại biểu đồ, measure, dimension, cách tổng hợp, bộ lọc, tiêu đề và vị trí; người dùng có thể sửa đề xuất trước khi tạo.
 - Hiển thị preview dữ liệu, model, report impact và diff theo file; chạy kiểm tra; tạo bản copy PBIP, backup và apply/restore trên bản copy.
 - Xuất gói patch và báo cáo kiểm tra để review mà không cần apply.
-- Chạy một Excel task pane trên Excel Desktop Windows để nhận prompt, đọc workbook đang mở qua connector cục bộ, hiển thị plan/preview, rồi chỉ sau phê duyệt mới tạo và ghi công thức vào một bản copy workbook. Hợp đồng và cổng kiểm chi tiết nằm tại [`EXCEL_MCP_SPEC.md`](./EXCEL_MCP_SPEC.md).
+- Chạy một Excel task pane trên Excel Desktop Windows để nhận prompt, đọc workbook đang mở qua connector cục bộ, hiển thị plan/preview, rồi chỉ sau phê duyệt mới tạo và ghi công thức vào một bản copy workbook. Hợp đồng và cổng kiểm chi tiết nằm tại [`EXCEL_MCP_SPEC.md`](EXCEL_MCP_SPEC.md).
 
 ### Ngoài phạm vi bản đầu
 
@@ -359,7 +359,7 @@ Ngưỡng NFR-001/002 là mục tiêu thiết kế để đo ở prototype, chư
 | P4 — PBIR | Binding patch, đề xuất/tạo visual mới và impact analysis | AC-011/013/014/015/016 đạt trên các Desktop version hỗ trợ |
 | P5 — Pilot | Người dùng thật chạy song song với quy trình thủ công | Đo KPI mục 1 và ghi lỗi/độ lệch dữ liệu |
 
-Bộ test cần có: Excel/CSV sai schema, CSV BOM/delimiter/encoding mơ hồ, file lớn, cột trùng tên, ngày theo locale, giá trị phần trăm 10/0,10, orphan key, phản biện AI trái dữ liệu, AI khuyên làm nhưng cổng an toàn chặn, M lỗi refresh, DAX sai filter context, nhiều report chung model, project không có Git, project có thay đổi chưa lưu, backup thiếu dung lượng, lỗi ghi giữa chừng và restore có xung đột. Phân rã công việc/test/điều kiện đạt nằm trong [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md).
+Bộ test cần có: Excel/CSV sai schema, CSV BOM/delimiter/encoding mơ hồ, file lớn, cột trùng tên, ngày theo locale, giá trị phần trăm 10/0,10, orphan key, phản biện AI trái dữ liệu, AI khuyên làm nhưng cổng an toàn chặn, M lỗi refresh, DAX sai filter context, nhiều report chung model, project không có Git, project có thay đổi chưa lưu, backup thiếu dung lượng, lỗi ghi giữa chừng và restore có xung đột. Phân rã công việc/test/điều kiện đạt nằm trong [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md).
 
 ## 16. Quyết định đã chốt và còn mở trước implementation
 
