@@ -3,16 +3,14 @@
 | Trường | Giá trị |
 |---|---|
 | Phiên bản | 0.6 — 12/10/2026 |
-| Trạng thái | Trusted Advanced M, strict Typed Planner và Coordinator hardening đã qua implementer test, kiểm tra chéo và Excel runtime smoke; chờ manual sideload trong Excel |
+| Status | Current contract; see [CURRENT_STATUS.md](CURRENT_STATUS.md) |
 | Owner | Product owner của Excel add-in |
 | Reviewer/approver | Người dùng workbook; manual sideload sign-off còn mở |
-| Nguồn | Yêu cầu ngày 06–12/10/2026; `EXCEL_MCP_SPEC.md`, `W21_EXCEL_TASKPANE_SPEC.md` |
+| Nguồn | Yêu cầu ngày 06–12/10/2026; `EXCEL_MCP_SPEC.md`, `EXCEL_CONNECTOR_CONTRACT.md` |
 
-Problem Chain cho Typed Steps được đặc tả riêng tại [`PROBLEM_CHAIN_SPEC.md`](PROBLEM_CHAIN_SPEC.md). Wave 0 Custom XML đã pass trong Excel thật ngày 14/10/2026; Phase 1 đã triển khai chuỗi revision tuyến tính, sửa step thủ công qua candidate/commit, persistence và checkout trên nhánh Typed. Kiểm tra chéo tự động và live Codex continuation đã đạt; full regression sạch và manual sideload UI tích hợp còn mở. Contract Advanced M không đổi; xem [`PHASE1_CROSSCHECK.md`](../evidence/PHASE1_CROSSCHECK.md) để phân biệt bằng chứng đã đo và gate chưa chạy.
+Current verification and Advanced M deferral: [CURRENT_STATUS.md](CURRENT_STATUS.md).
 
-Ngoại lệ Problem Chain Phase 1.1: cú bấm `Quay lại bản này` trên revision đã xác nhận là quyết định ghi mới, không tái sử dụng approval cũ. Coordinator chỉ trả full values-only result đã cache khi `dataVersion`, committed HEAD/history/review hash/workbook identity và fingerprint nguồn còn khớp; tối đa 5 result/64 MiB session-only. Đánh dấu nguồn đã đổi chỉ tăng `dataVersion`, giữ cache cũ để so sánh. Preview mới nằm ở staging; chỉ sau Xác nhận, ghi và read-back thành công mới thay cache. Hủy hoặc ghi lỗi giữ cache cũ. Cache thiếu/stale chạy Preview mới; ngay cả khi quên đánh dấu nguồn đổi, fingerprint vẫn chặn ghi dữ liệu cũ. Xem `PROBLEM_CHAIN_SPEC.md` v1.4. Thay đổi này chưa chạy lại test theo yêu cầu người dùng.
-
-## Release hardening v0.6
+## Runtime policy and lifecycle
 
 ### Advanced M Trusted Mode
 
@@ -27,14 +25,6 @@ Schema Structured Output có đúng 15 operation variants và 10 expression vari
 Coordinator cấp token ngẫu nhiên 256-bit, idle TTL 1.800 giây và absolute TTL 28.800 giây. Request hợp lệ gia hạn idle nhưng không kéo absolute deadline; token cũ/hết hạn trả `401 TOKEN_EXPIRED`. `POST /api/session/close` đóng ngay hoặc chờ job đang chạy kết thúc; bootstrap trong lúc session đang closing còn job trả `429 COORDINATOR_BUSY` và `Retry-After: 2` để không trộn state giữa hai session. Task pane có thể bootstrap lại một lần nhưng không replay POST cũ.
 
 Codex và Excel có hai slot độc lập, mỗi slot tối đa một job; job cùng loại thứ hai bị từ chối ngay bằng `429`, không xếp hàng. Approval/prepare/complete dùng state lock riêng. Temp artifact của coordinator nằm dưới marked root `local-data-copilot/run_<nonce>`; operation cleanup dùng `finally`, janitor chạy lúc startup và mỗi 60 giây, chỉ xóa marker hợp lệ quá một giờ hoặc legacy directory hợp lệ quá 24 giờ. Không cấp phát được temp trả `507 TEMP_STORAGE_UNAVAILABLE` trước subprocess.
-
-### Evidence ngày 12/10/2026
-
-- Cross-workstream focused integration: 82 pass, 0 fail, 0 skip.
-- Full repository: 214 pass, 0 fail, 1 skip do máy không hỗ trợ symlink.
-- Excel runtime: 8 pass, gồm external `File.Contents`, Table/usedRange, static values, failed refresh, Typed filter/add/sort, aggregate, append và merge/expand.
-- Live Codex Structured Output và real `CodexTypedRunner`: pass; plan `reviewReady`, 0 blocker.
-- Manual sideload Office.js: **Not run**; đây vẫn là exit gate cho bind workbook, reuse `PQ_Result`, Table apply và usedRange clear-tail.
 
 ## Typed Steps v2 — luồng mặc định
 
@@ -70,16 +60,16 @@ Các gate V1–V12 được hiện thực qua schema/manual contract validation,
 
 Automated acceptance hiện có: normalization/lineage/compiler golden tests; stale/replay/forged approval tests; repair revision tests; full API state machine; task-pane preview/approval/write/invalidation smoke; Excel 16.0 cross-check thật cho filter → add → sort, aggregate một dòng, append strict và merge → expand. Expected result trong runtime tests được khai báo độc lập với compiler template để phát hiện sai khác chéo. Manual sideload vẫn là exit gate riêng cho Office.js bind/write/reuse trên workbook đang mở.
 
-### Traceability triển khai v0.5
+### Typed requirements traceability
 
-| Requirement | Implementation evidence | Verification evidence | Trạng thái |
-|---|---|---|---|
-| PQ2-FR-001…003 | `build_source_catalog`, AI response schema, coordinator ID allocator | `test_draft_is_normalized_to_authoritative_ids_and_compiled`, API auth tests | Automated pass |
-| PQ2-FR-004…008 | Immutable revision store, graph/lineage/type/catalog validator, template compiler | catalog golden, type mismatch, raw-M/unknown-field negative tests | Automated pass |
-| PQ2-FR-009…013 | Compiled preview store, one-use approval, prepare/complete protocol, typed Office.js marker | full API lifecycle, JS 0-write-before-approval, static package audit, real Excel smoke | Automated pass; manual Office.js sideload mở |
-| PQ2-FR-014…016 | Repair diagnosis + server-held proposal patches; no cascade delete | producer-delete/repair revision test; stale revision tests | Automated pass |
-| PQ2-FR-017…018 | Workbook-only typed catalog; Advanced endpoints/UI giữ song song | policy negative test; `/api/pq/propose` coexistence và Advanced JS regression | Automated pass |
-| PQ2-FR-019…020 | Session-memory stores/close cleanup; request-body-free coordinator logging | server lifecycle và mutation-log regression tests | Automated pass |
+| Requirement | Implementation evidence | Verification evidence |
+| --- | --- | --- |
+| PQ2-FR-001…003 | `build_source_catalog`, AI response schema, coordinator ID allocator | `test_draft_is_normalized_to_authoritative_ids_and_compiled`, API auth tests |
+| PQ2-FR-004…008 | Immutable revision store, graph/lineage/type/catalog validator, template compiler | catalog golden, type mismatch, raw-M/unknown-field negative tests |
+| PQ2-FR-009…013 | Compiled preview store, one-use approval, prepare/complete protocol, typed Office.js marker | full API lifecycle, JS 0-write-before-approval, static package audit, real Excel smoke |
+| PQ2-FR-014…016 | Repair diagnosis + server-held proposal patches; no cascade delete | producer-delete/repair revision test; stale revision tests |
+| PQ2-FR-017…018 | Workbook-only typed catalog; Advanced endpoints/UI giữ song song | policy negative test; `/api/pq/propose` coexistence và Advanced JS regression |
+| PQ2-FR-019…020 | Session-memory stores/close cleanup; request-body-free coordinator logging | server lifecycle và mutation-log regression tests |
 
 Exception/negative paths đã kiểm gồm malformed/unknown operation, dependency/cycle/column/type/policy blocker, stale snapshot/revision/preview, forged/replayed approval, failed refresh, package không thuần values và read-back mismatch. Điều kiện chưa đóng là manual sideload: bind đúng workbook, ghi/reuse/clear-tail đúng sheet marker trong Excel task pane thật và xác nhận add-in không gọi Save.
 

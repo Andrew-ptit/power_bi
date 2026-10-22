@@ -1,4 +1,4 @@
-# W-21 — Excel task pane và connector spike
+# Excel fixture connector contract
 
 | Thuộc tính | Giá trị |
 |---|---|
@@ -142,17 +142,7 @@ Helper không thực thi formula do client gửi. Coordinator lấy công thức
 
 GX1 chỉ đóng khi W21-AC-01, 02, 06, 07 và 08 có bằng chứng trên Excel Desktop. Nếu automation COM xanh nhưng task pane chưa được sideload thủ công, ghi `GX1 pending manual task-pane evidence`, không ghi hoàn thành.
 
-## 7. Kế hoạch test theo lát cắt
-
-| Lát cắt | Đầu ra | Test ngay | Điều kiện đạt |
-|---|---|---|---|
-| W21-A | Typed fixture planner + stale-plan validation | prompt/schema/headers/revision/preview | deterministic; 0 filesystem write |
-| W21-B | Loopback task-pane server + Office.js UI + manifest | host/origin/token/assets/API, `node --check` | HTTPS-ready; mutation có token |
-| W21-C | Safe copy coordinator + helper adapter | invalid path/base64/ZIP/copy collision/fake helper/source hash | không overwrite; không truyền source làm write target |
-| W21-D | PowerShell Excel helper | isolated fixture apply/calculate/read-back + timeout contract | source hash bất biến; output khớp manifest |
-| W21-E | Sideload runbook + manual UAT | người dùng mở fixture và chạy full task pane | UI/runtime evidence ghi rõ phiên bản |
-
-## 8. Giới hạn sau W-21
+## Limits
 
 - Planner chỉ hiểu đúng fixture; chưa hiểu prompt tự do ngoài bốn yêu cầu mẫu.
 - Approval W-21 là request một lần gắn plan/snapshot; token ký/audit hoàn chỉnh thuộc W-24.
@@ -160,15 +150,3 @@ GX1 chỉ đóng khi W21-AC-01, 02, 06, 07 và 08 có bằng chứng trên Excel
 - Chưa hỗ trợ `.csv` trong task pane vì Excel task pane host một workbook; `.csv` vẫn dùng raw-data UI hiện có.
 - Chưa hỗ trợ OneDrive/SharePoint, `.xlsm`, workbook mã hóa/protected, nhiều Excel instance hoặc workbook lớn.
 
-## 9. Bằng chứng triển khai ngày 04/10/2026
-
-| Hạng mục | Trạng thái | Bằng chứng |
-|---|---|---|
-| W21-A planner/revision/preview | Đạt automated | 4 test `test_excel_plan.py`; preview 6 dòng khớp manifest; schema/URL/prompt/stale revision bị chặn |
-| W21-B server/task pane/manifest | Đạt automated, chờ manual host | 5 test `test_excel_addin_server.py`; `node --check`; HTTPS health trả `w21_excel_taskpane`; certificate PEM xuất thành công nhưng chưa tự động trust |
-| W21-C copy coordinator/safety | Đạt automated | 7 test `test_excel_connector.py`; source target/collision/base64/runtime mismatch/stale preview/trace; helper chỉ nhận catalog operation nội bộ |
-| W21-D Excel helper runtime | Đạt isolated Excel | `py -m examples.w21_excel_smoke`: Excel `16.0`, 6 dòng, 0 formula error, manifest matched, source SHA-256 unchanged |
-| Full regression | Đạt | `py -m unittest discover -s tests -v`: 118 pass, 1 skip symlink |
-| W21-E sideload/UAT trong task pane | Chưa chạy | Môi trường automation không có browser session; cần người dùng trust certificate, sideload manifest và thực hiện runbook |
-
-Kết luận hiện tại: connector/copy/calculate **khả thi và đã chạy thật trên fixture cô lập**. GX1 vẫn `pending manual task-pane evidence`; không suy diễn kết quả này thành MCP runtime, AI planner tổng quát hoặc production-ready.

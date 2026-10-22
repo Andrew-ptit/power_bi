@@ -14,13 +14,6 @@
 | Người review/phê duyệt | Product owner và kỹ thuật Excel connector; đang chờ chỉ định |
 | Trạng thái phê duyệt | Chưa phê duyệt production; được dùng làm baseline cho W-21 spike |
 
-### Lịch sử thay đổi
-
-| Phiên bản | Ngày | Thay đổi |
-|---|---|---|
-| 0.1 | 03/10/2026 | Tạo scope, architecture, MCP tool contract, FR, error catalog, fixture, 28 test scenario và exit gate. |
-| 0.1a | 04/10/2026 | Khóa traceability FR–AC–W–test và nghiệm thu fixture bằng 4 unit test; chưa thay đổi product scope. |
-
 ## 1. Mục tiêu
 
 Cho phép người dùng mở một workbook trong Excel, nhập yêu cầu bằng tiếng Việt hoặc tiếng Anh trong side-panel, xem kế hoạch và preview trước/sau, rồi chủ động phê duyệt để hệ thống tạo một bản copy và chỉ ghi công thức/thay đổi vào bản copy đó.
@@ -358,5 +351,3 @@ Các link trên là căn cứ cho spike, không phải bằng chứng rằng con
 | FR-034 | EX-FR-012, EX-FR-013 | AC-029, AC-032 | W-24, W-25 | EX-T-19, EX-T-20, EX-T-27, EX-T-28 |
 | FR-035 | EX-FR-014, EX-FR-015, EX-FR-017 | AC-028, AC-032 | W-25, W-26 | EX-T-21, EX-T-22, EX-T-25, EX-T-28 |
 | FR-036 | EX-FR-003, EX-FR-016 | AC-031 | W-22, W-26 | EX-T-23, EX-T-24 |
-
-Tại 04/10/2026, W-21 đã có isolated Excel 16.0 smoke cho EX-T-17/20: tạo copy từ fixture export, ghi bốn cột allowlist, calculate/read-back 6 dòng, 0 formula error, khớp manifest và hash nguồn bất biến. Các test task-pane sideload EX-T-01/21/22 và exit gate prototype tổng thể vẫn `not_run`/chưa đủ; W-21 không đồng nghĩa MCP runtime W-22 hoặc pilot W-26 đã hoàn thành.

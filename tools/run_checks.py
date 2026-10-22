@@ -51,10 +51,9 @@ def main() -> int:
             print(error, file=sys.stderr)
         return 1
     all_cases = list(cases(discovered))
-    # A missing module can still produce a green unittest run. Migration IDs
-    # make retained regression coverage an explicit gate, independent of count.
-    migration = json.loads((ROOT / "tests" / "case_migration.json").read_text(encoding="utf-8"))
-    required_ids = {case["new"] for case in migration["cases"] + migration.get("promoted_cases", [])}
+    # A missing module can still produce a green unittest run. Require current
+    # behavioral case IDs independently of the total discovery count.
+    required_ids = set(json.loads((ROOT / "tests" / "required_cases.json").read_text(encoding="utf-8")))
     discovered_ids = {case.id() for case in all_cases}
     missing = required_ids - discovered_ids
     if missing:

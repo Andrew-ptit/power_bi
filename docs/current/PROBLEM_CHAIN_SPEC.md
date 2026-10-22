@@ -6,24 +6,10 @@
 |---|---|
 | Version | 1.7 |
 | Date | 2026-10-21 |
-| Status | Existing implementation refactored; automated 385/0 fail/4 skip and live Codex 2/2 passed; live Office.js release journeys partially exercised; see release report |
+| Status | Current contract; see [verification status](CURRENT_STATUS.md) |
 | Owner | Local Data Copilot |
 | Scope | Excel task pane — Typed Steps only |
-| Related specifications | `PQ_CODE_M_SPEC.md`, `IMPLEMENTATION_PLAN.md`, `TYPED_STEP_DIAGNOSTICS_SPEC.md` (S0?S4 implemented; runtime/manual release gates remain open) |
-| Wave 0 decision | Passed and accepted on 2026-10-14 |
-
-### Change log
-
-| Version | Date | Change |
-|---|---|---|
-| 1.0 | 2026-10-14 | Locked storage, hash, revision, Phase 1 API/UI and acceptance contracts after the Custom XML spike passed in real Excel. |
-| 1.1 | 2026-10-16 | Aligned root/continuation API with server-owned Typed planning and recorded Phase 1 release evidence. |
-| 1.2 | 2026-10-17 | Added session-only five-preview FIFO display cache, separate from approval/runtime authority. |
-| 1.3 | 2026-10-17 | Added bounded full-result cache and explicit checkout-to-result action with changed-source fallback. |
-| 1.4 | 2026-10-17 | Added session `dataVersion`, retained old cache, unconfirmed staging and post-confirmation cache promotion. |
-| 1.5 | 2026-10-18 | Added explicit branch/edit modes, tree UI and conservative descendant impact reports without replaying old revisions. |
-| 1.7 | 2026-10-21 | Cancelled annotation/diff/runtime-summary roadmap; reserved null fields remain for persisted-history compatibility. |
-| 1.6 | 2026-10-21 | Added interactive clarification before root/branch/edit revision creation; answers complete the current request without changing HEAD until a valid candidate is committed. |
+| Related specifications | `PQ_CODE_M_SPEC.md`, `IMPLEMENTATION_PLAN.md`, `TYPED_STEP_DIAGNOSTICS_SPEC.md` |
 
 ## 2. Objective
 
@@ -31,19 +17,11 @@ Problem Chain lets a user solve a data problem through successive prompts withou
 
 Problem Chain never treats an AI answer as approval, never uses Advanced M to bypass Typed Steps, never silently changes downstream logic and never writes source cells while persisting history.
 
-## 3. Delivery phases
+## 3. Current behavior
 
-| Phase | Scope | Status |
-|---|---|---|
-| Wave 0 | Office.js Custom XML add/get/set/delete, package integrity, Save/reopen and Save As spike | Passed |
-| Phase 1 | Linear revision chain, persistence, checkout, continuation planning and head-bound runtime actions | Automated full regression passed; user reported successful workbook test; formal sideload trace not retained |
-| Phase 1.1 | Session-only versioned staging/display/full-result caches and checkout-to-result | Refactor full regression passed; live checkout safely fell back on cache miss; full cache-hit and recovery sideload gates remain open |
-| Phase 2 | Explicit branch creation, tree UI and impact analysis | Refactor full regression and two live Codex branch tests passed; disposable Office.js continuation committed; full manual branch/recovery matrix remains open |
+Verification status is maintained in [CURRENT_STATUS.md](CURRENT_STATUS.md).
 
-
-An ordinary continuation still requires the current leaf HEAD. Creating another child requires the explicit `branch` action; the server never infers branch intent from the currently viewed revision.
-
-### Phase 1.1 display and full-result caches
+### Display and full-result caches
 
 - A successful Excel runtime Preview creates **staging** with `runVersion = dataVersion` captured before execution. It does not replace either cache. Staging displays at most 20 rows × 200 columns before and after. Only after explicit confirmation, successful values-only write and read-back does the result replace the revision's cache entry. Cancel discards staging and keeps the previous cache entry.
 - Cache key includes workbook runtime identity, chain ID, revision ID and review hash; every entry also records its `dataVersion`. The display cache truncates text cells over 256 characters. Only the latest confirmed result per revision is kept. Updating a revision moves it to the FIFO tail; a sixth distinct result evicts the oldest entry.
@@ -57,7 +35,7 @@ An ordinary continuation still requires the current leaf HEAD. Creating another 
 
 ## 4. Scope
 
-### 4.1 Phase 1 in scope
+### 4.1 In scope
 
 - Create a root revision from the first Typed problem.
 - Continue from the current leaf head.
@@ -74,7 +52,7 @@ An ordinary continuation still requires the current leaf HEAD. Creating another 
 
 - Branch merge, multi-user collaboration or conflict auto-merge.
 - Editing annotations, runtime comparison UI and persisted runtime summaries are excluded permanently from this release scope. Reserved schema fields remain null for compatibility.
-- Persisting preview rows, approval tokens, workbook bytes or sample rows **in workbook history** by default. Phase 1.1 full-result bytes remain session-only.
+- Persisting preview rows, approval tokens, workbook bytes or sample rows **in workbook history** by default. Cached full-result bytes remain session-only.
 - Advanced M Problem Chain.
 - Automatic Save, Save As, source-cell write or query/connection persistence.
 
@@ -110,7 +88,7 @@ An ordinary continuation still requires the current leaf HEAD. Creating another 
 | PC-BR-013 | Session expiry shall allow rehydration from workbook XML but shall not restore preview, approval or apply authority. |
 | PC-BR-014 | Save As copies history but invalidates runtime authority because workbook runtime identity changes. |
 | PC-BR-015 | Co-authoring is unsupported in v1; detected history conflicts shall require reload. |
-| PC-BR-016 | Phase 1.1 may retain only bounded confirmed-result display rows in task-pane memory: one latest entry per revision, at most five entries, evicting the oldest on a sixth distinct confirmation. |
+| PC-BR-016 | The task pane may retain only bounded confirmed-result display rows in task-pane memory: one latest entry per revision, at most five entries, evicting the oldest on a sixth distinct confirmation. |
 | PC-BR-017 | A cached display shall never be treated as a current runtime Preview or grant Approve/Apply authority. An explicit checkout click may restore a separately stored full result only after server HEAD/history/review/source checks. |
 | PC-BR-018 | Caches shall be cleared on panel/session reset or workbook/chain change and shall not be persisted to Custom XML. Cached display must be marked historical. |
 | PC-BR-019 | Full-result cache shall keep at most five results and at most 64 MiB encoded data; eviction or stale input shall trigger a fresh Preview rather than a partial write. |
@@ -119,7 +97,7 @@ An ordinary continuation still requires the current leaf HEAD. Creating another 
 | PC-BR-022 | Even when `dataVersion` matches, a cached write shall recheck source-data fingerprint, workbook identity, committed HEAD/history and review hash. |
 | PC-BR-023 | Editing a non-root problem shall create a sibling from the original parent; the old problem and all descendants remain byte-for-byte unchanged. |
 | PC-BR-024 | Impact analysis is advisory and conservative. It may mark old descendants for review but shall never replay, delete, patch or re-parent them. |
-| PC-BR-025 | Editing the root is unavailable in Phase 2 because the persisted chain permits exactly one root. |
+| PC-BR-025 | Editing the root is unavailable because the persisted chain permits exactly one root. |
 | PC-BR-026 | `Làm tiếp từ đây` creates a child of the selected revision; `Làm lại vấn đề` creates a sibling from the selected problem's parent. |
 | PC-BR-027 | Explicit history deletion removes the selected revision and its entire subtree. A leaf deletes immediately; a node with descendants requires confirmation; the root cannot be deleted. Surviving revisions remain byte-for-byte unchanged. |
 | PC-BR-028 | A planner question that needs user input shall return clarification, not a candidate. It shall not create a revision, change HEAD, persist Custom XML, grant Preview/Apply authority or alter caches. |
@@ -176,7 +154,7 @@ Required fields:
 - `sources`, `steps`, `finalOutputStepId`, `changeSet`.
 - `validationAtCreation`, `runtimeSummary`, `reviewHash`.
 
-`originKind` is one of `problem`, `manualEdit` or `repairPatch`. Phase 1 exposes problem continuation and existing Typed manual edits; repair patches remain governed by Typed v2.
+`originKind` is one of `problem`, `manualEdit` or `repairPatch`. The current history exposes problem continuation and existing Typed manual edits; repair patches remain governed by Typed v2.
 
 ### 7.4 IDs and hashes
 
@@ -198,7 +176,7 @@ Required fields:
 
 Runtime data changes are tracked separately by `previewInputFingerprint`, which is session-only and remains part of preview/approval/apply validation.
 
-## 9. Phase 1 API contract
+## 9. API contract
 
 All endpoints require a valid coordinator session. Expired sessions return `401 TOKEN_EXPIRED`; the task pane may bootstrap once but shall not replay the failed POST.
 
@@ -231,7 +209,7 @@ or a decoded history document read from Custom XML. The server validates schema,
 }
 ```
 
-Phase 2 creation modes:
+Explicit creation modes:
 
 - `continue`: extend only the current leaf HEAD; `editRevisionId` must be null.
 - `branch`: explicitly create a child of any existing `baseRevisionId`.
@@ -332,7 +310,7 @@ If XML write succeeds but commit/network fails, the task pane shall not roll bac
 | PC-FR-007 | The system shall implement the ten-step optimistic mutation protocol. |
 | PC-FR-008 | The system shall allow viewing any revision without changing head. |
 | PC-FR-009 | The system shall checkout an existing revision through a committed history mutation. |
-| PC-FR-010 | The system shall prevent continuation from a non-leaf revision in Phase 1. |
+| PC-FR-010 | The system shall reject `continue` from a non-leaf revision; creating a child from that revision requires explicit `branch` mode. |
 | PC-FR-011 | The system shall disable Preview and Approve when view revision is not head. |
 | PC-FR-012 | The system shall invalidate preview/approval after checkout or semantic continuation. |
 | PC-FR-013 | The system shall rehydrate history after coordinator session renewal without restoring authority tokens. |
@@ -350,7 +328,7 @@ If XML write succeeds but commit/network fails, the task pane shall not roll bac
 | PC-FR-025 | The task pane shall expose explicit `Tạo nhánh từ đây` and shall never infer branch intent from View or Checkout. |
 | PC-FR-026 | The server shall permit a validated branch tree while retaining exactly one root and deriving tips from parent links. |
 | PC-FR-027 | `Sửa vấn đề` on a non-root revision shall create a sibling candidate from its parent and return conservative descendant impact metadata. |
-| PC-FR-028 | Phase 2 shall preserve old siblings and descendants without automatic replay, deletion, re-parenting or repair. |
+| PC-FR-028 | The system shall preserve old siblings and descendants without automatic replay, deletion, re-parenting or repair. |
 | PC-FR-029 | `POST /api/pq/v2/problem-chains/problems/delete` shall prepare a CAS-bound subtree-deletion candidate without invoking the planner. If HEAD is deleted, HEAD moves to the deleted node's parent. |
 | PC-FR-030 | Root, continuation, branch and edit analysis shall display mandatory planner questions in the active composer and collect answers before creating a revision. Duplicate non-blocking notes shall be collapsed. |
 
@@ -359,7 +337,7 @@ If XML write succeeds but commit/network fails, the task pane shall not roll bac
 - Typed Steps remains the default Power Query mode.
 - Problem Chain appears only when ExcelApi 1.5 is supported.
 - A vertical timeline shows prompt excerpt, timestamp, step count, validation status and output dimensions when known.
-- Phase 2 renders the timeline as a deterministic tree ordered by `createdAt`, then `revisionId`, with indentation derived from parent links.
+- The UI renders the timeline as a deterministic tree ordered by `createdAt`, then `revisionId`, with indentation derived from parent links.
 - The current head has a visible `HEAD` badge.
 - `Xem` changes only in-memory `viewRevisionId`.
 - One changed-source checkbox appears above the timeline, not on every revision; checking it increments `dataVersion` once and does not delete old cache.
@@ -407,7 +385,7 @@ If XML write succeeds but commit/network fails, the task pane shall not roll bac
 | PC-NFR-006 | Existing Advanced M and Typed v2 API contracts shall remain backward compatible. |
 | PC-NFR-007 | History read/write shall be bounded at 2 MiB canonical JSON and 50 revisions. |
 
-## 15. Phase 1 acceptance criteria
+## 15. Acceptance criteria
 
 | ID | Acceptance criterion |
 |---|---|
@@ -436,7 +414,7 @@ If XML write succeeds but commit/network fails, the task pane shall not roll bac
 | PC-AC-023 | A Typed result-sheet rewrite does not falsely stale source fingerprints when the sheet is not a pipeline source; edits to actual sources still do. |
 | PC-AC-024 | Cancel or failed read-back never promotes staging; the previous cache remains. Matching `dataVersion` with changed actual source data still blocks a cached write by fingerprint. |
 
-### Phase 2 acceptance criteria
+### Branch/edit/delete acceptance criteria
 
 | ID | Acceptance criterion |
 |---|---|
@@ -446,7 +424,7 @@ If XML write succeeds but commit/network fails, the task pane shall not roll bac
 | PC-AC-028 | Editing a non-root problem creates a sibling from its parent; descendants of the old problem are preserved and appear only in the impact report. |
 | PC-AC-029 | Editing root, using a mismatched edit base, stale CAS, changed source schema or implicit continuation from a non-leaf fails before planner execution. |
 | PC-AC-030 | A 50-node branch tree validates within the normal bounded request path; node 51 is rejected before planner execution. |
-| PC-AC-031 | Phase 2 UI submits explicit mode/base/edit IDs and renders a descendant-impact warning without auto-applying a patch. |
+| PC-AC-031 | The UI submits explicit mode/base/edit IDs and renders a descendant-impact warning without auto-applying a patch. |
 | PC-AC-032 | From Problem 1, `Làm tiếp` on Problem 2 creates a child of Problem 2; `Làm lại Problem 2` creates a sibling of Problem 2 under Problem 1. |
 | PC-AC-033 | Deleting a leaf requires no confirmation. Deleting a parent asks once and deletes only that subtree. Root deletion and stale CAS are rejected. |
 | PC-AC-034 | A question-only root or branch response has no `mutationId`, creates no revision or Custom XML write, and leaves the prior HEAD/Preview/cache unchanged. Complete answers produce one candidate through the ordinary CAS/commit path. |
@@ -463,9 +441,7 @@ If XML write succeeds but commit/network fails, the task pane shall not roll bac
 7. Manual sideload proves create two revisions, checkout, Save/reopen and head-bound preview behavior.
 8. Timeout, skip, auth/network failure or missing manual evidence is reported as Blocked/Not run.
 
-Phase 1 evidence as of 2026-10-17: independent manual-edit cross-check passed 34/34, combined domain/cross-check 55/55, and focused API/UI integration 75/75. The UI fake-host exercise used 22 API calls and 57 mocked Office.js syncs. Live Codex continuation produced a two-revision result in 11,610.3 ms; a separate near-2-MiB fake-host UI exercise cost about 2.3 s CPU. Full Python regression subsequently passed 282 tests with zero failures and one environmental skip in 394.047 s. The user reported a successful Phase 1 workbook run; a screenshot-level integrated sideload trace was not retained. See `PHASE1_CROSSCHECK.md` for commands, SHA-256 and limitations. These results predate the Phase 1.1 `dataVersion`/staging update and do not validate it; no test rerun was performed at the user's request. Phase 1.1 still requires manual task-pane verification.
 
-Phase 2 evidence as of 2026-10-18: the independent adversarial domain oracle passed 6/6, the exact-final focused Python set passed 79/79 in 42.292 s, and the fake Office.js task-pane flow passed with 37 API calls and 77 mocked sync boundaries. Full Python regression passed 321 tests with zero failures and one environmental symlink skip in 368.906 s immediately before the final `editProblem` target-kind guard; that guard then passed the exact-final focused suite. This proves explicit request binding, malformed-field rejection, tree preservation, CAS candidate behavior and no implicit descendant mutation in the tested fixtures. Live Codex branch continuation and manual Excel sideload are still Not run, so Phase 2 is not release-complete.
 
 ## 17. Traceability
 
@@ -478,9 +454,9 @@ Phase 2 evidence as of 2026-10-18: the independent adversarial domain oracle pas
 | PC-FR-008–012 | Timeline/head/view and stale runtime tests |
 | PC-FR-013–016 | Session rehydrate, warning, limits and no-write tests |
 | PC-NFR-001–007 | Adversarial schema/security/performance regression |
-| PC-AC-001–019 | Phase 1/1.1 integration, manual-edit, cache and manual exit checklist |
+| PC-AC-001–019 | History/cache integration, manual-edit, cache and manual exit checklist |
 
-## 18. Phase 1 ownership
+## 18. Ownership
 
 | Owner | Files and responsibility |
 |---|---|

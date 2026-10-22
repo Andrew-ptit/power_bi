@@ -81,4 +81,4 @@ Sau sideload, mở add-in **Reqwise-excel-mcp**. Nếu panel trắng, mở URL t
 
 ## Trạng thái bằng chứng
 
-Unit/API test và isolated COM smoke không thay thế bước sideload UI. Chỉ đóng GX1 khi bảng W21-AC trong `W21_EXCEL_TASKPANE_SPEC.md` có cả bằng chứng task pane và runtime Excel Desktop.
+Unit/API test và isolated COM smoke không thay thế bước sideload UI. Chỉ đóng GX1 khi bảng W21-AC trong `EXCEL_CONNECTOR_CONTRACT.md` có cả bằng chứng task pane và runtime Excel Desktop.

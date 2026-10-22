@@ -1,4 +1,0 @@
-table Broken
-
-	measure 'Bad Measure' = 1
-		description: this property is deliberately invalid here

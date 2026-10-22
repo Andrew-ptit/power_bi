@@ -6,7 +6,7 @@
 | Ngày | 2026-10-18 |
 | Phạm vi | Typed Steps trong Excel task pane, Problem Chain hiện hành |
 | Tài liệu liên quan | `PROBLEM_CHAIN_SPEC.md`, `PQ_CODE_M_SPEC.md`, `IMPLEMENTATION_PLAN.md` |
-| Trạng thái sản phẩm | Đã triển khai code và focused checks cho Excel Table; usedRange đang dùng fallback deterministic an toàn, chưa có hard-case profiler; chưa chạy full regression, Excel runtime hoặc manual sideload |
+| Status | Current contract; see [CURRENT_STATUS.md](CURRENT_STATUS.md) |
 
 ## 1. Quyết định và ranh giới
 
@@ -130,5 +130,3 @@ Test phải có oracle độc lập: so selected-step result với Excel Power Q
 | S3 — staging/step cache | Confirm/cancel, step key, FIFO/size, dataVersion + fingerprint + HEAD checks | Cancel/failed confirm preserve old, graph invalidation, race/TTL, 6-entry FIFO và 32/48 MiB caps |
 | S4 — task-pane UX | Nút rõ ràng, estimate từ đo đạc, staging report và cache label; final Apply giữ nguyên | JS fake-host, accessibility/manual click path, stale/busy messaging, Excel sideload |
 | S5 — release regression | Cross-review độc lập, focused + full tests, Advanced/Typed regression, runtime Excel, performance measurements | Báo cáo pass/fail/skip, source hash, wall time/peak memory, max cache bytes và manual evidence; chỉ chốt khi tất cả gate đạt |
-
-Thứ tự S0→S5 là bắt buộc vì UI không được suy đoán metrics, trạng thái hoặc cache authority trước khi server contract và Excel helper có bằng chứng. S0–S4 đã được triển khai ngày 2026-10-18 và qua focused checks; S5 chưa chạy theo yêu cầu người dùng. Vì chưa có Excel runtime/manual sideload và full regression, trạng thái phát hành vẫn là **manual validation pending**, không phải `Complete`.

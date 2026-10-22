@@ -1,3 +1,0 @@
-relationship 5d9a5ca1-d0ee-4b61-bc9b-27ec81a09ff1
-	fromColumn: FactOrders.ProductID
-	toColumn: DimProduct.ProductID
