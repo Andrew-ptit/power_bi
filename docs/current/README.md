@@ -6,6 +6,7 @@ These documents define current contracts and planned capabilities; their individ
 |---|---|
 | [Architecture](ARCHITECTURE.md) | Package boundaries, compatibility and refactor decisions |
 | [Current status](CURRENT_STATUS.md) | Current tests, deferred work and release readiness |
+| [DeepSeek handoff](DEEPSEEK_HANDOFF.md) | Current source snapshot, constraints and next work |
 | [History security](HISTORY_SECURITY.md) | Persisted XML/JSON trust boundaries and PC-SEC rules |
 | [Task-pane UI](TASKPANE_UI.md) | Current UI-001 through UI-007 behavior and accessibility |
 | [Product](SPEC.md) | Original local Excel/PBIP requirements and FR/AC IDs |
