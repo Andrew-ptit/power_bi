@@ -4,6 +4,8 @@ Ngày: 2026-11-13.
 
 Trạng thái: người dùng đã duyệt bản minh họa luồng hỏi theo tab và xem/sửa câu trả lời. Tài liệu này tổng hợp thiết kế để duyệt phạm vi đầy đủ; chưa phải bằng chứng tính năng đã được triển khai hoặc kiểm chứng.
 
+Cập nhật 2026-11-14: người dùng chọn hoàn thiện phần nền trước: nhập nguồn, làm sạch, hỏi/rà soát và undo/redo. KPI/domain business, đề xuất hành động nghiệp vụ và lưu/xuất/nhập quy tắc nghiệp vụ để giai đoạn sau. Sheet có sẵn trong workbook cá nhân phải tạo sheet kết quả riêng và giữ nguyên nguồn; chỉ sheet do lượt nhập trong phiên tạo ra mới có thể làm sạch trực tiếp. Kế hoạch phần 1 ở `specs/002-data-preparation/`; baseline 001 giữ nguyên.
+
 ## 1. Mục tiêu và người dùng
 
 Người dùng đầu tiên đã biết nghiệp vụ Supply Chain/Logistics. Chủ sản phẩm vừa học, vừa phát triển công cụ thực dụng và tạo dấu ấn riêng qua xử lý dữ liệu minh bạch, dễ học cách dùng và phát hiện sai lệch nghiệp vụ.
@@ -143,6 +145,6 @@ Thứ tự dự kiến cần được đánh giá trong kế hoạch: nền sess
 
 ## 10. Kết quả rà soát khả năng lập kế hoạch
 
-Reviewer độc lập đã đọc thiết kế. Còn một quyết định của chủ sản phẩm: phiên bản đầu nghiệm thu tới nhập/làm sạch/wizard, hay phải gồm một hành trình nghiệp vụ thực thi được; nếu gồm nghiệp vụ, cần xác nhận OTIF hay nhóm khác. Chưa giao builder tự chọn nhóm nghiệp vụ. Có thể lập kế hoạch phần nền sau duyệt scope, nhưng chưa xác lập fixture và tiêu chí nghiệm thu KPI toàn hành trình khi chưa chốt nhóm đầu tiên.
+Reviewer độc lập đã đọc thiết kế. Quyết định còn lại đã được người dùng giải quyết: phần 1 nghiệm thu tới nhập/làm sạch/wizard và undo/redo; phân tích nghiệp vụ để sau. OTIF không thuộc tiêu chí nghiệm thu phần 1, không giao builder tự chọn thêm nghiệp vụ.
 
 Không có câu hỏi sản phẩm quan trọng khác từ vòng rà soát này. Quota/cơ chế backup vẫn là quyết định kỹ thuật trong kế hoạch, không phải khả năng đã được chứng minh.
