@@ -1,15 +1,17 @@
 # Current task-pane UI contract
 
-## Preparation active extension
+## Preparation source import (feature 003 contract)
 
-Current preparation is Source -> Cleaning -> Problem, with Browse/file selection, native sheet import, automatic all-sheet scan, grouped questions and exact preview/Apply. The user removed backup across the flow on 2026-11-16. `preparationBackups: false` selects transient semantic/native-ID validation and direct begin/one-use permit/read-back completion. Active composition creates no target package evidence, recovery images/journal or preparation recovery XML; UI shows no preparation Undo/Redo. Historical session/journal modules remain isolated compatibility code. Imported in-place cleanup needs current-session verified ownership; existing personal sheets receive separate results. Unsupported personal-copy dependencies block before writing. Uncertain writes cannot replay; explicit fresh attachment revokes old authority and requires review again. No full target style/structure comparison, rollback or Ctrl+Z promise is made. Typed, Problem Chain and Advanced history semantics remain unchanged. Manual native acceptance is user-pending; see CURRENT_STATUS.md and specs/002-data-preparation/backup-removal-plan.md.
+The source journey has two steps, `1. Nguồn → 2. Đề bài`. The entry screen shows compact workbook context and keeps workbook details collapsed. `Đề bài` becomes available after a successful read-back of imported sheets or validation of existing workbook data. See [CURRENT_STATUS.md](CURRENT_STATUS.md) for verification status.
+
+Import uses the existing review, one-use write permit and read-back checks. With `preparationBackups: false`, these checks use transient semantic and native sheet identity evidence. A partial or unknown write requires explicit fresh attachment and review before another attempt. Preparation cleanup, journal and recovery modules serve legacy callers.
 
 The tab bar has exactly two tabs: `Trợ lý` and `PQ_Code-M`. The main assistant uses the eight cards below. Formula advice, copyable code cards and the old formula Apply controls have been removed from that tab. The backend compatibility endpoint `/api/excel/analyze` remains available; it is separate from this UI.
 
 | Card | DOM section | Behavior |
 |---|---|---|
 | 01 Workbook | `flow-workbook-section` | Connection metadata, active sheet, ExcelApi and read-again action. |
-| 02 Sources | `flow-source-section` | Explicit root, files/folders, metadata navigator, selected workbook Tables/usedRanges, CSV clarification and rename recovery. Discover samples deterministically; compute reads the selected full sources. |
+| 02 Sources | `flow-source-section` | Receives verified sources from `1. Nguồn`. Discover samples deterministically and compute reads the selected full sources. |
 | 03 Request | `flow-prompt-section` | 20,000-character request, measured questions and answers. Explicit disclosure is required before Codex receives the request, descriptive metadata and at most 20 sample rows across sources. No complete workbook or local paths are sent to Codex. |
 | 04 Understanding | `flow-understand-section` | Measured table/relationship counts and assumptions; details start collapsed. Before understanding, selected workbook sources are read again. Discover compares only its bound sample and dimensions; compute compares all bound rows. Failed reads or mismatches clear stale snapshot/plan authority and preserve consumed-write warnings. File-only understanding does not invoke Office.js. |
 | 05 A/B plans | `flow-branches-section` | Two validated Typed plans on the same compute snapshot, bounded previews, elapsed time, individual reconciliation and optional comparable delta. A hard blocker cannot be acknowledged away. Missing control-total evidence requires a separate explicit acknowledgement and keeps an unverified label. |
@@ -38,6 +40,12 @@ The UI invokes existing guarded use cases; visual presentation never grants appr
 | UI-009 | The step list is followed by one correction prompt. Submitting re-analyses instead of requiring manual operation edits: with an active chain it opens the existing composer mode (`editProblem` for a non-root problem head, otherwise `continue`) and creates exactly one revision; standalone it appends the instruction to the request and re-plans. The textarea clears only after a committed revision, and correcting steps never runs Excel Preview by itself. |
 
 Keep history/revision sections usable at narrow task-pane widths without horizontal overflow. Preserve keyboard access, practical hit targets, typed editing restrictions and runtime/cache/approval invalidation. Preview, Confirm, cancel, stale-cache recovery and session recovery must be tested through the actual handlers and runtime boundaries.
-# Approved assistant source entry (2026-11-14)
+## Assistant source entry
 
-The assistant's first screen shows compact workbook context (`Book1 · Chưa có dữ liệu`), one three-stage journey (`1. Nguồn → 2. Làm sạch → 3. Đề bài`) and two primary actions: `Chọn thư mục` and `Dùng dữ liệu trong workbook`. Workbook facts remain collapsed. Legacy ingestion form fields are compatibility internals, not a second source workflow shown beneath the new one. The local folder dialog is authenticated, opens only on a button action and handles cancellation without submitting empty input. Workbook selection checks for a header and data rows on the current sheet, then exposes the cleaning controls. Merely listing a directory cannot unlock cleaning or claim a completed import. Later stages remain unavailable until their source/write prerequisites are implemented. Existing data/privacy/approval limits still apply. This correction changes entry UX, not T002 qualification or production write authority.
+`Chọn thư mục` opens the authenticated native folder dialog once to choose the root. The task pane lists subfolders and supported CSV and XLSX files with a breadcrumb and an up control. Selections stay checked across folders. `Chọn tất cả thư mục này` selects files in the current folder only. The browser reads metadata and opens selected files when the user chooses `Nhập vào workbook`.
+
+Each CSV creates a new sheet with automatically inferred column types and Excel number formats. Each XLSX adds its sheets as a group. The source flow omits data and cleanup previews, per-column format questions and the workbook date-system selector. Excel supplies the date system automatically.
+
+The import report shows file and sheet totals, which sheets were created, the automatic exceptions by column, and reasons for skipped files. Each exception shows the reason and affected cell count, with up to two samples of 40 characters each. The panel displays up to 200 exception rows and includes the rest in the total.
+
+`Dùng dữ liệu trong workbook` checks for a header and data rows, warns about empty or non-tabular sheets, and reads the valid sources again. This branch leaves workbook data intact. If validation finds no usable source, `Đề bài` stays disabled.
