@@ -1,0 +1,1482 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "[A-Za-z0-9_-]+"
+    },
+    "fingerprint": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 71,
+      "pattern": "sha256:[0-9a-f]{64}"
+    },
+    "counter": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "worksheetId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "[^\\x00-\\x1f]+"
+    },
+    "sourceSnapshot": {
+      "type": "object",
+      "properties": {
+        "sourceId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "sheetId": {
+          "$ref": "#/$defs/worksheetId"
+        },
+        "headers": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 10000
+          },
+          "minItems": 1,
+          "maxItems": 200
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 10000
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "minItems": 1,
+            "maxItems": 200
+          },
+          "minItems": 0,
+          "maxItems": 100000
+        },
+        "formulaCells": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/counter"
+            },
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "minItems": 0,
+          "maxItems": 400000
+        },
+        "columnKinds": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "unknown",
+              "text",
+              "identifier",
+              "number",
+              "date"
+            ]
+          },
+          "minItems": 1,
+          "maxItems": 200
+        },
+        "numberFormats": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 256
+            },
+            "minItems": 1,
+            "maxItems": 200
+          },
+          "minItems": 0,
+          "maxItems": 100000
+        },
+        "dateSystem": {
+          "enum": [
+            "1900",
+            "1904"
+          ]
+        },
+        "rowOffset": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1048575
+        },
+        "columnOffset": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 16383
+        }
+      },
+      "required": [
+        "sourceId",
+        "sheetId",
+        "headers",
+        "rows",
+        "formulaCells",
+        "columnKinds",
+        "numberFormats",
+        "dateSystem",
+        "rowOffset",
+        "columnOffset"
+      ],
+      "additionalProperties": false
+    },
+    "claim": {
+      "type": "object",
+      "properties": {
+        "marker": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/identifier"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "semanticFingerprint": {
+          "$ref": "#/$defs/fingerprint"
+        },
+        "targetConfirmed": {
+          "type": "boolean"
+        },
+        "expectedClaimVersion": {
+          "$ref": "#/$defs/counter"
+        },
+        "workbookName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "locationHash": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/fingerprint"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "nativeIdentityHash": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/fingerprint"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "preservationFingerprint": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/fingerprint"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "marker",
+        "semanticFingerprint",
+        "targetConfirmed",
+        "expectedClaimVersion",
+        "workbookName",
+        "locationHash"
+      ],
+      "additionalProperties": false
+    },
+    "target": {
+      "type": "object",
+      "properties": {
+        "strategy": {
+          "enum": [
+            "import_new",
+            "imported_inplace",
+            "personal_copy"
+          ]
+        },
+        "sheetIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/worksheetId"
+          },
+          "minItems": 1,
+          "maxItems": 200
+        }
+      },
+      "required": [
+        "strategy",
+        "sheetIds"
+      ],
+      "additionalProperties": false
+    },
+    "selection": {
+      "type": "object",
+      "properties": {
+        "sheetId": {
+          "$ref": "#/$defs/worksheetId"
+        },
+        "kind": {
+          "enum": [
+            "table",
+            "usedRange"
+          ]
+        },
+        "sourceId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "fingerprint": {
+          "$ref": "#/$defs/fingerprint"
+        }
+      },
+      "required": [
+        "sheetId",
+        "kind",
+        "sourceId",
+        "fingerprint"
+      ],
+      "additionalProperties": false
+    },
+    "mapping": {
+      "type": "object",
+      "properties": {
+        "fileId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "sourceSheetId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "proposedName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 31
+        }
+      },
+      "required": [
+        "fileId",
+        "sourceSheetId",
+        "proposedName"
+      ],
+      "additionalProperties": false
+    },
+    "receipt": {
+      "type": "object",
+      "properties": {
+        "phase": {
+          "enum": [
+            "verified",
+            "prewrite_failed",
+            "partial_unknown"
+          ]
+        },
+        "actualSheetIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/worksheetId"
+          },
+          "minItems": 0,
+          "maxItems": 200
+        },
+        "observedFingerprint": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/fingerprint"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "imageId": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/identifier"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "rows": {
+          "$ref": "#/$defs/counter"
+        },
+        "columns": {
+          "$ref": "#/$defs/counter"
+        }
+      },
+      "required": [
+        "phase",
+        "actualSheetIds",
+        "observedFingerprint",
+        "imageId",
+        "rows",
+        "columns"
+      ],
+      "additionalProperties": false
+    },
+    "semanticSheet": {
+      "type": "object",
+      "properties": {
+        "sheetId": {
+          "$ref": "#/$defs/worksheetId"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 31
+        },
+        "rowOffset": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1048576
+        },
+        "columnOffset": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 16384
+        },
+        "values": {
+          "type": "array",
+          "maxItems": 100000,
+          "items": {
+            "type": "array",
+            "maxItems": 200,
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 10000
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        "formulas": {
+          "type": "array",
+          "maxItems": 100000,
+          "items": {
+            "type": "array",
+            "maxItems": 200,
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 10000
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        "numberFormats": {
+          "type": "array",
+          "maxItems": 100000,
+          "items": {
+            "type": "array",
+            "maxItems": 200,
+            "items": {
+              "type": "string",
+              "maxLength": 256
+            }
+          }
+        },
+        "formulaCells": {
+          "type": "array",
+          "maxItems": 400000,
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+              "$ref": "#/$defs/counter"
+            }
+          }
+        }
+      },
+      "required": [
+        "sheetId",
+        "name",
+        "rowOffset",
+        "columnOffset",
+        "values",
+        "formulas",
+        "numberFormats",
+        "formulaCells"
+      ],
+      "additionalProperties": false
+    },
+    "semanticImage": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "integer",
+          "const": 1
+        },
+        "sheets": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 200,
+          "items": {
+            "$ref": "#/$defs/semanticSheet"
+          }
+        },
+        "fingerprint": {
+          "$ref": "#/$defs/fingerprint"
+        }
+      },
+      "required": [
+        "version",
+        "sheets"
+      ],
+      "additionalProperties": false
+    },
+    "directReceipt": {
+      "type": "object",
+      "properties": {
+        "phase": {
+          "enum": [
+            "verified",
+            "prewrite_failed",
+            "partial_unknown"
+          ]
+        },
+        "actualSheetIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/worksheetId"
+          },
+          "minItems": 0,
+          "maxItems": 200
+        },
+        "observedFingerprint": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/fingerprint"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "imageId": {
+          "type": "null"
+        },
+        "rows": {
+          "$ref": "#/$defs/counter"
+        },
+        "columns": {
+          "$ref": "#/$defs/counter"
+        }
+      },
+      "required": [
+        "phase",
+        "actualSheetIds",
+        "observedFingerprint",
+        "imageId",
+        "rows",
+        "columns"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": 1,
+          "type": "integer"
+        },
+        "action": {
+          "const": "attach",
+          "type": "string"
+        },
+        "claim": {
+          "$ref": "#/$defs/claim"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "action",
+        "claim"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": 1,
+          "type": "integer"
+        },
+        "action": {
+          "const": "detach",
+          "type": "string"
+        },
+        "preparationId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "expectedClaimVersion": {
+          "$ref": "#/$defs/counter"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "action",
+        "preparationId",
+        "expectedClaimVersion"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": 1,
+          "type": "integer"
+        },
+        "action": {
+          "const": "state",
+          "type": "string"
+        },
+        "preparationId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "expectedClaimVersion": {
+          "$ref": "#/$defs/counter"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "action",
+        "preparationId",
+        "expectedClaimVersion"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": 1,
+          "type": "integer"
+        },
+        "action": {
+          "const": "inventory",
+          "type": "string"
+        },
+        "preparationId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "root": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        },
+        "relativePath": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "action",
+        "preparationId",
+        "root",
+        "relativePath"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": 1,
+          "type": "integer"
+        },
+        "action": {
+          "const": "source-snapshot",
+          "type": "string"
+        },
+        "preparationId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "snapshot": {
+          "$ref": "#/$defs/sourceSnapshot"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "action",
+        "preparationId",
+        "snapshot"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": 1,
+          "type": "integer"
+        },
+        "action": {
+          "const": "scan",
+          "type": "string"
+        },
+        "preparationId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "expectedFingerprint": {
+          "$ref": "#/$defs/fingerprint"
+        },
+        "sourceRevision": {
+          "$ref": "#/$defs/counter"
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/selection"
+          },
+          "minItems": 1,
+          "maxItems": 200
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "action",
+        "preparationId",
+        "expectedFingerprint",
+        "sourceRevision",
+        "sources"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": 1,
+          "type": "integer"
+        },
+        "action": {
+          "const": "answer",
+          "type": "string"
+        },
+        "preparationId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "questionId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "expectedAnswerRevision": {
+          "$ref": "#/$defs/counter"
+        },
+        "answer": {
+          "type": "object",
+          "properties": {
+            "choice": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4000
+            },
+            "reason": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4000
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "choice",
+            "reason"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "action",
+        "preparationId",
+        "questionId",
+        "expectedAnswerRevision",
+        "answer"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": 1,
+          "type": "integer"
+        },
+        "action": {
+          "const": "preview",
+          "type": "string"
+        },
+        "preparationId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "kind": {
+          "enum": [
+            "import",
+            "cleanup"
+          ]
+        },
+        "sourceRevision": {
+          "$ref": "#/$defs/counter"
+        },
+        "answerRevision": {
+          "$ref": "#/$defs/counter"
+        },
+        "expectedFingerprint": {
+          "$ref": "#/$defs/fingerprint"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "action",
+        "preparationId",
+        "kind",
+        "sourceRevision",
+        "answerRevision",
+        "expectedFingerprint"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": 1,
+          "type": "integer"
+        },
+        "action": {
+          "const": "review-import",
+          "type": "string"
+        },
+        "preparationId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "inventoryHash": {
+          "$ref": "#/$defs/fingerprint"
+        },
+        "mappings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/mapping"
+          },
+          "minItems": 1,
+          "maxItems": 200
+        },
+        "existingNames": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 31
+          },
+          "maxItems": 200
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "action",
+        "preparationId",
+        "inventoryHash",
+        "mappings"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": 1,
+          "type": "integer"
+        },
+        "action": {
+          "const": "approve",
+          "type": "string"
+        },
+        "preparationId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "reviewHash": {
+          "$ref": "#/$defs/fingerprint"
+        },
+        "kind": {
+          "enum": [
+            "import",
+            "cleanup"
+          ]
+        },
+        "target": {
+          "$ref": "#/$defs/target"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "action",
+        "preparationId",
+        "reviewHash",
+        "kind",
+        "target"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": 1,
+          "type": "integer"
+        },
+        "action": {
+          "const": "begin",
+          "type": "string"
+        },
+        "preparationId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "expectedFingerprint": {
+          "$ref": "#/$defs/fingerprint"
+        },
+        "grantId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "expectedPreservationFingerprint": {
+          "$ref": "#/$defs/fingerprint"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "action",
+        "preparationId",
+        "expectedFingerprint",
+        "grantId",
+        "expectedPreservationFingerprint"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": 1,
+          "type": "integer"
+        },
+        "action": {
+          "const": "write-ready",
+          "type": "string"
+        },
+        "preparationId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "expectedFingerprint": {
+          "$ref": "#/$defs/fingerprint"
+        },
+        "attemptId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "beforeImageId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "expectedPreservationFingerprint": {
+          "$ref": "#/$defs/fingerprint"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "action",
+        "preparationId",
+        "expectedFingerprint",
+        "attemptId",
+        "beforeImageId",
+        "expectedPreservationFingerprint"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": 1,
+          "type": "integer"
+        },
+        "action": {
+          "const": "complete",
+          "type": "string"
+        },
+        "preparationId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "attemptId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "receipt": {
+          "$ref": "#/$defs/receipt"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "action",
+        "preparationId",
+        "attemptId",
+        "receipt"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": 1,
+          "type": "integer"
+        },
+        "action": {
+          "const": "undo",
+          "type": "string"
+        },
+        "preparationId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "expectedFingerprint": {
+          "$ref": "#/$defs/fingerprint"
+        },
+        "pointId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "expectedCursor": {
+          "$ref": "#/$defs/counter"
+        },
+        "expectedPreservationFingerprint": {
+          "$ref": "#/$defs/fingerprint"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "action",
+        "preparationId",
+        "expectedFingerprint",
+        "pointId",
+        "expectedCursor",
+        "expectedPreservationFingerprint"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": 1,
+          "type": "integer"
+        },
+        "action": {
+          "const": "redo",
+          "type": "string"
+        },
+        "preparationId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "expectedFingerprint": {
+          "$ref": "#/$defs/fingerprint"
+        },
+        "pointId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "expectedCursor": {
+          "$ref": "#/$defs/counter"
+        },
+        "expectedPreservationFingerprint": {
+          "$ref": "#/$defs/fingerprint"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "action",
+        "preparationId",
+        "expectedFingerprint",
+        "pointId",
+        "expectedCursor",
+        "expectedPreservationFingerprint"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": 1,
+          "type": "integer"
+        },
+        "action": {
+          "const": "restore-complete",
+          "type": "string"
+        },
+        "preparationId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "attemptId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "receipt": {
+          "$ref": "#/$defs/receipt"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "action",
+        "preparationId",
+        "attemptId",
+        "receipt"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": 1,
+          "type": "integer"
+        },
+        "action": {
+          "const": "image-begin",
+          "type": "string"
+        },
+        "preparationId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "attemptId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "purpose": {
+          "enum": [
+            "before",
+            "after",
+            "restore-readback"
+          ]
+        },
+        "byteLength": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 67108864
+        },
+        "imageHash": {
+          "$ref": "#/$defs/fingerprint"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "action",
+        "preparationId",
+        "attemptId",
+        "purpose",
+        "byteLength",
+        "imageHash"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": 1,
+          "type": "integer"
+        },
+        "action": {
+          "const": "image-chunk",
+          "type": "string"
+        },
+        "preparationId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "attemptId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "uploadId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "index": {
+          "$ref": "#/$defs/counter"
+        },
+        "offset": {
+          "$ref": "#/$defs/counter"
+        },
+        "chunkHash": {
+          "$ref": "#/$defs/fingerprint"
+        },
+        "dataBase64": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1398104,
+          "pattern": "[A-Za-z0-9+/]+={0,2}"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "action",
+        "preparationId",
+        "attemptId",
+        "uploadId",
+        "index",
+        "offset",
+        "chunkHash",
+        "dataBase64"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": 1,
+          "type": "integer"
+        },
+        "action": {
+          "const": "image-finish",
+          "type": "string"
+        },
+        "preparationId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "attemptId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "uploadId": {
+          "$ref": "#/$defs/identifier"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "action",
+        "preparationId",
+        "attemptId",
+        "uploadId"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": 1,
+          "type": "integer"
+        },
+        "action": {
+          "const": "pick-folder",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "action"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": 1,
+          "type": "integer"
+        },
+        "action": {
+          "const": "packages",
+          "type": "string"
+        },
+        "preparationId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "reviewHash": {
+          "$ref": "#/$defs/fingerprint"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "action",
+        "preparationId",
+        "reviewHash"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": 1,
+          "type": "integer"
+        },
+        "action": {
+          "const": "source-set",
+          "type": "string"
+        },
+        "preparationId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "expectedSourceRevision": {
+          "$ref": "#/$defs/counter"
+        },
+        "snapshots": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 200,
+          "items": {
+            "$ref": "#/$defs/sourceSnapshot"
+          }
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "action",
+        "preparationId",
+        "expectedSourceRevision",
+        "snapshots"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": 1
+        },
+        "action": {
+          "const": "preservation-begin"
+        },
+        "byteLength": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 67108864
+        },
+        "packageHash": {
+          "$ref": "#/$defs/fingerprint"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "action",
+        "byteLength",
+        "packageHash"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": 1
+        },
+        "action": {
+          "const": "preservation-chunk"
+        },
+        "uploadId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "index": {
+          "$ref": "#/$defs/counter"
+        },
+        "offset": {
+          "$ref": "#/$defs/counter"
+        },
+        "chunkHash": {
+          "$ref": "#/$defs/fingerprint"
+        },
+        "dataBase64": {
+          "type": "string",
+          "minLength": 4,
+          "maxLength": 1398104
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "action",
+        "uploadId",
+        "index",
+        "offset",
+        "chunkHash",
+        "dataBase64"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": 1
+        },
+        "action": {
+          "const": "preservation-finish"
+        },
+        "uploadId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "semanticImage": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "action",
+        "uploadId",
+        "semanticImage"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "type": "integer",
+          "const": 1
+        },
+        "action": {
+          "type": "string",
+          "const": "direct-begin"
+        },
+        "preparationId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "grantId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "beforeImage": {
+          "$ref": "#/$defs/semanticImage"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "action",
+        "preparationId",
+        "grantId",
+        "beforeImage"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "type": "integer",
+          "const": 1
+        },
+        "action": {
+          "type": "string",
+          "const": "direct-write-ready"
+        },
+        "preparationId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "attemptId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "writePermit": {
+          "$ref": "#/$defs/identifier"
+        },
+        "currentFingerprint": {
+          "$ref": "#/$defs/fingerprint"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "action",
+        "preparationId",
+        "attemptId",
+        "writePermit",
+        "currentFingerprint"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "type": "integer",
+          "const": 1
+        },
+        "action": {
+          "type": "string",
+          "const": "direct-complete"
+        },
+        "preparationId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "attemptId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "receipt": {
+          "$ref": "#/$defs/directReceipt"
+        },
+        "afterImage": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/semanticImage"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "action",
+        "preparationId",
+        "attemptId",
+        "receipt"
+      ],
+      "additionalProperties": false
+    }
+  ]
+}
