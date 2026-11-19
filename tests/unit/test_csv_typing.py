@@ -38,6 +38,39 @@ class NumberRulesTest(unittest.TestCase):
         self.assertEqual(oracle.column(result, 0), [1.5, 2.25])
         self.assertEqual(oracle.reason_of(result, "n"), oracle.DECIMAL_COMMA)
 
+    def test_single_dot_in_each_grouped_value(self):
+        result = frame(["n"], [["1.234"], ["2.345"]])
+        self.assertEqual(oracle.column(result, 0), [1234, 2345])
+        self.assertEqual(oracle.reason_of(result, "n"), oracle.GROUP_SEPARATOR)
+
+    def test_negative_localized_numbers(self):
+        for raw, expected, reason in (
+            ("-1,234", -1234, oracle.GROUP_SEPARATOR),
+            ("-12.345.678", -12345678, oracle.GROUP_SEPARATOR),
+            ("-1,25", -1.25, oracle.DECIMAL_COMMA),
+        ):
+            with self.subTest(raw=raw):
+                result = frame(["n"], [[raw]])
+                self.assertEqual(oracle.column(result, 0), [expected])
+                self.assertEqual(oracle.reason_of(result, "n"), reason)
+
+    def test_group_separator_with_ungrouped_integer_rows(self):
+        for grouped in ("1,234", "1.234"):
+            with self.subTest(grouped=grouped):
+                result = frame(["qty"], [[grouped], ["12"]])
+                self.assertEqual(oracle.column(result, 0), [1234, 12])
+                self.assertEqual(oracle.reason_of(result, "qty"), oracle.GROUP_SEPARATOR)
+
+    def test_plain_integers_keep_default_number_reason(self):
+        result = frame(["n"], [["1234"], ["12"]])
+        self.assertEqual(oracle.column(result, 0), [1234, 12])
+        self.assertEqual(oracle.reason_of(result, "n"), oracle.DECIMAL_DOT)
+
+    def test_grouped_integer_part_and_decimal_part(self):
+        result = frame(["n"], [["1,234.567"]])
+        self.assertEqual(oracle.column(result, 0), [1234.567])
+        self.assertEqual(oracle.reason_of(result, "n"), oracle.DECIMAL_DOT)
+
     def test_leading_zero_stays_text(self):
         result = frame(["code"], [["00123"], ["00456"]])
         self.assertEqual(oracle.column(result, 0), ["00123", "00456"])
@@ -86,6 +119,12 @@ class DateRulesTest(unittest.TestCase):
 
 
 class TextRulesTest(unittest.TestCase):
+    def test_minus_expression_keeps_whole_column_as_text(self):
+        result = frame(["f"], [["-2,25"], ["-2+1"]])
+        self.assertEqual(oracle.column(result, 0), ["-2,25", "-2+1"])
+        self.assertEqual(oracle.formats(result, 0), [oracle.TEXT] * 2)
+        self.assertEqual(oracle.reason_of(result, "f"), oracle.FORMULA_LIKE_TEXT)
+
     def test_formula_like_never_numeric(self):
         result = frame(["f"], [["=1+1"], ["+A1"], ["@x"]])
         self.assertEqual(oracle.column(result, 0), ["=1+1", "+A1", "@x"])

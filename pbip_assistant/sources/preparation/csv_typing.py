@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import re
 from datetime import date
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal
 
 __all__ = ["build_typed_frame", "describe_columns"]
 
@@ -26,7 +26,7 @@ _RE_NUMBER_DOT = re.compile(r"^[+-]?(\d{1,3}(,\d{3})+|\d+)(\.\d+)?$")
 _RE_NUMBER_COMMA = re.compile(r"^[+-]?(\d{1,3}(\.\d{3})+|\d+)(,\d+)?$")
 _RE_DATE = re.compile(r"^(\d{1,4})[/.-](\d{1,2})[/.-](\d{1,4})$")
 _RE_LEADING_ZERO = re.compile(r"^0\d+$")
-_RE_GROUPED = re.compile(r"^[+-]?\d{1,3}([.,]\d{3})+$")
+_RE_GROUPED = re.compile(r"[+-]?\d{1,3}([.,])\d{3}(?:\1\d{3})*")
 _FORMULA_PREFIXES = ("=", "+", "@")
 
 
@@ -40,11 +40,7 @@ def _formula_like(value: str) -> bool:
     if value[0] in _FORMULA_PREFIXES:
         return True
     if value[0] == "-":
-        try:
-            Decimal(value)
-            return False
-        except InvalidOperation:
-            return True
+        return not (_RE_NUMBER_DOT.fullmatch(value) or _RE_NUMBER_COMMA.fullmatch(value))
     return False
 
 
@@ -63,28 +59,19 @@ def _decimal_comma(value: str) -> Decimal:
     return Decimal(value.replace(".", "").replace(",", "."))
 
 
-def _three_digit_groups(value: str) -> bool:
-    body = value.lstrip("+-")
-    if not _RE_GROUPED.match(body):
-        return False
-    parts = re.split(r"[.,]", body)
-    return 1 <= len(parts[0]) <= 3 and all(len(part) == 3 for part in parts[1:])
-
-
 def _number_cells(values: list[str]):
     """Trả (cells, reason) hoặc None nếu cột không phải số."""
     dot_ok = all(_RE_NUMBER_DOT.match(value) for value in values)
     comma_ok = all(_RE_NUMBER_COMMA.match(value) for value in values)
     if not dot_ok and not comma_ok:
         return None
-    grouped = all(_three_digit_groups(value) for value in values) and any(
-        "," in value or "." in value for value in values
-    )
+    punctuated = [value for value in values if "." in value or "," in value]
+    if punctuated and all(_RE_GROUPED.fullmatch(value) for value in punctuated):
+        integers = [Decimal(value.replace(".", "").replace(",", "")) for value in values]
+        return integers, "GROUP_SEPARATOR"
     if dot_ok:
-        parsed = [_decimal_dot(value) for value in values]
-        return parsed, ("GROUP_SEPARATOR" if grouped else "DECIMAL_DOT")
-    return [_decimal_comma(value) for value in values], (
-        "GROUP_SEPARATOR" if grouped else "DECIMAL_COMMA")
+        return [_decimal_dot(value) for value in values], "DECIMAL_DOT"
+    return [_decimal_comma(value) for value in values], "DECIMAL_COMMA"
 
 
 def _date_order(parts: list[tuple[str, str, str]]) -> str | None:
