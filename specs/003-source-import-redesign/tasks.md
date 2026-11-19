@@ -179,6 +179,7 @@ py -m unittest tests.contracts.test_source_import_contracts -v
 - `tests/integration/test_preparation_api.py` (thêm case `packages` + `dateSystem`)
 - `pbip_assistant/coordinator/endpoints/preparation.py` (chỉ nhánh packages chuyển dateSystem)
 - `tests/integration/test_preparation_direct.py` (đồng bộ request inventory và kiểm chứng dữ liệu đúng kiểu)
+- `tests/integration/test_preparation_mutation.py` (chỉ fixture Qty nếu tái hiện sai kiểu trong ảnh phục hồi)
 
 **Không sửa**: `csv_typing.py` (T302), UI.
 
