@@ -36,6 +36,7 @@ class NumberRulesTest(unittest.TestCase):
     def test_decimal_comma_column(self):
         result = frame(["n"], [["1,5"], ["2,25"]])
         self.assertEqual(oracle.column(result, 0), [1.5, 2.25])
+        self.assertEqual(oracle.formats(result, 0), [oracle.NUMBER] * 2)
         self.assertEqual(oracle.reason_of(result, "n"), oracle.DECIMAL_COMMA)
 
     def test_single_dot_in_each_grouped_value(self):
@@ -52,6 +53,7 @@ class NumberRulesTest(unittest.TestCase):
             with self.subTest(raw=raw):
                 result = frame(["n"], [[raw]])
                 self.assertEqual(oracle.column(result, 0), [expected])
+                self.assertEqual(oracle.formats(result, 0), [oracle.NUMBER])
                 self.assertEqual(oracle.reason_of(result, "n"), reason)
 
     def test_group_separator_with_ungrouped_integer_rows(self):
@@ -61,14 +63,16 @@ class NumberRulesTest(unittest.TestCase):
                 self.assertEqual(oracle.column(result, 0), [1234, 12])
                 self.assertEqual(oracle.reason_of(result, "qty"), oracle.GROUP_SEPARATOR)
 
-    def test_plain_integers_keep_default_number_reason(self):
+    def test_plain_integers_have_no_exception(self):
         result = frame(["n"], [["1234"], ["12"]])
         self.assertEqual(oracle.column(result, 0), [1234, 12])
-        self.assertEqual(oracle.reason_of(result, "n"), oracle.DECIMAL_DOT)
+        self.assertEqual(oracle.formats(result, 0), [oracle.NUMBER] * 2)
+        self.assertEqual(result["decisions"], [])
 
     def test_grouped_integer_part_and_decimal_part(self):
         result = frame(["n"], [["1,234.567"]])
         self.assertEqual(oracle.column(result, 0), [1234.567])
+        self.assertEqual(oracle.formats(result, 0), [oracle.NUMBER])
         self.assertEqual(oracle.reason_of(result, "n"), oracle.DECIMAL_DOT)
 
     def test_leading_zero_stays_text(self):
@@ -145,6 +149,32 @@ class TextRulesTest(unittest.TestCase):
 
 
 class ShapeAndBoundsTest(unittest.TestCase):
+    def test_product_import_reports_only_three_exceptions(self):
+        result = frame(["unit_price", "qty", "code", "created", "note"], [
+            ["1234.56", "1,234", "00123", "03/04/2026", " KH01 "],
+            ["0.99", "12", "", "", ""],
+        ])
+        self.assertEqual(result["values"][1:], [
+            [1234.56, 1234, "00123", oracle.serial(2026, 4, 3, 1900), "KH01"],
+            [0.99, 12, "", "", ""],
+        ])
+        self.assertCountEqual([(d["column"], d["reasonCode"]) for d in result["decisions"]],
+                              [("qty", oracle.GROUP_SEPARATOR), ("code", oracle.LEADING_ZERO_TEXT),
+                               ("created", oracle.DATE_DMY_DEFAULT)])
+
+    def test_empty_cells_in_number_and_date_columns_use_text_format(self):
+        result = frame(["price", "created"], [["0", "03/04/2026"], ["", " "]])
+        self.assertEqual(result["values"][2], ["", ""])
+        self.assertEqual(result["numberFormats"][1:], [[oracle.NUMBER, oracle.DATE],
+                                                      [oracle.TEXT, oracle.TEXT]])
+
+    def test_unsupported_formats_remain_reportable_text(self):
+        for value in ("25%", "$12", "12 €", "2025-01-14T15:00"):
+            with self.subTest(value=value):
+                result = frame(["x"], [[value]])
+                self.assertEqual(oracle.column(result, 0), [value])
+                self.assertEqual(oracle.reason_of(result, "x"), oracle.MIXED_TYPE_TEXT)
+
     def test_header_row_is_always_text(self):
         result = frame(["1", "2.5"], [["x", "1"]])
         self.assertEqual(result["numberFormats"][0], [oracle.TEXT, oracle.TEXT])
@@ -157,9 +187,9 @@ class ShapeAndBoundsTest(unittest.TestCase):
 
     def test_report_bounds(self):
         headers = [f"c{index}" for index in range(250)]
-        row = [str(index + 1) for index in range(250)]
+        row = ["00123"] * len(headers)
         result = frame(headers, [row])
-        self.assertLessEqual(len(result["decisions"]), oracle.MAX_DECISIONS)
+        self.assertEqual(len(result["decisions"]), oracle.MAX_DECISIONS)
         for decision in result["decisions"]:
             self.assertLessEqual(len(decision["samples"]), oracle.MAX_SAMPLES)
             for sample in decision["samples"]:

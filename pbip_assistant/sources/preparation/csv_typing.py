@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import re
+import unicodedata
 from datetime import date
 from decimal import Decimal
 
@@ -27,6 +28,7 @@ _RE_NUMBER_COMMA = re.compile(r"^[+-]?(\d{1,3}(\.\d{3})+|\d+)(,\d+)?$")
 _RE_DATE = re.compile(r"^(\d{1,4})[/.-](\d{1,2})[/.-](\d{1,4})$")
 _RE_LEADING_ZERO = re.compile(r"^0\d+$")
 _RE_GROUPED = re.compile(r"[+-]?\d{1,3}([.,])\d{3}(?:\1\d{3})*")
+_RE_DATETIME = re.compile(r"^\d{1,4}[/.-]\d{1,2}[/.-]\d{1,4}[T ]\d{1,2}:\d{2}")
 _FORMULA_PREFIXES = ("=", "+", "@")
 
 
@@ -49,6 +51,19 @@ def _significant_digits(value: str) -> int:
     while digits and digits[0] == "0":
         digits.pop(0)
     return len(digits)
+
+
+def _numeric_or_date_like(value: str) -> bool:
+    if (_RE_NUMBER_DOT.fullmatch(value) or _RE_NUMBER_COMMA.fullmatch(value)
+            or _RE_DATE.fullmatch(value) or _RE_DATETIME.match(value)):
+        return True
+    # Unsupported percentage and currency values are retained as text and reported.
+    token = value
+    if value.endswith("%") or unicodedata.category(value[-1]) == "Sc":
+        token = value[:-1].strip()
+    elif unicodedata.category(value[0]) == "Sc":
+        token = value[1:].strip()
+    return token != value and bool(_RE_NUMBER_DOT.fullmatch(token) or _RE_NUMBER_COMMA.fullmatch(token))
 
 
 def _decimal_dot(value: str) -> Decimal:
@@ -165,7 +180,8 @@ def _decide(column: str, index: int, cells: list[str], date_system: str):
             return "text", TEXT_FORMAT, "PRECISION_TEXT", list(filled), True
         typed = [int(cell) if cell == cell.to_integral_value() else float(cell)
                  for cell in cells_out]
-        return "number", NUMBER_FORMAT, reason, typed, True
+        report = reason != "DECIMAL_DOT" or any("," in value for value in filled)
+        return "number", NUMBER_FORMAT, reason, typed, report
 
     parsed = _parse_dates(filled)
     if parsed is not None:
@@ -179,7 +195,8 @@ def _decide(column: str, index: int, cells: list[str], date_system: str):
         reason = "DATE_UNSUPPORTED_TEXT" if unsupported else "INVALID_DATE_TEXT"
         return "text", TEXT_FORMAT, reason, list(filled), True
 
-    return "text", TEXT_FORMAT, "MIXED_TYPE_TEXT", list(filled), True
+    mixed = any(_numeric_or_date_like(value) for value in filled)
+    return "text", TEXT_FORMAT, "MIXED_TYPE_TEXT", list(filled), mixed
 
 
 def build_typed_frame(headers, rows, *, date_system) -> dict:
@@ -210,7 +227,7 @@ def build_typed_frame(headers, rows, *, date_system) -> dict:
                 values.append([""] * width)
                 formats.append([TEXT_FORMAT] * width)
             values[row_index][index] = value
-            formats[row_index][index] = number_format
+            formats[row_index][index] = TEXT_FORMAT if value == "" else number_format
 
     return {"values": values, "numberFormats": formats,
             "decisions": decisions, "issues": []}
