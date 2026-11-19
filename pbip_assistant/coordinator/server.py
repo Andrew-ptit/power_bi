@@ -168,7 +168,7 @@ EXCEL_JOB_PATHS = frozenset({
 })
 PREPARATION_PATHS = frozenset("/api/preparation/" + action for action in (
     "preservation-begin", "preservation-chunk", "preservation-finish",
-    "attach", "detach", "state", "inventory", "source-snapshot", "source-set", "scan", "answer", "preview", "review-import", "pick-folder",
+    "attach", "detach", "state", "browse", "inventory", "source-snapshot", "source-set", "scan", "answer", "preview", "review-import", "pick-folder",
     "direct-begin", "direct-write-ready", "direct-complete", "packages", "approve", "begin", "image-begin", "image-chunk", "image-finish", "write-ready", "complete", "undo", "redo", "restore-complete",
 ))
 EXCEL_JOB_PATHS = EXCEL_JOB_PATHS | frozenset("/api/preparation/" + action for action in (

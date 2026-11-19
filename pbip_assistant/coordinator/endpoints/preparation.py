@@ -42,8 +42,12 @@ class PreparationEndpoints:
                     result = store.put_source_snapshot(transport, pid, body["snapshot"])
                 elif action == "source-set":
                     result = store.put_source_set(transport, pid, body["snapshots"], body["expectedSourceRevision"])
+                elif action == "browse":
+                    result = store.browse(transport, pid, body["root"], body["relativePath"],
+                                          expected_claim_version=body["expectedClaimVersion"])
                 elif action == "inventory":
-                    result = store.inventory(transport, pid, body["root"], body["relativePath"])
+                    result = store.inventory(transport, pid, body["root"], body["items"],
+                                             expected_claim_version=body["expectedClaimVersion"])
                 elif action == "scan":
                     current = store.state(transport, pid)
                     available = {s["sourceId"]: s for s in current["sources"]}
