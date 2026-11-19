@@ -177,6 +177,8 @@ py -m unittest tests.contracts.test_source_import_contracts -v
 - `pbip_assistant/sources/preparation/store.py` (truyền `dateSystem`)
 - `tests/unit/test_preparation_packages.py` (cập nhật)
 - `tests/integration/test_preparation_api.py` (thêm case `packages` + `dateSystem`)
+- `pbip_assistant/coordinator/endpoints/preparation.py` (chỉ nhánh packages chuyển dateSystem)
+- `tests/integration/test_preparation_direct.py` (đồng bộ request inventory và kiểm chứng dữ liệu đúng kiểu)
 
 **Không sửa**: `csv_typing.py` (T302), UI.
 
@@ -269,6 +271,7 @@ py -m unittest tests.taskpane.test_taskpane_js -v
 - `pbip_assistant/excel_addin/taskpane.css`
 - `pbip_assistant/excel_addin/taskpane.js` (chỉ phần mount/gate liên quan)
 - `tests/taskpane/taskpane_assistant_journey.js` (mới)
+- `tests/taskpane/taskpane_assistant_entry.js` (đồng bộ kiểm tra hành trình hai bước, giữ kiểm tra lỗi và phục hồi)
 - `tests/taskpane/test_taskpane_js.py`
 - `tests/taskpane/taskpane_preparation_wizard.js` (chỉ để bỏ assert DOM wizard nếu đã xoá — ghi rõ lý do)
 
