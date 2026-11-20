@@ -142,8 +142,8 @@ class TextRulesTest(unittest.TestCase):
 
     def test_empty_cells_and_empty_column(self):
         result = frame(["a", "b"], [["", "1"], ["", "2"]])
-        self.assertEqual(oracle.column(result, 0), ["", ""])
-        self.assertEqual(oracle.formats(result, 0), [oracle.TEXT, oracle.TEXT])
+        self.assertEqual(oracle.column(result, 0), [None, None])
+        self.assertEqual(oracle.formats(result, 0), [oracle.NUMBER, oracle.NUMBER])
         self.assertEqual(oracle.reason_of(result, "a"), oracle.EMPTY_COLUMN)
         self.assertEqual(oracle.column(result, 1), [1, 2])
 
@@ -156,17 +156,17 @@ class ShapeAndBoundsTest(unittest.TestCase):
         ])
         self.assertEqual(result["values"][1:], [
             [1234.56, 1234, "00123", oracle.serial(2026, 4, 3, 1900), "KH01"],
-            [0.99, 12, "", "", ""],
+            [0.99, 12, None, None, None],
         ])
         self.assertCountEqual([(d["column"], d["reasonCode"]) for d in result["decisions"]],
                               [("qty", oracle.GROUP_SEPARATOR), ("code", oracle.LEADING_ZERO_TEXT),
                                ("created", oracle.DATE_DMY_DEFAULT)])
 
-    def test_empty_cells_in_number_and_date_columns_use_text_format(self):
+    def test_empty_cells_are_blank_with_general_format(self):
         result = frame(["price", "created"], [["0", "03/04/2026"], ["", " "]])
-        self.assertEqual(result["values"][2], ["", ""])
+        self.assertEqual(result["values"][2], [None, None])
         self.assertEqual(result["numberFormats"][1:], [[oracle.NUMBER, oracle.DATE],
-                                                      [oracle.TEXT, oracle.TEXT]])
+                                                      [oracle.NUMBER, oracle.NUMBER]])
 
     def test_unsupported_formats_remain_reportable_text(self):
         for value in ("25%", "$12", "12 €", "2025-01-14T15:00"):

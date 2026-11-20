@@ -10,6 +10,7 @@ import time
 from uuid import uuid4
 
 from pbip_assistant.errors import InputError
+from pbip_assistant.sources.assistant_ingest import canonical_hash
 from .cleaning import bind_sources, build_cleanup_preview, scan_sources
 from .inventory import browse_folder, inventory_folder, inventory_selection, review_import
 from .model import AnswerRevision, SourceSnapshot, require_hash, require_identifier
@@ -325,7 +326,10 @@ class PreparationStore(PreparationMutation):
             if document["inventory"] is None:
                 raise _fail("DP_REVIEW_STALE", "Inventory the folder before reviewing its mapping")
             review = review_import(document["inventory"], inventory_hash, mappings, existing_names)
-            document["importReview"] = {**deepcopy(review), "existingNames": list(existing_names)}
+            # Each explicit review can allocate a fresh native XLSX namespace.
+            review["reviewHash"] = canonical_hash({"mappingHash": review["reviewHash"], "reviewId": uuid4().hex})
+            document["importReview"] = {**deepcopy(review), "mappingReviewHash": review["reviewHash"],
+                                        "existingNames": list(existing_names)}
             document["grant"] = None
             document.pop("packageCache", None)
             self._sync_metadata_budget()

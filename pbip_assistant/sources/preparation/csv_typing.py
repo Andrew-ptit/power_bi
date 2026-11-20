@@ -165,7 +165,7 @@ def _decide(column: str, index: int, cells: list[str], date_system: str):
     """Trả (kind, numberFormat, reasonCode, converted cells, decision|None)."""
     filled = [value for value in cells if value]
     if not filled:
-        return "text", TEXT_FORMAT, "EMPTY_COLUMN", [], True
+        return "text", NUMBER_FORMAT, "EMPTY_COLUMN", [], True
     if any(_formula_like(value) for value in filled):
         return "text", TEXT_FORMAT, "FORMULA_LIKE_TEXT", list(filled), True
     if any(_RE_LEADING_ZERO.match(value) for value in filled):
@@ -219,15 +219,15 @@ def build_typed_frame(headers, rows, *, date_system) -> dict:
         if report and len(decisions) < MAX_DECISIONS:
             decisions.append(_decision(column, index, kind, number_format, reason,
                                        len(filled), _sample(filled)))
-        # Giữ đúng độ dài: ô rỗng ở lại "" (không dịch chuyển giá trị).
+        # Ô CSV rỗng ở lại rỗng (null) với numberFormat General, không ghi text.
         iterator = iter(converted)
-        column_values = ["" if cell == "" else next(iterator) for cell in cells]
+        column_values = [None if cell == "" else next(iterator) for cell in cells]
         for row_index, value in enumerate(column_values, start=1):
             if row_index >= len(values):
-                values.append([""] * width)
-                formats.append([TEXT_FORMAT] * width)
+                values.append([None] * width)
+                formats.append([NUMBER_FORMAT] * width)
             values[row_index][index] = value
-            formats[row_index][index] = TEXT_FORMAT if value == "" else number_format
+            formats[row_index][index] = NUMBER_FORMAT if value is None else number_format
 
     return {"values": values, "numberFormats": formats,
             "decisions": decisions, "issues": []}

@@ -180,6 +180,14 @@ py -m unittest tests.contracts.test_source_import_contracts -v
 - `pbip_assistant/coordinator/endpoints/preparation.py` (chỉ nhánh packages chuyển dateSystem)
 - `tests/integration/test_preparation_direct.py` (đồng bộ request inventory và kiểm chứng dữ liệu đúng kiểu)
 - `tests/integration/test_preparation_mutation.py` (chỉ fixture Qty nếu tái hiện sai kiểu trong ảnh phục hồi)
+- `pbip_assistant/sources/preparation/csv_typing.py` (duyệt 2026-11-20: ô trống = `null` + `General`)
+- `pbip_assistant/sources/preparation/package_preservation.py` (duyệt 2026-11-20: verifier so `numberFormats` của package)
+- `tests/unit/test_preparation_package_preservation.py` (duyệt 2026-11-20: plan CSV có `numberFormats`)
+- `tests/unit/test_csv_typing.py` (duyệt 2026-11-20: kỳ vọng ô trống)
+- `specs/003-source-import-redesign/contracts/source-import.md` (duyệt 2026-11-20: `readingDecisions`, `reviewHash` theo `dateSystem`)
+- `specs/003-source-import-redesign/spec.md` (duyệt 2026-11-20: đồng bộ mục 9 + ô trống)
+- `specs/003-source-import-redesign/acceptance.md` (duyệt 2026-11-20: bằng chứng T304)
+- `specs/003-source-import-redesign/tasks.md` (duyệt 2026-11-20: allowlist + phạm vi T304)
 
 **Không sửa**: `csv_typing.py` (T302), UI.
 
@@ -189,6 +197,8 @@ py -m unittest tests.contracts.test_source_import_contracts -v
 3. Gộp `decisions` + `reading` + `sheets` thành `importReport` (contract §3); file lỗi thành `status: "skipped"` với `issues[]`, **không** ném lỗi cả lô; không có package cho file skipped.
 4. `mutation.Store.packages(..., date_system=None)`; endpoint truyền `body["dateSystem"]`; thiếu khi có cột ngày → `DP_DATE_SYSTEM_REQUIRED`; không có cột ngày → mặc định `"1900"` để `direct.py` không đổi.
 5. XLSX branch giữ nguyên hành vi (không đổi frame native).
+6. Ô CSV rỗng → `null` + numberFormat `General`; cột toàn rỗng vẫn `EMPTY_COLUMN` (quyết định 2026-11-20).
+7. `verify_package_csv_import` so `numberFormats` từng ô của package, không bắt mọi ô `@` (quyết định 2026-11-20).
 
 **Test bắt buộc**
 - `test_csv_number_column_written_as_number_general`
@@ -199,6 +209,10 @@ py -m unittest tests.contracts.test_source_import_contracts -v
 - `test_report_has_no_absolute_path_or_raw_row`
 - `test_date_system_required_when_date_columns_exist`
 - `test_xlsx_package_unchanged`
+- `test_empty_cells_are_blank_with_general_format` (quyết định 2026-11-20)
+- `test_packages_leaves_empty_csv_cells_blank_with_general` (quyết định 2026-11-20)
+- `test_typed_formats_pass_and_wrong_format_is_rejected` (quyết định 2026-11-20)
+- `test_oversized_csv_is_skipped_without_blocking_other_files`
 
 **Kiểm chứng**
 ```

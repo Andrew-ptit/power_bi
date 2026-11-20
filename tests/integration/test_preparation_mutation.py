@@ -58,8 +58,8 @@ class PreparationMutationTests(unittest.TestCase):
         after = deepcopy(self.image)
         after.pop("fingerprint")
         after["sheets"].append({"sheetId": "new_native", "name": "data", "rowOffset": 0, "columnOffset": 0,
-            "values": [["Code", "Qty"], ["00123", "2"]], "formulas": [["Code", "Qty"], ["00123", "2"]],
-            "formulaCells": [], "numberFormats": [["@", "@"], ["@", "@"]]})
+            "values": [["Code", "Qty"], ["00123", 2]], "formulas": [["Code", "Qty"], ["00123", 2]],
+            "formulaCells": [], "numberFormats": [["@", "@"], ["@", "General"]]})
         after["fingerprint"] = image_fingerprint(after)
         return after
 
