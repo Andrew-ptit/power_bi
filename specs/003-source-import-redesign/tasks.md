@@ -346,6 +346,9 @@ py -m unittest tests.taskpane.test_taskpane_js -v
 - `specs/003-source-import-redesign/tasks.md` (duyệt 2026-11-20: allowlist follow-up T307)
 - `tests/taskpane/taskpane_assistant_browser.js`, `tests/taskpane/taskpane_assistant_entry.js` (duyệt 2026-11-20: đóng S13/SI14/SC05 bằng test 3 cấp + static a11y)
 - `pbip_assistant/excel_addin/assistant_browser.js` (duyệt 2026-11-20: sửa relativePath khi vào thư mục cấp 3, do test mới phát hiện)
+- `pbip_assistant/coordinator/server.py` (duyệt 2026-11-20: serve file assistant_browser.js trong thư mục assets)
+- `tests/contracts/test_taskpane_asset_routes.py` (duyệt 2026-11-20: chặn asset thiếu route)
+- `tools/excel_addin/manifest.xml` (duyệt 2026-11-20: dev server ghi lại channel khi khởi động)
 
 **Việc phải làm**
 1. Lập acceptance matrix: mỗi `S01–S13`, `SI01–SI15`, `SC01–SC08` ↔ test/evidence, trạng thái `Pass / Fail / Blocked / Not run`.

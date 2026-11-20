@@ -116,3 +116,9 @@ Re-run after the follow-up: `node tests/taskpane/taskpane_assistant_browser.js` 
 
 - **Typed parity / SC08**: `py tools/run_checks.py runtime` on a machine where Excel can be automated. Expect `run=13 failed=0 errors=0`. If it still prints `Blocked: PARITY_FIXTURE_TIMEOUT; [parity] save-synthetic-fixture`, Excel could not create/save the synthetic fixture (check Excel opens, no dialog/modal, COM automation allowed); this is a runtime prerequisite, not feature 003.
 - **T308 live source journey**: use a synthetic folder (CSV with number/date/leading-zero columns + one broken CSV), browse two levels, select, Import, then read `numberFormat` and `typeof values` back from Excel and compare with the T304 oracle. Record it as `Passed` only with the actual read-back; otherwise `Not run` with the exact reason. Never use a user workbook as the fixture.
+
+### T307 follow-up 2 2026-11-20 — served asset route
+
+During the user-run UI check the served `taskpane.html` already contained the new markup, but `/assets/assistant_browser.js` returned `404 NOT_FOUND`: the coordinator static map in `pbip_assistant/coordinator/server.py` did not list the new script, so the real task pane could not start even though every node test passed (node tests read files from disk, not over HTTP). The route is now served, and `tests/contracts/test_taskpane_asset_routes.py` asserts that every `/assets/*.js|css` referenced by `taskpane.html` has a route in the server.
+
+Verified against the running coordinator: `GET https://localhost:3079/assets/assistant_browser.js` → 200 with the served source; `GET /taskpane.html` contains `#assistant-browser` and `2. Đề bài` and no `#assistant-step-clean`. The coordinator rewrote `tools/excel_addin/manifest.xml` and `C:\AddinManifests\manifest.xml` with the same SHA-256 and a fresh `channel` query; Excel must be reloaded (and the Office cache cleared if the old pane persists).
