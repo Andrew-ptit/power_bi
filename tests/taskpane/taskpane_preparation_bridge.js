@@ -18,6 +18,7 @@ const api=require('../../pbip_assistant/excel_addin/preparation_bridge.js');
      calls.push(action+(action==='image-finish'?':'+purpose:''));
      if(action==='attach')return {...current,preparationId:'p',claimVersion:0,writeEnabled:true};
      if(action==='pick-folder')return {cancelled:false,path:'root',name:'root'};
+     if(action==='browse')return {rootName:'root',relativePath:'',parentRelativePath:null,breadcrumb:[],entries:[],truncated:false};
      if(action==='inventory')return {inventory:{inventoryHash:'inv',files:[{fileId:'f',fileName:'a.csv'}],sheets:[{fileId:'f',sourceSheetId:'csv',proposedName:'Data'}],errors:[]}};
      if(action==='review-import')return {reviewHash:'review'};
      if(action==='packages')return {reviewHash:'review',packages:[{kind:'csv',sheets:[]}],importReport:{totals:{files:1,sheets:1,skipped:0,decisions:0},files:[]}};
@@ -66,6 +67,31 @@ const api=require('../../pbip_assistant/excel_addin/preparation_bridge.js');
    await assert.rejects(()=>handoff.validate(),e=>e.code==='DP_SOURCE_STALE');
    live=structuredClone(original); live.sheetId='replacement-same-name';
    await assert.rejects(()=>handoff.validate(),e=>e.code==='DP_SOURCE_STALE','a replacement sheet with the same name cannot pass the re-read');
+ }
+ // Browsing a freshly picked folder must attach the workbook first, otherwise
+ // the request has no preparationId and the panel shows a null-property error.
+ {
+   let browseState = null; const browseCalls = [];
+   const readBridge = api.create({environment: {crypto}, backupEnabled: false,
+     runtime: {createMutationRuntime: () => ({captureAffectedScope: async () => image}),
+       describeWorkbook: async () => ({workbookName: 'Book'})},
+     getState: () => browseState, setState: value => { browseState = value; },
+     post: async (action, body) => {
+       browseCalls.push(action);
+       if (action === 'attach') return {preparationId: 'p', claimVersion: 0, writeEnabled: true};
+       if (action === 'pick-folder') return {cancelled: false, path: 'root', name: 'root'};
+       if (action === 'browse') {
+         assert.equal(body.preparationId, 'p', 'browse carries the attached preparationId');
+         return {rootName: 'root', relativePath: '', parentRelativePath: null, breadcrumb: [], entries: [], truncated: false};
+       }
+       throw Error('unexpected action ' + action);
+     }});
+   await readBridge.pickRoot();
+   const listing = await readBridge.browse('');
+   assert.equal(listing.rootName, 'root');
+   assert(browseCalls.indexOf('attach') >= 0, 'browse attaches the workbook');
+   assert(browseCalls.indexOf('browse') > browseCalls.indexOf('attach'), 'attach happens before browse');
+   assert.equal(browseState.preparationId, 'p');
  }
  console.log('Preparation bridge handshake passed');
 })().catch(e=>{console.error(e);process.exitCode=1;});

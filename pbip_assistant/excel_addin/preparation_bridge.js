@@ -183,10 +183,12 @@
     }
     async function browse(relativePath=""){
       if(!sourceRoot)throw fail("INVALID_REQUEST","Chọn thư mục nguồn trước.");
+      await attach();
       return send("browse",{root:sourceRoot,relativePath:relativePath||"",expectedClaimVersion:getState()?.claimVersion});
     }
     async function inventorySelection(items){
       if(!sourceRoot)throw fail("INVALID_REQUEST","Chọn thư mục nguồn trước.");
+      await attach();
       const state=await send("inventory",{root:sourceRoot,items,expectedClaimVersion:getState()?.claimVersion});
       return state.inventory;
     }

@@ -349,6 +349,8 @@ py -m unittest tests.taskpane.test_taskpane_js -v
 - `pbip_assistant/coordinator/server.py` (duyệt 2026-11-20: serve file assistant_browser.js trong thư mục assets)
 - `tests/contracts/test_taskpane_asset_routes.py` (duyệt 2026-11-20: chặn asset thiếu route)
 - `tools/excel_addin/manifest.xml` (duyệt 2026-11-20: dev server ghi lại channel khi khởi động)
+- `pbip_assistant/excel_addin/preparation_bridge.js` (duyệt 2026-11-20: browse/inventory attach trước khi gửi)
+- `tests/taskpane/taskpane_preparation_bridge.js` (duyệt 2026-11-20: test attach-before-browse)
 
 **Việc phải làm**
 1. Lập acceptance matrix: mỗi `S01–S13`, `SI01–SI15`, `SC01–SC08` ↔ test/evidence, trạng thái `Pass / Fail / Blocked / Not run`.
