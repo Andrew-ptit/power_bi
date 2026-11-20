@@ -238,6 +238,11 @@ py -m unittest tests.unit.test_csv_typing -v
 - `pbip_assistant/excel_addin/taskpane.css`
 - `tests/taskpane/taskpane_assistant_browser.js` (mới)
 - `tests/taskpane/test_taskpane_js.py` (đăng ký script mới)
+- `pbip_assistant/excel_addin/taskpane.js` (duyệt 2026-11-20: mount browser + nối `onBrowse`/`onImported`)
+- `tests/taskpane/preparation_native_mutations.js` (duyệt 2026-11-20: fixture typed + `probeDateSystem`)
+- `tests/taskpane/taskpane_preparation_startup.js` (duyệt 2026-11-20: nạp module browser)
+- `specs/003-source-import-redesign/acceptance.md` (duyệt 2026-11-20: bằng chứng T305)
+- `specs/003-source-import-redesign/tasks.md` (duyệt 2026-11-20: allowlist + phạm vi T305)
 
 **Không sửa**: `assistant_entry.js` phần journey/step (T306 sửa); `preparation_controller.js`.
 
@@ -254,6 +259,9 @@ py -m unittest tests.unit.test_csv_typing -v
 3. Nhập: `probeDateSystem()` (một lần, cache theo workbook) → `importSelection({items, dateSystem})` → render report → gọi `onImported()` (entry sẽ nối ở T306).
 4. Không có bảng preview, không câu hỏi, không select hệ ngày, không nút `Xem trước`.
 5. Keyboard: Tab/Enter/Space hoạt động; mọi text qua `textContent`; 360px không tràn ngang.
+6. Trước khi nhập chỉ hiện số file đã chọn; cột/số/ngày/chữ và số sheet chỉ hiện sau khi nhập (SI04 đã chốt 2026-11-20). Đọc file khi bấm nhập: `inventorySelection` → `review-import` → `packages(dateSystem)` → approve/direct.
+7. `probeDateSystem()` thất bại → chặn nhập, báo rõ; không mặc định 1900 (quyết định 2026-11-20).
+8. Sau nhập: bỏ file đã nhập khỏi selection, giữ file bị skipped để nhập lại (quyết định 2026-11-20).
 
 **Test bắt buộc** (`node tests/taskpane/taskpane_assistant_browser.js`, fake DOM + fake bridge)
 - `test_browse_renders_folders_before_files_and_breadcrumb`
@@ -269,6 +277,8 @@ py -m unittest tests.unit.test_csv_typing -v
 **Kiểm chứng**
 ```
 node tests/taskpane/taskpane_assistant_browser.js
+node tests/taskpane/preparation_native_mutations.js
+node tests/taskpane/taskpane_preparation_startup.js
 py -m unittest tests.taskpane.test_taskpane_js -v
 ```
 

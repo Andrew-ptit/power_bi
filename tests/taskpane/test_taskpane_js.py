@@ -8,6 +8,22 @@ import unittest
 
 class TaskpaneJavaScriptTests(unittest.TestCase):
     @unittest.skipUnless(shutil.which("node"), "Node.js is not available")
+    def test_preparation_read_guards_and_wizard_revisions(self) -> None:
+        for name in ("taskpane_preparation_runtime.js", "taskpane_preparation_wizard.js", "taskpane_assistant_entry.js", "taskpane_preparation_bridge.js", "preparation_native_mutations.js", "taskpane_preparation_session.js", "taskpane_preparation_startup.js", "taskpane_preparation_direct.js"):
+            with self.subTest(script=name):
+                result = subprocess.run(["node", str(Path(__file__).with_name(name))],
+                                        capture_output=True, text=True, timeout=15, check=False)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertIn("passed", result.stdout)
+
+    @unittest.skipUnless(shutil.which("node"), "Node.js is not available")
+    def test_assistant_record_metadata_xml_hash_cas_and_privacy(self) -> None:
+        script = Path(__file__).with_name("taskpane_assistant_custom_xml.js")
+        result = subprocess.run(["node", str(script)], capture_output=True, text=True, timeout=15, check=False)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("passed", result.stdout)
+
+    @unittest.skipUnless(shutil.which("node"), "Node.js is not available")
     def test_advanced_m_policy_independent_crosscheck(self) -> None:
         script = Path(__file__).with_name("taskpane_advanced_policy_crosscheck.js")
         result = subprocess.run(["node", str(script)], capture_output=True, text=True, timeout=10, check=False)
@@ -17,13 +33,6 @@ class TaskpaneJavaScriptTests(unittest.TestCase):
     @unittest.skipUnless(shutil.which("node"), "Node.js is not available")
     def test_diagnostic_capability_workbook_switch_and_error_recovery(self) -> None:
         script = Path(__file__).with_name("taskpane_diagnostic_ui_guard.js")
-        result = subprocess.run(["node", str(script)], capture_output=True, text=True, timeout=10, check=False)
-        self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn("passed", result.stdout)
-
-    @unittest.skipUnless(shutil.which("node"), "Node.js is not available")
-    def test_text_and_copyable_code_are_rendered_separately(self) -> None:
-        script = Path(__file__).with_name("taskpane_code_blocks.js")
         result = subprocess.run(["node", str(script)], capture_output=True, text=True, timeout=10, check=False)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("passed", result.stdout)
@@ -71,23 +80,30 @@ class TaskpaneJavaScriptTests(unittest.TestCase):
         self.assertIn("passed", result.stdout)
 
     @unittest.skipUnless(shutil.which("node"), "Node.js is not available")
-    def test_analyze_reads_live_workbook_and_blocks_stale_snapshot_on_failure(self) -> None:
-        script = Path(__file__).with_name("taskpane_live_analyze.js")
-        result = subprocess.run(["node", str(script)], capture_output=True, text=True, timeout=10, check=False)
-        self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn("passed", result.stdout)
-
-    @unittest.skipUnless(shutil.which("node"), "Node.js is not available")
-    def test_ctrl_enter_analyzes_only_when_button_is_enabled(self) -> None:
-        script = Path(__file__).with_name("taskpane_shortcut.js")
-        result = subprocess.run(["node", str(script)], capture_output=True, text=True, timeout=10, check=False)
-        self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn("passed", result.stdout)
-
-    @unittest.skipUnless(shutil.which("node"), "Node.js is not available")
     def test_used_range_fallback_without_excel_table(self) -> None:
         script = Path(__file__).with_name("taskpane_usedrange.js")
         result = subprocess.run(["node", str(script)], capture_output=True, text=True, timeout=10, check=False)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("passed", result.stdout)
+
+    @unittest.skipUnless(shutil.which("node"), "Node.js is not available")
+    def test_table_totals_row_is_excluded_from_workbook_data(self) -> None:
+        script = Path(__file__).with_name("taskpane_totals_row.js")
+        result = subprocess.run(["node", str(script)], capture_output=True, text=True, timeout=15, check=False)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("passed", result.stdout)
+
+    @unittest.skipUnless(shutil.which("node"), "Node.js is not available")
+    def test_source_browser_selection_and_import_report(self) -> None:
+        script = Path(__file__).with_name("taskpane_assistant_browser.js")
+        result = subprocess.run(["node", str(script)], capture_output=True, text=True, timeout=15, check=False)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("passed", result.stdout)
+
+    @unittest.skipUnless(shutil.which("node"), "Node.js is not available")
+    def test_assistant_flow_sources_sampling_and_feature_gate(self) -> None:
+        script = Path(__file__).with_name("taskpane_assistant_flow.js")
+        result = subprocess.run(["node", str(script)], capture_output=True, text=True, timeout=15, check=False)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("passed", result.stdout)
 
