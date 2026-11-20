@@ -351,6 +351,9 @@ py -m unittest tests.taskpane.test_taskpane_js -v
 - `tools/excel_addin/manifest.xml` (duyệt 2026-11-20: dev server ghi lại channel khi khởi động)
 - `pbip_assistant/excel_addin/preparation_bridge.js` (duyệt 2026-11-20: browse/inventory attach trước khi gửi)
 - `tests/taskpane/taskpane_preparation_bridge.js` (duyệt 2026-11-20: test attach-before-browse)
+- `pbip_assistant/excel_addin/assistant_entry.js` (duyệt 2026-11-20: tự sang Đề bài khi scan thành công)
+- `tests/taskpane/taskpane_assistant_journey.js` (duyệt 2026-11-20: auto-advance)
+- `tests/taskpane/taskpane_assistant_browser.js` (duyệt 2026-11-20: tự vào 1 thư mục con)
 
 **Việc phải làm**
 1. Lập acceptance matrix: mỗi `S01–S13`, `SI01–SI15`, `SC01–SC08` ↔ test/evidence, trạng thái `Pass / Fail / Blocked / Not run`.

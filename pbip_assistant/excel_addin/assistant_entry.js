@@ -52,10 +52,16 @@
       progress(`Đã đọc lại ${state.sources.length} nguồn. Bạn có thể tiếp tục: Đề bài.`);
       return state;
     }
-    async function readSource() {
-      try { return await scan(); }
-      catch (error) { canProblem = false; scanFailed = true; throw error; }
-      finally { render(); }
+    async function readSource({advance = false} = {}) {
+      try { await scan(); }
+      catch (error) { canProblem = false; scanFailed = true; render(); throw error; }
+      render();
+      if (advance && canProblem) {
+        invalidateBusiness();
+        try { await showProblem(); step = "problem"; }
+        catch (error) { step = "source"; throw error; }
+        finally { render(); }
+      }
     }
     get("assistant-new-session").addEventListener("click", () => {
       if (canRestartAfterPartial && canRestart && !busy) blocked = false;
@@ -71,9 +77,9 @@
     });
     get("assistant-choose-workbook").addEventListener("click", () => run(async () => {
       if (selectWorkbook && !await selectWorkbook()) { progress("Workbook chưa có dữ liệu phù hợp để đọc. Hãy thêm dữ liệu rồi thử lại."); return; }
-      await readSource();
+      await readSource({advance: true});
     }));
-    get("assistant-retry-scan").addEventListener("click", () => run(readSource));
+    get("assistant-retry-scan").addEventListener("click", () => run(() => readSource({advance: true})));
     function addSource() { if (!busy && !blocked) { step = "source"; render(); } }
     get("assistant-add-source").addEventListener("click", () => {
       if (busy || blocked) return;
@@ -93,7 +99,7 @@
     return {addSource, state: () => ({step, busy, blocked, canProblem, scanFailed}),
       setBusy(value) { busy = Boolean(value); render(); },
       invalidate: dirty,
-      imported() { dirty(); return run(readSource); },
+      imported() { dirty(); return run(() => readSource({advance: true})); },
       readSource,
       updateWorkbook(value) {
         step = "source"; canProblem = false; scanFailed = false; blocked = false;

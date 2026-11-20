@@ -75,7 +75,7 @@ function harness({scanFails = false} = {}) {
     }
   }
 
-  // 3. Import → re-read → Đề bài enabled.
+  // 3. Import → re-read → automatic advance to Đề bài.
   {
     const {get, calls} = harness();
     await get("assistant-choose-folder").click();
@@ -84,28 +84,29 @@ function harness({scanFails = false} = {}) {
     await get("assistant-import-selected").click();
     assert.equal(calls.imports, 1);
     assert.equal(calls.scans, 1, "the import triggers a verified re-read");
-    assert.equal(get("assistant-step-problem").disabled, false);
-    await get("assistant-step-problem").click();
-    assert.equal(calls.problem, true);
+    assert.equal(calls.problem, true, "a successful re-read advances automatically");
     assert.equal(get("flow-source-title").textContent, "Đề bài");
+    assert.equal(get("assistant-step-problem").disabled, false);
   }
 
-  // 4. Workbook choice re-reads but never imports or writes cells.
+  // 4. Workbook choice re-reads, never imports, then advances.
   {
     const {get, browser, calls} = harness();
     await browser.open();
     await get("assistant-choose-workbook").click();
     assert.equal(calls.imports, 0, "choosing workbook data must not import files");
     assert.equal(calls.scans, 1);
-    assert.equal(get("assistant-step-problem").disabled, false);
+    assert.equal(calls.problem, true);
+    assert.equal(get("flow-source-title").textContent, "Đề bài");
   }
 
-  // 5. A failed re-read disables Đề bài and offers a retry.
+  // 5. A failed re-read disables Đề bài and offers a retry without advancing.
   {
-    const {get} = harness({scanFails: true});
+    const {get, calls} = harness({scanFails: true});
     await get("assistant-choose-workbook").click();
     assert(get("assistant-step-problem").disabled);
     assert.equal(get("assistant-retry-scan").hidden, false);
+    assert.equal(calls.problem, undefined);
     assert.match(get("assistant-source-message").textContent, /Workbook read failed/);
   }
 

@@ -54,14 +54,12 @@ function harness(overrides = {}) {
     assert(!html.includes(">2. Làm sạch<"), "no cleaning step label");
   }
 
-  // 3. Reading the workbook only enables Đề bài after a verified re-read.
+  // 3. Reading the workbook enables Đề bài and advances automatically.
   {
     const {entry, get, calls} = harness();
     await get("assistant-choose-workbook").click();
-    assert.deepEqual(calls.filter(value => typeof value === "string"), ["workbook", "scan"]);
+    assert.deepEqual(calls.filter(value => typeof value === "string"), ["workbook", "scan", "invalidated", "problem"]);
     assert.equal(get("assistant-step-problem").disabled, false);
-    await get("assistant-step-problem").click();
-    assert(calls.includes("problem"));
     assert.equal(entry.state().step, "problem");
     entry.updateWorkbook({name: "Orders", hasData: true});
     assert.equal(entry.state().step, "source");
@@ -71,20 +69,21 @@ function harness(overrides = {}) {
   // 4. The workbook branch re-reads and never imports or writes cells.
   {
     const writes = [];
-    const {get, calls} = harness({scanWorkbook: async () => {
+    const {get, calls, entry} = harness({scanWorkbook: async () => {
       calls.push("scan-only");
       return {state: {sourceHash: "hash", sources: [{sheetId: "s1"}]}};
     }, onImported: () => writes.push("import")});
     await get("assistant-choose-workbook").click();
     assert.deepEqual(calls.filter(value => value === "scan-only"), ["scan-only"]);
     assert.deepEqual(writes, [], "choosing workbook data must not import files");
-    assert.equal(get("assistant-step-problem").disabled, false);
+    assert.equal(calls.filter(value => value === "problem").length, 1);
+    assert.equal(entry.state().step, "problem");
   }
 
   // 5. A failed re-read keeps Đề bài disabled and offers a retry.
   {
     let fail = true, reads = 0;
-    const {entry, get} = harness({scanWorkbook: async () => {
+    const {entry, get, calls} = harness({scanWorkbook: async () => {
       reads++;
       if (fail) throw new Error("Workbook read failed");
       return {state: {sourceHash: "hash", sources: [{sheetId: "s1"}]}};
@@ -94,15 +93,17 @@ function harness(overrides = {}) {
     assert(get("assistant-step-problem").disabled);
     assert.equal(get("assistant-retry-scan").hidden, false);
     assert.match(get("assistant-source-message").textContent, /Workbook read failed/);
+    assert.equal(calls.includes("problem"), false, "a failed read never opens Đề bài");
     fail = false;
     await get("assistant-retry-scan").click();
     assert.equal(reads, 2);
     assert.equal(get("assistant-step-problem").disabled, false);
     assert.equal(get("assistant-retry-scan").hidden, true);
     assert.equal(entry.state().canProblem, true);
+    assert.equal(entry.state().step, "problem");
   }
 
-  // 6. An import hands the receipt to the journey, which re-reads before enabling Đề bài.
+  // 6. An import hands the receipt to the journey, which re-reads and advances.
   {
     let scans = 0;
     const {entry, get} = harness({scanWorkbook: async () => {
@@ -111,8 +112,8 @@ function harness(overrides = {}) {
     }});
     await entry.imported({status: "verified"});
     assert.equal(scans, 1);
-    assert.equal(get("assistant-step-problem").disabled, false);
-    assert.match(get("assistant-source-message").textContent, /Đã đọc lại 1 nguồn/);
+    assert.equal(entry.state().step, "problem");
+    assert.equal(entry.state().canProblem, true);
   }
 
   // 7. + Thêm nguồn returns to the browser without losing the folder.

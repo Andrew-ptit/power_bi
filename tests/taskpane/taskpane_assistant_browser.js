@@ -262,5 +262,21 @@ function fileRows(list) {
     assert.equal(checkbox.type, "checkbox");
   }
 
-  console.log("assistant browser: 12 cases passed");
+  // 13. A picked folder that only wraps one child folder opens that child directly.
+  {
+    const seen = [];
+    const nested = harness({browse: async relativePath => { seen.push(relativePath); return relativePath === ""
+      ? {rootName: "dataset", relativePath: "", parentRelativePath: null, breadcrumb: [{name: "dataset", relativePath: ""}],
+         entries: [{name: "VietLogix", kind: "folder"}], truncated: false}
+      : {rootName: "dataset", relativePath: "VietLogix", parentRelativePath: "",
+         breadcrumb: [{name: "dataset", relativePath: ""}, {name: "VietLogix", relativePath: "VietLogix"}],
+         entries: [{name: "a.csv", kind: "file", extension: "csv"}], truncated: false}; }});
+    await nested.browser.open();
+    assert.deepEqual(seen, ["", "VietLogix"], "one wrapper folder is opened automatically");
+    assert.equal(nested.get("assistant-browser-path").textContent, "dataset / VietLogix");
+    assert.equal(fileRows(nested.get("assistant-browser-list")).length, 1);
+    assert.equal(nested.get("assistant-browser-up").disabled, false, "the up control still returns to the picked folder");
+  }
+
+  console.log("assistant browser: 13 cases passed");
 })().catch(error => { console.error(error); process.exit(1); });

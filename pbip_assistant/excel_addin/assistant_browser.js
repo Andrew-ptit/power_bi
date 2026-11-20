@@ -89,7 +89,7 @@
     }
     function render() { renderPath(); renderList(); summary(); }
 
-    async function browse(path) {
+    async function browse(path, depth = 0) {
       if (busy) return;
       busy = true;
       get("assistant-browser-up").disabled = true;
@@ -101,6 +101,15 @@
         entries = Array.isArray(result.entries) ? result.entries : [];
         breadcrumb = Array.isArray(result.breadcrumb) ? result.breadcrumb : [];
         parent = result.parentRelativePath ?? null;
+        const folders = entries.filter(entry => entry.kind === "folder");
+        const hasFiles = entries.some(entry => entry.kind === "file");
+        if (!hasFiles && folders.length === 1 && !result.truncated && depth < 3) {
+          // A picked folder that only wraps a same-named child (common after
+          // unzipping) should open directly, not look empty.
+          const child = relativePath ? `${relativePath}/${folders[0].name}` : folders[0].name;
+          busy = false;
+          return await browse(child, depth + 1);
+        }
         busy = false;
         render();
         if (result.truncated) status("Thư mục có quá nhiều mục; chỉ hiện 500 mục đầu tiên.");

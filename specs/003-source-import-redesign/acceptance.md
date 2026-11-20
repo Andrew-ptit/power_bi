@@ -134,3 +134,11 @@ Served-asset verification after the fix: `GET /assets/preparation_bridge.js` mat
 The first live import succeeded (3 files → 3 sheets), but `2. Đề bài` then showed `DP_SOURCE_STALE`. Cause: `businessSourcesFromScan().validate()` returned `sources`/`sourceLabels` but omitted `observedHash`, while `flowPreparedWorkbookSources` compares `fresh.observedHash !== review.observedHash`; `undefined` can never equal the reviewed digest. The validator now returns the same reviewed hash, and `tests/taskpane/taskpane_preparation_bridge.js` asserts `(await handoff.validate()).observedHash === handoff.observedHash`.
 
 Served-asset verification after restart: `/assets/preparation_bridge.js` contains both `await attach()` before `browse` and the `observedHash` return in `validate`.
+
+### T307 follow-up 5 2026-11-20 — fewer clicks in the source tab
+
+Approved: a picked folder that contains no `.csv`/`.xlsx` but exactly one child folder now opens that child automatically (up to three wrapper levels; breadcrumb and `↑ Lên cấp trên` still work). This covers the common unzip layout where `Dataset/Dataset/` holds the files.
+
+Approved: after a successful re-read the panel advances to `2. Đề bài` automatically; `1. Nguồn` stays clickable to review the report or add files. A failed re-read stays on `1. Nguồn`, disables `Đề bài` and offers `Đọc lại nguồn`; a failed business handoff stays on `1. Nguồn` with the error and keeps `Đề bài` enabled for retry.
+
+Evidence: `taskpane_assistant_browser` 13 cases (includes the wrapper-folder case), `taskpane_assistant_entry` 9 cases (auto-advance), `taskpane_assistant_journey` 6 cases, taskpane module 15 tests OK.
