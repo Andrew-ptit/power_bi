@@ -34,6 +34,7 @@
     let selection = new Map();
     let busy = false;
     let report = null;
+    let hasRoot = false;
 
     const key = (path, name) => `${path}\u0000${name}`;
     const itemKey = item => key(item.relativePath, item.fileName);
@@ -124,6 +125,7 @@
         const chosen = await bridge.pickRoot();
         if (!chosen || chosen.cancelled) { status(EMPTY_CHOICE); busy = false; summary(); return; }
         rootName = chosen.rootName || "";
+        hasRoot = true;
         selection = new Map();
         report = null;
         busy = false;
@@ -136,6 +138,12 @@
       } finally {
         summary();
       }
+    }
+    async function reopen() {
+      if (busy) return;
+      if (!hasRoot) return open();
+      get("assistant-browser").hidden = false;
+      await browse(relativePath);
     }
     function selectAll() {
       if (busy) return;
@@ -207,7 +215,7 @@
         renderReport(result);
         const skipped = (result.report?.totals?.skipped) || 0;
         status(skipped ? `Đã nhập xong. Còn ${skipped} file bị bỏ qua.` : "Đã nhập xong vào workbook.");
-        onImported(result);
+        await onImported(result);
       } catch (error) {
         status(error.message || "Chưa nhập được nguồn đã chọn.");
       } finally {
@@ -221,7 +229,7 @@
     get("assistant-browser").hidden = true;
     get("assistant-import-report").hidden = true;
     summary();
-    return {open, browse, selectAll, runImport, state: () => ({relativePath, rootName, entries, selection: Array.from(selection.values()), busy, report})};
+    return {open, reopen, browse, selectAll, runImport, state: () => ({relativePath, rootName, entries, selection: Array.from(selection.values()), busy, report})};
   }
   const api = {create};
   if (typeof module !== "undefined" && module.exports) module.exports = api;

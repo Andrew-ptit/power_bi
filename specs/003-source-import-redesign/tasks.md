@@ -299,6 +299,13 @@ py -m unittest tests.taskpane.test_taskpane_js -v
 - `tests/taskpane/taskpane_assistant_entry.js` (đồng bộ kiểm tra hành trình hai bước, giữ kiểm tra lỗi và phục hồi)
 - `tests/taskpane/test_taskpane_js.py`
 - `tests/taskpane/taskpane_preparation_wizard.js` (chỉ để bỏ assert DOM wizard nếu đã xoá — ghi rõ lý do)
+- `pbip_assistant/excel_addin/preparation_controller.js` (duyệt 2026-11-20: headless, bỏ nhánh render wizard)
+- `pbip_assistant/excel_addin/preparation_bridge.js` (duyệt 2026-11-20: `businessSourcesFromScan`, bỏ applyCleanup/undo/redo)
+- `pbip_assistant/excel_addin/assistant_browser.js` (duyệt 2026-11-20: `reopen()` giữ thư mục + selection)
+- `tests/taskpane/taskpane_preparation_bridge.js` (duyệt 2026-11-20: handoff từ scan, bỏ cleanup)
+- `tests/taskpane/taskpane_preparation_direct.js` (duyệt 2026-11-20: `packages` trả `reviewHash`)
+- `specs/003-source-import-redesign/acceptance.md` (duyệt 2026-11-20: bằng chứng T306)
+- `specs/003-source-import-redesign/tasks.md` (duyệt 2026-11-20: allowlist + phạm vi T306)
 
 **Việc phải làm**
 1. Xoá `#assistant-step-clean` khỏi journey; `#assistant-step-problem` đổi nhãn `2. Đề bài`; state machine trong `assistant_entry.js` bỏ `step === "clean"`.
@@ -306,6 +313,10 @@ py -m unittest tests.taskpane.test_taskpane_js -v
 3. Sau nhập (T305) hoặc chọn workbook: chạy `scan()` ngầm với progress `Đang đọc lại nguồn…`; thành công → `canProblem = true`, hiện summary nguồn; thất bại → thông báo lỗi, `Đề bài` tắt.
 4. `+ Thêm nguồn` mở lại browser; giữ selection cũ hay reset theo hành vi hiện có nhưng phải nhất quán và có test.
 5. Không đổi cơ chế approval/permit/read-back của import; không đổi nhánh workbook.
+6. Business handoff lấy snapshot của lần scan sau import (`businessSourcesFromScan`), không Apply làm sạch (quyết định 2026-11-20).
+7. Scan lỗi: giữ report đã nhập, tắt Đề bài, hiện nút `Đọc lại nguồn` (quyết định 2026-11-20).
+8. `+ Thêm nguồn` mở lại browser đúng thư mục, giữ selection skipped (quyết định 2026-11-20).
+9. Bỏ applyCleanup/undo/redo/cleaningComplete khỏi entry, bridge, taskpane; controller còn headless giữ `wizard.state` + `scanWorkbook` (quyết định 2026-11-20).
 
 **Test bắt buộc**
 - `test_journey_has_two_steps_only`
@@ -322,7 +333,6 @@ node tests/taskpane/taskpane_assistant_entry.js
 node tests/taskpane/taskpane_preparation_wizard.js
 py -m unittest tests.taskpane.test_taskpane_js -v
 ```
-
 **Done**: không còn tham chiếu DOM `#preparation-wizard`/`#assistant-step-clean`; journey 2 bước; scan ngầm vẫn cấp binding cho Đề bài.
 
 ---

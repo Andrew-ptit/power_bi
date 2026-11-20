@@ -751,13 +751,6 @@ footer { padding: 4px 14px 18px; color: var(--muted); text-align: center; font-s
 .flow-algorithm { max-height: 24rem; max-width: 100%; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 11px; }
 #flow-branches summary, #flow-spec-steps summary { cursor: pointer; margin: 6px 0; }
 
-.preparation-wizard { margin-block: 1rem; border: 1px solid var(--border, #d4d9d6); border-radius: 8px; padding: .75rem; }
-.preparation-wizard summary { cursor: pointer; font-weight: 600; }
-.preparation-wizard nav { display: flex; flex-wrap: wrap; gap: .25rem; margin-block: .75rem; }
-.preparation-wizard [aria-current="step"] { border: 2px solid #0d6b50; font-weight: 700; }
-.preparation-wizard button { white-space: normal; max-width: 100%; margin-block: .2rem; }
-.preparation-wizard li { overflow-wrap: anywhere; }
-.preparation-wizard select { width: 100%; min-height: 2.5rem; }
 
 #tab-assistant [hidden] { display: none !important; }
 .assistant-context { padding-block: .75rem; }

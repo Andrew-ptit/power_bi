@@ -61,9 +61,7 @@
     <nav class="assistant-journey" aria-label="Quy trình trợ lý">
       <button id="assistant-step-source" type="button" aria-current="step">1. Nguồn</button>
       <span aria-hidden="true">→</span>
-      <button id="assistant-step-clean" type="button" disabled>2. Làm sạch</button>
-      <span aria-hidden="true">→</span>
-      <button id="assistant-step-problem" type="button" disabled>3. Đề bài</button>
+      <button id="assistant-step-problem" type="button" disabled>2. Đề bài</button>
     </nav>
     <button id="assistant-add-source" class="button button-ghost" type="button" hidden>+ Thêm nguồn</button>
 
@@ -75,9 +73,9 @@
         <button id="assistant-choose-workbook" class="button button-ghost" type="button" disabled>Dùng dữ liệu trong workbook</button>
       </div>
       <p id="assistant-source-message" class="hint" role="status" aria-live="polite">Đang kết nối với Excel…</p>
+      <button id="assistant-retry-scan" class="button button-ghost" type="button" hidden>Đọc lại nguồn</button>
       <button id="assistant-reconnect" class="button button-ghost" type="button" hidden>Kết nối lại</button>
       <button id="assistant-new-session" class="button button-ghost" type="button" hidden>Bắt đầu phiên mới với workbook này</button>
-      <div id="assistant-folder-result" hidden></div>
       <section id="assistant-browser" class="assistant-browser" hidden aria-labelledby="assistant-browser-title">
         <h3 id="assistant-browser-title" class="sr-only">Duyệt thư mục nguồn</h3>
         <p id="assistant-browser-path" class="hint" aria-live="polite"></p>
@@ -97,26 +95,6 @@
           <div id="assistant-import-skipped" hidden></div>
         </div>
       </section>
-      <div id="assistant-import-actions" class="flow-actions" hidden>
-        <span id="assistant-selected-count" role="status" aria-live="polite"></span>
-        <p id="assistant-import-message" class="hint" aria-hidden="true"></p>
-      </div>
-      <details id="preparation-wizard" class="preparation-wizard" hidden>
-        <summary>Chuẩn bị dữ liệu · quét và xem trước</summary>
-        <p class="hint">Quét tất cả sheet có dữ liệu trong workbook tại máy. Không gửi sang AI. Bản xem trước phản ánh lần quét gần nhất; chỉ áp dụng sau khi bạn duyệt.</p>
-        <label for="preparation-date-system">Hệ ngày của workbook (kiểm tra trong Excel Options → Advanced)</label>
-        <select id="preparation-date-system">
-          <option value="">Chọn hệ ngày trước khi quét</option>
-          <option value="1900">1900 · workbook dùng hệ 1900</option>
-          <option value="1904">1904 · workbook dùng hệ 1904</option>
-        </select>
-        <div class="flow-actions">
-          <button id="preparation-scan" class="button button-primary" type="button">Quét lại toàn bộ workbook</button>
-          <button id="preparation-inventory" class="button button-ghost" type="button" hidden>Liệt kê thư mục</button>
-        </div>
-        <p id="preparation-message" class="hint" role="status" aria-live="polite"></p>
-        <div id="preparation-panel"></div>
-      </details>
       <div id="flow-source-legacy" hidden>
       <label for="flow-root-input">Thư mục gốc tuyệt đối</label>
       <input id="flow-root-input" type="text" placeholder="C:\\DuLieu\\Nguon" autocomplete="off">

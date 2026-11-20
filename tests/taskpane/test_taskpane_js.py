@@ -101,6 +101,13 @@ class TaskpaneJavaScriptTests(unittest.TestCase):
         self.assertIn("passed", result.stdout)
 
     @unittest.skipUnless(shutil.which("node"), "Node.js is not available")
+    def test_two_step_journey_scan_and_add_source(self) -> None:
+        script = Path(__file__).with_name("taskpane_assistant_journey.js")
+        result = subprocess.run(["node", str(script)], capture_output=True, text=True, timeout=15, check=False)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("passed", result.stdout)
+
+    @unittest.skipUnless(shutil.which("node"), "Node.js is not available")
     def test_assistant_flow_sources_sampling_and_feature_gate(self) -> None:
         script = Path(__file__).with_name("taskpane_assistant_flow.js")
         result = subprocess.run(["node", str(script)], capture_output=True, text=True, timeout=15, check=False)
