@@ -219,13 +219,14 @@
       const review=scannedReview;
       if(!review)throw fail("DP_REVIEW_STALE","Đọc lại nguồn trước khi mở đề bài.");
       const evidence=JSON.stringify({sources:review.sources,sourceLabels:review.sourceLabels});
-      return {sources:review.sources,sourceLabels:review.sourceLabels,observedHash:await digest(new TextEncoder().encode(evidence)),
+      const observedHash=await digest(new TextEncoder().encode(evidence));
+      return {sources:review.sources,sourceLabels:review.sourceLabels,observedHash,
         async validate(){
           const fresh=await runtime.readWorkbookSources(environment,review.dateSystem);
           if(JSON.stringify(fresh.sources)!==JSON.stringify(review.sources)
             ||JSON.stringify(fresh.sourceLabels)!==JSON.stringify(review.sourceLabels))
             throw fail("DP_SOURCE_STALE","Dữ liệu hoặc sheet đã đổi sau khi đọc lại. Hãy đọc lại nguồn.");
-          return {sources:review.sources,sourceLabels:review.sourceLabels};
+          return {sources:review.sources,sourceLabels:review.sourceLabels,observedHash};
         }};
     }
     return {importFiles,importSelection,scanWorkbook,attach,mapInventory,businessSourcesFromScan,pickRoot,browse,inventorySelection,probeDateSystem,

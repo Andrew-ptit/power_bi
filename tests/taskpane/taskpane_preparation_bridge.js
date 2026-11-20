@@ -63,6 +63,8 @@ const api=require('../../pbip_assistant/excel_addin/preparation_bridge.js');
    const handoff=await b.businessSourcesFromScan();
    assert.equal(handoff.sources[0].sheetId,'native-id');
    assert.deepEqual(handoff.sources[0].rows,[['kept']]);
+   const validated=await handoff.validate();
+   assert.equal(validated.observedHash,handoff.observedHash,'the handoff validator returns the reviewed hash so the business gate can compare it');
    live.rows[0][0]='edited';
    await assert.rejects(()=>handoff.validate(),e=>e.code==='DP_SOURCE_STALE');
    live=structuredClone(original); live.sheetId='replacement-same-name';

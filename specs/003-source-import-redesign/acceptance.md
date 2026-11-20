@@ -128,3 +128,9 @@ Verified against the running coordinator: `GET https://localhost:3079/assets/ass
 The first real task-pane run showed `Cannot read properties of null (reading 'preparationId')`: the browser called `browse` before any preparation attachment existed, so `send()` dereferenced a null state. The old entry flow attached inside its inventory wrapper; the T305 browser path did not. `browse` and `inventorySelection` now `await attach()` first, and `tests/taskpane/taskpane_preparation_bridge.js` asserts `attach` precedes `browse` and that the request carries the attached `preparationId`.
 
 Served-asset verification after the fix: `GET /assets/preparation_bridge.js` matches `async function browse(...){ ... await attach(); ... }` for both `browse` and `inventorySelection`. The user-selected folder is `C:\Users\COLAIG\Downloads\VietLogix_SupplyChain_eDA2026_Dataset`, which contains only a same-named subfolder; the eight CSV files live in that inner folder, so the browser must be entered one level down (or that inner folder picked directly).
+
+### T307 follow-up 4 2026-11-20 — business handoff hash
+
+The first live import succeeded (3 files → 3 sheets), but `2. Đề bài` then showed `DP_SOURCE_STALE`. Cause: `businessSourcesFromScan().validate()` returned `sources`/`sourceLabels` but omitted `observedHash`, while `flowPreparedWorkbookSources` compares `fresh.observedHash !== review.observedHash`; `undefined` can never equal the reviewed digest. The validator now returns the same reviewed hash, and `tests/taskpane/taskpane_preparation_bridge.js` asserts `(await handoff.validate()).observedHash === handoff.observedHash`.
+
+Served-asset verification after restart: `/assets/preparation_bridge.js` contains both `await attach()` before `browse` and the `observedHash` return in `validate`.
