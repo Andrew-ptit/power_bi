@@ -20,6 +20,8 @@ After T303, `py tools/run_checks.py fast` ran 1,271 tests in 284.807s with 2 fai
 
 | T306 | Pass | `node tests/taskpane/taskpane_assistant_journey.js` / `node tests/taskpane/taskpane_assistant_entry.js` / `node tests/taskpane/taskpane_preparation_wizard.js` / `py -m unittest tests.taskpane.test_taskpane_js -v` | Journey gate 6/6: two steps only, no cleaning wizard DOM, import → verified re-read enables `2. Đề bài`, workbook choice re-reads without importing, failed re-read disables Đề bài and shows `Đọc lại nguồn`, `+ Thêm nguồn` reopens the same folder and keeps the skipped selection. Entry 8 cases; headless controller scan keeps `wizard.state`; taskpane module 15 tests OK. Cleaning client path removed from entry/bridge/controller/taskpane; affected preparation batch 133 tests OK. No live Excel. | 96280ec + T306 completion |
 
+| T307 | Pass (003 scope); runtime/full gate Blocked on Excel parity | `py tools/run_checks.py fast` / `py tools/run_checks.py runtime` / `py -m unittest discover -s tests -v` / `node tests/taskpane/taskpane_assistant_browser.js` / `node tests/taskpane/taskpane_assistant_journey.js` | fast `run=1288 failed=0 errors=0 skipped=3 elapsed=215.501s` exit 0; runtime `run=13 failed=2 errors=0 skipped=1 elapsed=434.416s` exit 1; discovery `Ran 1304 tests`, 1 failure, 7 skips, 667.843s, exit 1. All failures are the pre-existing `tests.runtime.test_typed_local_parity` `PARITY_FIXTURE_TIMEOUT` (no Excel COM fixture), outside 003. Matrix S01–S13 / SI01–SI15 / SC01–SC08 filled; two new taskpane cases registered; stale assistant-v1 required cases removed. Live Excel Not run. | 0046684 + T307 completion |
+
 Approved contract amendment 2026-11-20: `readingDecisions` (`ENCODING_FALLBACK` / `DELIMITER_INFERRED`) and package `reviewHash` bound to `dateSystem`.
 Approved scope expansion 2026-11-20: `pbip_assistant/sources/preparation/csv_typing.py`, `pbip_assistant/sources/preparation/package_preservation.py`, `tests/unit/test_csv_typing.py`, and the spec/contract/tasks/acceptance documents listed under T304.
 Approved requirement change 2026-11-20: an empty CSV cell stays `null` with numberFormat `General` (replaces `""` + `@`); the physical verifier compares each package `numberFormats` entry instead of requiring `@`.
@@ -30,3 +32,74 @@ Approved decision 2026-11-20 (T305): a failed date-system probe blocks the impor
 Approved decision 2026-11-20 (T306): the business handoff uses the post-import workbook scan (`businessSourcesFromScan`); no cleaning Apply runs and no extra cell is written.
 Approved decision 2026-11-20 (T306): a failed re-read keeps the import report, disables `Đề bài` and offers `Đọc lại nguồn`; `+ Thêm nguồn` reopens the same folder with the pending selection.
 Approved scope expansion 2026-11-20 (T306): headless `preparation_controller.js`, `businessSourcesFromScan` in the bridge with the client cleanup APIs removed, `assistant_browser.reopen()`, and the bridge/direct test fixtures.
+
+## Acceptance matrix — S / SI / SC (T307)
+
+Statuses: **Pass** = automated evidence on this revision; **Blocked** = no automated or live evidence yet; **Not run** = live Excel not executed. Unit/HTTP/Office.js simulation is never marked as live verification.
+
+### US1–US4 scenarios
+
+| ID | Evidence (test / file) | Status |
+|---|---|---|
+| S01 | `tests.unit.test_preparation_browse` (folders first, `.csv`/`.xlsx` only, name sort); `taskpane_assistant_browser` case 1 | Pass |
+| S02 | browse escape/reparse tests; `taskpane_assistant_browser` cases 1–2 (breadcrumb, `↑ Lên cấp trên`) | Pass |
+| S03 | browse/inventory selection tests; browser cases 2–3 (selection kept across folders, select-all scoped); footer counts files before import and sheets in the report (approved SI04) | Pass |
+| S04 | browser case 9 (`Chưa chọn thư mục.`, `Thư mục này không có file .csv hoặc .xlsx.`) | Pass |
+| S05 | `tests.unit.test_csv_typing`, `test_preparation_packages` (number + `General`), `test_preparation_direct` (typed after-image), `preparation_native_mutations` (typed write) | Pass (live Not run) |
+| S06 | `test_csv_typing`: `LEADING_ZERO_TEXT`, `PRECISION_TEXT`, `MIXED_TYPE_TEXT` | Pass |
+| S07 | `test_csv_typing` 1900/1904 serial, invalid date text; packages `DP_DATE_SYSTEM_REQUIRED`; runtime `probeDateSystem` | Pass (live Not run) |
+| S08 | `test_csv_typing` header `@`, formula-like text, empty cell `null` + `General` (approved change 2026-11-20) | Pass |
+| S09 | `test_import_report_lists_decisions_with_reason_codes`, `test_report_has_no_absolute_path_or_raw_row`; browser case 7 (samples never rendered) | Pass |
+| S10 | `test_ragged_csv_skipped_but_other_files_import`, `test_oversized_csv_is_skipped_without_blocking_other_files` | Pass |
+| S11 | `taskpane_assistant_journey` case 3 (import → re-read → `2. Đề bài` enabled) | Pass (live Not run) |
+| S12 | `taskpane_assistant_entry` case 4 / journey case 4 (workbook choice imports nothing, no write path) | Pass (live Not run) |
+| S13 | No automated case covers "workbook has no valid data" (`selectWorkbook` false path asserted nowhere) | **Blocked** |
+
+### Functional requirements
+
+| ID | Evidence | Status |
+|---|---|---|
+| SI01 | journey gate: HTML has `1. Nguồn`, `2. Đề bài`, no clean step | Pass |
+| SI02 | browse + browser cases 1–2 | Pass |
+| SI03 | browse/inventory tests (200-file limit, duplicates); browser cases 2–3 | Pass |
+| SI04 | browser reads only on `Nhập vào workbook`; footer shows file count only before import | Pass |
+| SI05 | `test_xlsx_package_unchanged`; `mapInventory` collision test; direct import | Pass (live Not run) |
+| SI06 | `test_csv_typing` full rule table | Pass |
+| SI07 | journey case 2 (no wizard/date select); browser case 8 (no preview DOM) | Pass |
+| SI08 | package report tests; browser case 7 | Pass |
+| SI09 | package/API skipped-file tests | Pass |
+| SI10 | browse/inventory/package tests (ragged, 64 MiB, 100k rows, 200 columns, 400k cells, escape, stale source, protected) | Pass |
+| SI11 | entry/journey workbook cases (no import, no cell write; Office.js simulation only) | Pass (live Not run) |
+| SI12 | journey case 3; entry case 3 (`Đề bài` only after verified re-read) | Pass |
+| SI13 | report has no raw rows/paths; browser renders every value with `textContent`; no AI call in source path | Pass |
+| SI14 | No automated keyboard/360px/hit-target check | **Blocked** |
+| SI15 | `tests.taskpane.test_taskpane_js` 15 tests; all taskpane scripts run in the gate; 2 new scripts registered in `tests/required_cases.json` | Pass |
+
+### Success criteria
+
+| ID | Evidence | Status |
+|---|---|---|
+| SC01 | `test_deterministic_twice_identical`; US2 oracle fixture | Pass |
+| SC02 | typed frame assertions in `test_preparation_packages` and `test_csv_typing` | Pass (live Not run) |
+| SC03 | `test_import_report_lists_decisions_with_reason_codes`; browser exceptions block | Pass |
+| SC04 | journey cases 1–2; browser case 8 | Pass |
+| SC05 | Keyboard/360px/3-level navigation has no automated evidence (browser covers two levels) | **Blocked** |
+| SC06 | ragged/oversize skip tests; no-sheet-for-skipped assertions | Pass |
+| SC07 | workbook branch simulated (no import); live fingerprint comparison | Not run (live) |
+| SC08 | Fast green (`run=1288`, 3 skips); runtime and full discovery fail only the pre-existing Excel parity case (`PARITY_FIXTURE_TIMEOUT`, outside 003) | **Blocked** for "all three green"; 003 scope Pass |
+
+## Gate evidence (T307, 2026-11-20)
+
+Worktree `.artifacts/worktrees/source-import-003`, branch `codex/source-import-003`, HEAD `0046684` plus the T307 working tree.
+
+| Command | Result |
+|---|---|
+| `py tools/run_checks.py fast` | `gate=fast run=1288 failed=0 errors=0 skipped=3 elapsed=215.501s`, exit 0 |
+| `py tools/run_checks.py runtime` | `gate=runtime run=13 failed=2 errors=0 skipped=1 elapsed=434.416s`, exit 1 — both failures are `tests.runtime.test_typed_local_parity` raising `Blocked: PARITY_FIXTURE_TIMEOUT; [parity] save-synthetic-fixture` (no usable Excel COM fixture in this environment) |
+| `py -m unittest discover -s tests -v` | `Ran 1304 tests in 667.843s`, `FAILED (failures=1, skipped=7)` — the single failure is the same `test_python_executor_matches_excel_m_for_all_15_operations` parity case with the same timeout |
+| `node tests/taskpane/taskpane_assistant_browser.js` | `assistant browser: 10 cases passed` |
+| `node tests/taskpane/taskpane_assistant_journey.js` | `assistant journey: 6 cases passed` |
+
+Scope split (approved 2026-11-20): fast is green. The runtime/full-discovery failures are the pre-existing Excel-runtime parity gate (`PARITY_FIXTURE_TIMEOUT`), not feature 003 code; they remain **Blocked** and are not counted as 003 passes. Live Excel end-to-end remains **Not run**; no workbook was opened or written.
+
+`tests/required_cases.json` now matches discovery again (three stale assistant-v1 ids removed, two feature-003 taskpane cases added): `py tools/run_checks.py fast --list` reports `gate=fast cases=1288`.
