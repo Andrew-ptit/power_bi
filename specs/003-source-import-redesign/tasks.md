@@ -343,6 +343,9 @@ py -m unittest tests.taskpane.test_taskpane_js -v
 - `specs/003-source-import-redesign/acceptance.md` (mới)
 - `docs/current/TASKPANE_UI.md`, `docs/current/CURRENT_STATUS.md` (chỉ ghi trạng thái, **không** bump version)
 - `tests/required_cases.json` (chỉ nếu cần thêm case mới; không xoá case)
+- `specs/003-source-import-redesign/tasks.md` (duyệt 2026-11-20: allowlist follow-up T307)
+- `tests/taskpane/taskpane_assistant_browser.js`, `tests/taskpane/taskpane_assistant_entry.js` (duyệt 2026-11-20: đóng S13/SI14/SC05 bằng test 3 cấp + static a11y)
+- `pbip_assistant/excel_addin/assistant_browser.js` (duyệt 2026-11-20: sửa relativePath khi vào thư mục cấp 3, do test mới phát hiện)
 
 **Việc phải làm**
 1. Lập acceptance matrix: mỗi `S01–S13`, `SI01–SI15`, `SC01–SC08` ↔ test/evidence, trạng thái `Pass / Fail / Blocked / Not run`.

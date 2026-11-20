@@ -53,7 +53,7 @@ Statuses: **Pass** = automated evidence on this revision; **Blocked** = no autom
 | S10 | `test_ragged_csv_skipped_but_other_files_import`, `test_oversized_csv_is_skipped_without_blocking_other_files` | Pass |
 | S11 | `taskpane_assistant_journey` case 3 (import → re-read → `2. Đề bài` enabled) | Pass (live Not run) |
 | S12 | `taskpane_assistant_entry` case 4 / journey case 4 (workbook choice imports nothing, no write path) | Pass (live Not run) |
-| S13 | No automated case covers "workbook has no valid data" (`selectWorkbook` false path asserted nowhere) | **Blocked** |
+| S13 | `taskpane_assistant_entry` case 9: no usable workbook data → no scan, `Đề bài` stays off, explicit message, no empty session | Pass |
 
 ### Functional requirements
 
@@ -72,7 +72,7 @@ Statuses: **Pass** = automated evidence on this revision; **Blocked** = no autom
 | SI11 | entry/journey workbook cases (no import, no cell write; Office.js simulation only) | Pass (live Not run) |
 | SI12 | journey case 3; entry case 3 (`Đề bài` only after verified re-read) | Pass |
 | SI13 | report has no raw rows/paths; browser renders every value with `textContent`; no AI call in source path | Pass |
-| SI14 | No automated keyboard/360px/hit-target check | **Blocked** |
+| SI14 | Static contract (`taskpane_assistant_browser` case 12): 32px rows, `overflow-wrap`, `aria-live` regions, native button/checkbox controls; real 360px rendering | Pass (static); live visual Not run |
 | SI15 | `tests.taskpane.test_taskpane_js` 15 tests; all taskpane scripts run in the gate; 2 new scripts registered in `tests/required_cases.json` | Pass |
 
 ### Success criteria
@@ -83,7 +83,7 @@ Statuses: **Pass** = automated evidence on this revision; **Blocked** = no autom
 | SC02 | typed frame assertions in `test_preparation_packages` and `test_csv_typing` | Pass (live Not run) |
 | SC03 | `test_import_report_lists_decisions_with_reason_codes`; browser exceptions block | Pass |
 | SC04 | journey cases 1–2; browser case 8 | Pass |
-| SC05 | Keyboard/360px/3-level navigation has no automated evidence (browser covers two levels) | **Blocked** |
+| SC05 | `taskpane_assistant_browser` case 11 (3 levels, selection survives two ups) + case 12 (narrow-layout/keyboard static contract); real 360px UI | Pass (automated); live visual Not run |
 | SC06 | ragged/oversize skip tests; no-sheet-for-skipped assertions | Pass |
 | SC07 | workbook branch simulated (no import); live fingerprint comparison | Not run (live) |
 | SC08 | Fast green (`run=1288`, 3 skips); runtime and full discovery fail only the pre-existing Excel parity case (`PARITY_FIXTURE_TIMEOUT`, outside 003) | **Blocked** for "all three green"; 003 scope Pass |
@@ -103,3 +103,16 @@ Worktree `.artifacts/worktrees/source-import-003`, branch `codex/source-import-0
 Scope split (approved 2026-11-20): fast is green. The runtime/full-discovery failures are the pre-existing Excel-runtime parity gate (`PARITY_FIXTURE_TIMEOUT`), not feature 003 code; they remain **Blocked** and are not counted as 003 passes. Live Excel end-to-end remains **Not run**; no workbook was opened or written.
 
 `tests/required_cases.json` now matches discovery again (three stale assistant-v1 ids removed, two feature-003 taskpane cases added): `py tools/run_checks.py fast --list` reports `gate=fast cases=1288`.
+
+### T307 follow-up 2026-11-20 — closing the blocked rows
+
+- **S13** now has an automated case: choosing workbook data with no usable source keeps `Đề bài` off, shows the explicit message, starts no scan and creates no empty session.
+- **SI14 / SC05** are covered by a static accessibility/narrow-layout contract (32px row hit target, `overflow-wrap`, horizontal overflow disabled, `max-width: 100%`, `aria-live` regions, native button/checkbox controls) plus a real three-level browser navigation test that keeps the selection across two ups. Real 360px rendering is still only verified manually/live; it is not claimed as automated evidence.
+- A real bug was found by the three-level test and fixed: folder navigation joined only the folder name, so entering a folder inside a folder produced the wrong `relativePath`.
+
+Re-run after the follow-up: `node tests/taskpane/taskpane_assistant_browser.js` → `12 cases passed`; `node tests/taskpane/taskpane_assistant_entry.js` → `Assistant single entry guards passed` (9 cases); `node tests/taskpane/taskpane_assistant_journey.js` → `6 cases passed`; `py -m unittest tests.taskpane.test_taskpane_js` → 15 tests OK.
+
+### Live verification runbook (user-run, Excel Desktop)
+
+- **Typed parity / SC08**: `py tools/run_checks.py runtime` on a machine where Excel can be automated. Expect `run=13 failed=0 errors=0`. If it still prints `Blocked: PARITY_FIXTURE_TIMEOUT; [parity] save-synthetic-fixture`, Excel could not create/save the synthetic fixture (check Excel opens, no dialog/modal, COM automation allowed); this is a runtime prerequisite, not feature 003.
+- **T308 live source journey**: use a synthetic folder (CSV with number/date/leading-zero columns + one broken CSV), browse two levels, select, Import, then read `numberFormat` and `typeof values` back from Excel and compare with the T304 oracle. Record it as `Passed` only with the actual read-back; otherwise `Not run` with the exact reason. Never use a user workbook as the fixture.

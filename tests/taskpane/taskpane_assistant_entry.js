@@ -132,5 +132,19 @@ function harness(overrides = {}) {
     assert.equal(get("assistant-choose-folder").disabled, false);
   }
 
+  // 9. No usable workbook data keeps Đề bài off and explains why (S13).
+  {
+    const {entry, get, calls} = harness({
+      selectWorkbook: async () => { calls.push("workbook"); return false; },
+      scanWorkbook: async () => { throw new Error("the scan must not run without usable data"); }
+    });
+    await get("assistant-choose-workbook").click();
+    assert.deepEqual(calls.filter(value => typeof value === "string"), ["workbook"]);
+    assert(get("assistant-step-problem").disabled);
+    assert.equal(get("assistant-retry-scan").hidden, true, "missing data is not a scan failure");
+    assert.match(get("assistant-source-message").textContent, /Workbook chưa có dữ liệu phù hợp/);
+    assert.equal(entry.state().canProblem, false);
+  }
+
   console.log("Assistant single entry guards passed");
 })().catch(error => { console.error(error); process.exit(1); });

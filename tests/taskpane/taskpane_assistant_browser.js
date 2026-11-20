@@ -44,6 +44,10 @@ function harness(overrides = {}) {
           {name: "jan.csv", kind: "file", extension: "csv"},
           {name: "feb.csv", kind: "file", extension: "csv"}
         ], truncated: false};
+      if (relativePath === "sales/2026") return {
+        rootName: "dataset", relativePath: "sales/2026", parentRelativePath: "sales",
+        breadcrumb: [{name: "dataset", relativePath: ""}, {name: "sales", relativePath: "sales"}, {name: "2026", relativePath: "sales/2026"}],
+        entries: [{name: "mar.csv", kind: "file", extension: "csv"}], truncated: false};
       return {rootName: "dataset", relativePath, parentRelativePath: "sales", breadcrumb: [], entries: [], truncated: false};
     },
     probeDateSystem: async () => { calls.probe++; return "1904"; },
@@ -215,5 +219,48 @@ function fileRows(list) {
     assert.equal(span.innerHTML, undefined, "no HTML was parsed into the row");
   }
 
-  console.log("assistant browser: 10 cases passed");
+  // 11. Three-level navigation keeps the selection and the breadcrumb correct.
+  {
+    const {browser, get, calls} = harness();
+    await browser.open();
+    await get("assistant-browser-list").children[0].children[0].click();
+    await get("assistant-browser-list").children[0].children[0].click();
+    assert.deepEqual(calls.browse, ["", "sales", "sales/2026"]);
+    assert.equal(get("assistant-browser-path").textContent, "dataset / sales / 2026");
+    const deepRows = fileRows(get("assistant-browser-list"));
+    assert.equal(deepRows.length, 1);
+    await deepRows[0].children[0].change(true);
+    await get("assistant-browser-up").click();
+    await get("assistant-browser-up").click();
+    assert.equal(calls.browse.at(-1), "");
+    assert.equal(browser.state().selection.length, 1, "selection from the third level survives two ups");
+    assert.equal(get("assistant-browser-path").textContent, "dataset");
+    assert.equal(get("assistant-browser-up").disabled, true, "root cannot go up");
+  }
+
+  // 12. Keyboard/narrow-layout contract is static: native controls, ARIA live regions, 32px rows.
+  {
+    const css = fs.readFileSync(path.join(__dirname, "../../pbip_assistant/excel_addin/taskpane.css"), "utf8");
+    const htmlSource = fs.readFileSync(path.join(__dirname, "../../pbip_assistant/excel_addin/taskpane.html"), "utf8");
+    assert.match(css, /\.assistant-browser-row\s*\{[^}]*min-height:\s*32px/, "rows meet the 32px hit target");
+    assert.match(css, /#assistant-browser-path\s*\{[^}]*overflow-wrap:\s*anywhere/, "long paths wrap at narrow widths");
+    assert.match(css, /\.assistant-browser-list\s*\{[^}]*overflow-x:\s*hidden/, "the browser never scrolls horizontally");
+    assert.match(css, /#assistant-browser button,\s*#assistant-import-report\s*\{[^}]*max-width:\s*100%/, "controls stay inside 360px");
+    for (const id of ["assistant-browser-status", "assistant-selected-summary", "assistant-import-summary"]) {
+      assert.match(htmlSource, new RegExp(`id="${id}"[^>]*aria-live="polite"`), `${id} is an aria-live region`);
+    }
+    assert.match(htmlSource, /id="assistant-browser-status"[^>]*role="status"/, "browser status is announced");
+    for (const id of ["assistant-browser-up", "assistant-select-all", "assistant-import-selected"]) {
+      assert.match(htmlSource, new RegExp(`id="${id}"[^>]*type="button"`), `${id} is a native button`);
+    }
+    const {browser, get} = harness();
+    await browser.open();
+    const folder = get("assistant-browser-list").children[0].children[0];
+    assert.equal(folder.tag, "button", "folders are native buttons, so Enter/Space work");
+    const checkbox = fileRows(get("assistant-browser-list"))[0].children[0];
+    assert.equal(checkbox.tag, "input");
+    assert.equal(checkbox.type, "checkbox");
+  }
+
+  console.log("assistant browser: 12 cases passed");
 })().catch(error => { console.error(error); process.exit(1); });

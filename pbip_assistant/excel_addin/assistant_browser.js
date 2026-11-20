@@ -66,7 +66,7 @@
           open.type = "button";
           open.className = "button button-ghost assistant-browser-folder";
           open.disabled = busy;
-          open.addEventListener("click", () => { if (!busy) navigate(entry.name); });
+          open.addEventListener("click", () => { if (!busy) navigate(relativePath ? `${relativePath}/${entry.name}` : entry.name); });
           row.append(open);
           list.append(row);
           continue;
