@@ -1,12 +1,14 @@
 # Architecture and refactor decisions
 
-The application uses one Python package with feature/domain modules and explicit adapters. No new storage migration or Python runtime dependency is introduced. [Current status](CURRENT_STATUS.md) owns verification and release readiness.
+## Preparation active extension
+
+Current preparation is Source -> Cleaning -> Problem, with Browse/file selection, native sheet import, automatic all-sheet scan, grouped questions and exact preview/Apply. The user removed backup across the flow on 2026-11-16. `preparationBackups: false` selects transient semantic/native-ID validation and direct begin/one-use permit/read-back completion. Active composition creates no target package evidence, recovery images/journal or preparation recovery XML; UI shows no preparation Undo/Redo. Historical session/journal modules remain isolated compatibility code. Imported in-place cleanup needs current-session verified ownership; existing personal sheets receive separate results. Unsupported personal-copy dependencies block before writing. Uncertain writes cannot replay; explicit fresh attachment revokes old authority and requires review again. No full target style/structure comparison, rollback or Ctrl+Z promise is made. Typed, Problem Chain and Advanced history semantics remain unchanged. Manual native acceptance is user-pending; see CURRENT_STATUS.md and specs/002-data-preparation/backup-removal-plan.md.
 
 ## Boundaries
 
 | Package | Responsibility | Side effects / protection |
 |---|---|---|
-| core | Input errors, bounded workbook snapshot contract, resource paths | No session state; resources resolved from one package/repository root |
+| core | Input errors, bounded workbook snapshot contract, resource paths, shared HTTP framing | No session state; resources resolved from one package/repository root |
 | sources | CSV/XLSX profile, schema comparison, source fingerprint and import workflows | Reads local inputs; preserves row/encoding ambiguity gates and source hashes |
 | powerbi | PBIP inventory, PBIR catalog, TMDL bridge, proposal contracts | Read-only; pinned bridge; static status never grants patch/runtime verification |
 | coordinator | Composition, HTTP adapter groups, sessions, slots, temporary workspaces | Guard order remains host/origin ? session ? execution slot ? state lock; fail-closed limits |
@@ -18,6 +20,14 @@ The application uses one Python package with feature/domain modules and explicit
 | adapters/codex | Planner-specific prompts/schemas with shared subprocess transport | Bounded opt-in input; schema preflight, timeout and failure mapping stay explicit |
 
 Static assets remain in excel_addin/web. PowerShell helpers and the .NET bridge remain in tools. No database repository or dynamic plugin framework is introduced.
+
+## Shared request framing
+
+`core/http_io.py` owns the two decisions both local servers must answer identically: how a request body is bounded and read, and whether a `Host`/`Origin` header is a loopback origin. The coordinator and the source-only UI keep their own response writers, security headers and error envelopes, because those deliberately differ (the task pane allows the Office CDN in its CSP; the source UI accepts only `http` origins). Only the framing is shared, so a fix in one surface cannot drift from the other.
+
+## Task pane scripts
+
+The task pane loads ordered classic scripts, not modules: `taskpane_core.js` (state, DOM helpers, the network seam, bootstrap), `taskpane_flow.js` (assistant journey), `taskpane_workspace.js` (workbook read/render), `taskpane_problem_chain.js` (Custom XML and revision tree), `taskpane_typed_pq.js` (typed editor, step diagnostics, preview/approve/apply) and `taskpane.js` (boot and session). `taskpane.html`, the add-in server allowlist, `tests/support/taskpane_source.js` and `tests/support/taskpane_source.py` must agree on that order; `tests/contracts/test_taskpane_asset_order.py` fails if they drift. Splitting the file into modules is a separate, larger change: the Node harnesses load it as one classic-script concatenation and replace four dependency bindings at run time, so it needs its own budget and cannot be done piecemeal.
 
 ## Patterns applied
 
@@ -46,7 +56,7 @@ Name/note editing, semantic/runtime diff and persisted runtime summary are cance
 
 This is a modular application, not a dynamic plugin/skill runtime. Features belong in the existing domain packages; reusable AI/developer workflow instructions can be separate skills without owning application state or approval authority.
 
-HTTP adapters and pure compiler/validation/document modules have explicit boundaries. Typed and history stores still combine several stateful use cases; their locks and commit authority remain centralized. Typed/history Codex planner classes also remain in their owning store modules, although subprocess transport is shared. The task pane is still a large script. These are concrete remaining opportunities for extracting small internal services/controllers while preserving atomic operations and public interfaces.
+HTTP adapters and pure compiler/validation/document modules have explicit boundaries. Typed and history stores still combine several stateful use cases; their locks and commit authority remain centralized. The Codex draft and continuation planners now live in `adapters/codex/typed.py` and `adapters/codex/problem_chain.py`; the store modules re-export those names, so patch seams for `find_codex_executable`, `subprocess.run` and the schema preflights belong to the adapter modules. The step-diagnostic use cases live in `powerquery/typed/diagnostics_service.py`: it sequences context derivation, the isolated preview call, the staging size check and the public projection, while `TypedPlanStore` keeps the lock, the single staging slot, the diagnostic cache and every guard that may promote or discard a staging. The task pane is still a large script. These are concrete remaining opportunities for extracting small internal services/controllers while preserving atomic operations and public interfaces.
 
 Only measured hot paths should receive performance changes. Compiler producer maps avoid repeated searches, but no Excel/Codex end-to-end speedup has been established. Fingerprints and defensive copies remain safety checks. Source fingerprints resolve referenced styles semantically, so unused result-sheet styles do not create false cache misses while source formatting changes remain stale.
 

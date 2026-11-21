@@ -27,7 +27,7 @@ def cases(suite: unittest.TestSuite):
 
 def selected(case: unittest.TestCase, gate: str) -> bool:
     identity = case.id()
-    is_codex = identity.startswith("tests.runtime.test_codex_problem_chain.")
+    is_codex = identity.startswith("tests.runtime.test_codex_")
     is_runtime = identity.startswith("tests.runtime.")
     if gate == "fast":
         return not is_runtime
@@ -42,6 +42,10 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("gate", choices=("fast", "runtime", "codex", "all"))
     parser.add_argument("--list", action="store_true", help="List case ids without executing any test")
+    parser.add_argument(
+        "--quiet", "-q", action="store_true",
+        help="One dot per test instead of a line per test; the final gate= summary is unchanged",
+    )
     args = parser.parse_args()
     if args.gate == "codex" and not args.list and os.environ.get("PQPC_LIVE_CODEX") != "1":
         parser.error("Live Codex requires explicit PQPC_LIVE_CODEX=1; no request was sent")
@@ -67,7 +71,8 @@ def main() -> int:
         print(f"gate={args.gate} cases={len(chosen)}")
         return 0
     started = time.perf_counter()
-    result = unittest.TextTestRunner(verbosity=2).run(unittest.TestSuite(chosen))
+    verbosity = 1 if args.quiet else 2
+    result = unittest.TextTestRunner(verbosity=verbosity).run(unittest.TestSuite(chosen))
     print(
         f"gate={args.gate} run={result.testsRun} failed={len(result.failures)} "
         f"errors={len(result.errors)} skipped={len(result.skipped)} elapsed={time.perf_counter()-started:.3f}s"

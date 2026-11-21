@@ -17,3 +17,12 @@ node_modules/
 /crop.png
 /*.xlsx
 /clean_final_data.csv
+
+# Local batch runner output and local secrets: never commit .env
+/runs/
+.env
+
+# Local third-party tool checkouts: installed workflows, not product source.
+/spec-kit/
+/ponytail/
+/superpowers/
