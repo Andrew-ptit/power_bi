@@ -82,6 +82,14 @@ def make_retail_pbip(root: Path, *, variant: str = "modern") -> Path:
         del reference["datasetReference"]
     _json(report / "definition.pbir", reference)
 
+    _report_definition(report, definition, variant)
+    _semantic_model(semantic, tmdl, variant)
+    _variant_extras(report, semantic, tmdl, variant)
+    return root
+
+
+def _report_definition(report: Path, definition: Path, variant: str) -> None:
+    """Write the report side: legacy report.json, or the modern definition tree."""
     if variant == "legacy":
         _json(report / "report.json", {"sections": [], "config": "{}"})
     else:
@@ -113,6 +121,8 @@ def make_retail_pbip(root: Path, *, variant: str = "modern") -> Path:
             }]}}}},
         })
 
+def _semantic_model(semantic: Path, tmdl: Path, variant: str) -> None:
+    """Write the semantic model: definition properties, database, tables, relationships."""
     _json(semantic / "definition.pbism", {
         "$schema": SCHEMA + "item/semanticModel/definitionProperties/1.0.0/schema.json",
         "version": "4.0", "settings": {"qnaEnabled": False},
@@ -164,6 +174,9 @@ relationship e8d6ab32-ae76-4273-a777-27fc50ac5bbf
 \tfromColumn: FactOrders.OrderDate
 \ttoColumn: DimDate.Date
 """)
+
+def _variant_extras(report: Path, semantic: Path, tmdl: Path, variant: str) -> None:
+    """Apply the per-variant additions that must land after the shared tree."""
     if variant == "protected_files":
         _json(report / "semanticModelDiagramLayout.json", {"version": "1.0", "diagrams": []})
         _json(report / "mobileState.json", {"synthetic": True})
@@ -171,7 +184,6 @@ relationship e8d6ab32-ae76-4273-a777-27fc50ac5bbf
     if variant == "hash_change":
         path = tmdl / "tables" / "DimProduct.tmdl"
         path.write_text(path.read_text(encoding="utf-8") + "\n// synthetic changed hash\n", encoding="utf-8")
-    return root
 
 
 def fixture_manifest(root: Path) -> dict:

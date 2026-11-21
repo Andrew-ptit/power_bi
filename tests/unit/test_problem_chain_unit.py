@@ -351,8 +351,8 @@ class ProblemChainDomainTests(unittest.TestCase):
         self.assertEqual(len(schema["properties"]["changes"]["items"]["anyOf"]), 5)
         response = FakeContinuationPlanner().propose({})
         completed = subprocess.CompletedProcess(["codex"], 0, json.dumps(response), "")
-        with mock.patch("pbip_assistant.problem_chain.find_codex_executable", return_value="codex"), mock.patch(
-            "pbip_assistant.problem_chain.subprocess.run", return_value=completed,
+        with mock.patch("pbip_assistant.adapters.codex.problem_chain.find_codex_executable", return_value="codex"), mock.patch(
+            "pbip_assistant.adapters.codex.problem_chain.subprocess.run", return_value=completed,
         ) as invoked:
             actual = CodexProblemChainPlanner(timeout_seconds=3).propose({"baseRevision": {}})
         self.assertEqual(actual, response)
@@ -371,8 +371,8 @@ class ProblemChainDomainTests(unittest.TestCase):
             "assumptions": [], "warnings": [], "changeReason": "Await clarification", "changes": [],
         }
         completed = subprocess.CompletedProcess(["codex"], 0, json.dumps(response), "")
-        with mock.patch("pbip_assistant.problem_chain.find_codex_executable", return_value="codex"), mock.patch(
-            "pbip_assistant.problem_chain.subprocess.run", return_value=completed,
+        with mock.patch("pbip_assistant.adapters.codex.problem_chain.find_codex_executable", return_value="codex"), mock.patch(
+            "pbip_assistant.adapters.codex.problem_chain.subprocess.run", return_value=completed,
         ):
             actual = CodexProblemChainPlanner(timeout_seconds=3).propose({"baseRevision": {}})
         self.assertEqual(actual, response)
@@ -402,9 +402,9 @@ class ProblemChainDomainTests(unittest.TestCase):
         }
         for stderr, expected in cases.items():
             with self.subTest(expected=expected), mock.patch(
-                "pbip_assistant.problem_chain.find_codex_executable", return_value="codex",
+                "pbip_assistant.adapters.codex.problem_chain.find_codex_executable", return_value="codex",
             ), mock.patch(
-                "pbip_assistant.problem_chain.subprocess.run",
+                "pbip_assistant.adapters.codex.problem_chain.subprocess.run",
                 return_value=subprocess.CompletedProcess(["codex"], 1, "", stderr),
             ):
                 with self.assertRaises(InputError) as caught:
@@ -412,9 +412,9 @@ class ProblemChainDomainTests(unittest.TestCase):
                 self.assertEqual(caught.exception.code, expected)
                 self.assertNotIn("cell secret", str(caught.exception))
         with mock.patch(
-            "pbip_assistant.problem_chain.find_codex_executable", return_value="codex",
+            "pbip_assistant.adapters.codex.problem_chain.find_codex_executable", return_value="codex",
         ), mock.patch(
-            "pbip_assistant.problem_chain.subprocess.run", side_effect=subprocess.TimeoutExpired("codex", 1),
+            "pbip_assistant.adapters.codex.problem_chain.subprocess.run", side_effect=subprocess.TimeoutExpired("codex", 1),
         ):
             with self.assertRaises(InputError) as caught:
                 CodexProblemChainPlanner(timeout_seconds=1).propose({})
