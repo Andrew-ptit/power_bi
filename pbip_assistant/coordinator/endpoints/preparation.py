@@ -68,7 +68,8 @@ class PreparationEndpoints:
                 elif action == "review-import":
                     result = store.review_import(transport, pid, body["inventoryHash"], body["mappings"], body.get("existingNames", []))
                 elif action == "packages":
-                    result = store.packages(transport, pid, body["reviewHash"])
+                    result = store.packages(transport, pid, body["reviewHash"], body.get("dateSystem"),
+                                            reuse_reviewed=False)
                 elif action == "approve":
                     result = store.approve(transport, pid, body["reviewHash"], body["kind"], body["target"])
                 elif action == "direct-begin":
