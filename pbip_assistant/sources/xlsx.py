@@ -407,6 +407,32 @@ def profile_workbook(
             str(path),
             f"preview_limit must be between 1 and {MAX_PREVIEW_ROWS}",
         )
+    resolved = _checked_workbook_path(path)
+    try:
+        with ZipFile(resolved) as archive:
+            context, workbook_issues = _read_archive_context(archive, resolved)
+            sheets, table_found = _profile_worksheets(
+                archive, resolved, context,
+                sheet_names=sheet_names, table_name=table_name,
+                include_preview=include_preview, preview_limit=preview_limit,
+            )
+            if table_name is not None and not table_found:
+                raise InputError("XLSX_TABLE_NOT_FOUND", str(resolved), f"Table not found: {table_name}")
+            requested_sheets = set(sheet_names) if sheet_names is not None else None
+            return {
+                "path": str(resolved), "date_system": "1904" if context["date_1904"] else "1900",
+                "selected_sheets": sorted(requested_sheets) if requested_sheets is not None else None,
+                "selected_table": table_name,
+                "sheets": sheets, "issues": workbook_issues,
+            }
+    except BadZipFile as exc:
+        raise InputError("INVALID_XLSX", str(resolved), "Not a valid .xlsx ZIP archive") from exc
+    except PermissionError as exc:
+        raise InputError("XLSX_LOCKED", str(resolved), "Workbook is locked or permission was denied") from exc
+
+
+def _checked_workbook_path(path: str | Path) -> Path:
+    """Resolve the workbook and reject the shapes this slice cannot read."""
     try:
         resolved = Path(path).resolve(strict=True)
     except OSError as exc:
@@ -422,102 +448,125 @@ def profile_workbook(
         raise InputError("XLSX_LOCKED", str(resolved), "Workbook is locked or permission was denied") from exc
     if signature == _ENCRYPTED_OFFICE_SIGNATURE:
         raise InputError("ENCRYPTED_XLSX", str(resolved), "Password-protected workbook is not supported")
-    try:
-        with ZipFile(resolved) as archive:
-            members = archive.infolist()
-            if any(item.flag_bits & 0x1 for item in members):
-                raise InputError("ENCRYPTED_XLSX", str(resolved), "Password-protected workbook is not supported")
-            if sum(item.file_size for item in members) > MAX_UNCOMPRESSED:
-                raise InputError("XLSX_LIMIT", str(resolved), "Workbook exceeds uncompressed size limit")
-            if len({item.filename for item in members}) != len(members):
-                raise InputError("INVALID_XLSX", str(resolved), "Duplicate ZIP member names")
-            names = set(archive.namelist())
-            if "xl/workbook.xml" not in names or "xl/_rels/workbook.xml.rels" not in names:
-                raise InputError("INVALID_XLSX", str(resolved), "Workbook metadata is missing")
-            strings: list[str] = []
-            if "xl/sharedStrings.xml" in names:
-                strings = [_text(item) for item in _read_xml(archive, "xl/sharedStrings.xml").findall(f"{{{MAIN}}}si")]
-                if any(len(value) > MAX_CELL_CHARS for value in strings):
-                    raise InputError("XLSX_LIMIT", str(resolved), "Shared string exceeds cell size limit")
-            styles = _read_styles(archive, names)
-            relationships = {
-                item.get("Id"): item.get("Target")
-                for item in _read_xml(archive, "xl/_rels/workbook.xml.rels").findall(f"{{{PKG_REL}}}Relationship")
-            }
-            workbook = _read_xml(archive, "xl/workbook.xml")
-            workbook_pr = workbook.find(f"{{{MAIN}}}workbookPr")
-            date_1904 = workbook_pr is not None and workbook_pr.get("date1904", "0").lower() in {"1", "true"}
-            workbook_issues: list[str] = []
-            if workbook.find(f"{{{MAIN}}}workbookProtection") is not None:
-                workbook_issues.append("Workbook structure is protected; profiling remained read-only")
-            sheet_nodes = workbook.findall(f"{{{MAIN}}}sheets/{{{MAIN}}}sheet")
-            if not sheet_nodes:
-                workbook_issues.append("Workbook contains no worksheets")
-            requested_sheets = set(sheet_names) if sheet_names is not None else None
-            available_sheets = {sheet.get("name", "") for sheet in sheet_nodes}
-            if requested_sheets is not None:
-                missing_sheets = sorted(requested_sheets - available_sheets)
-                if missing_sheets:
-                    raise InputError("XLSX_SHEET_NOT_FOUND", str(resolved), f"Worksheet(s) not found: {', '.join(missing_sheets)}")
-                sheet_nodes = [sheet for sheet in sheet_nodes if sheet.get("name", "") in requested_sheets]
-            sheets: list[dict[str, Any]] = []
-            selected_table_found = False
-            for sheet in sheet_nodes:
-                name = sheet.get("name", "")
-                target = relationships.get(sheet.get(f"{{{REL}}}id"))
-                if not target:
-                    raise InputError("INVALID_XLSX", str(resolved), f"Sheet {name!r} has no relationship")
-                member = _safe_member("xl/workbook.xml", target, names, label=f"sheet for {name!r}")
-                rows, types, row_numbers, formula_count, missing_cache_count, parse_issues, sheet_root = _sheet_rows(archive, member, strings, styles, date_1904)
-                tables = _sheet_tables(archive, names, member, sheet_root)
-                if table_name is not None:
-                    selected = next((table for table in tables if table.name == table_name or table.display_name == table_name), None)
-                    if selected is None:
-                        continue
-                    rows, types = _slice_table(rows, types, row_numbers, selected.ref)
-                    tables = [selected]
-                    selected_table_found = True
-                sheet_profile = asdict(
-                    _profile_sheet(
-                        name,
-                        rows,
-                        types,
-                        tables,
-                        formula_count,
-                        missing_cache_count,
-                        parse_issues,
-                    )
-                )
-                if include_preview:
-                    headers = [
-                        str(value).strip() if value is not None else ""
-                        for value in (rows[0] if rows else [])
-                    ]
-                    valid_rows = [
-                        (row + [None] * len(headers))[:len(headers)]
-                        for row in rows[1:]
-                        if len(row) <= len(headers)
-                    ]
-                    sheet_profile["preview"] = {
-                        "columns": headers,
-                        "rows": valid_rows if preview_limit is None else valid_rows[:preview_limit],
-                        "limit": preview_limit,
-                        "truncated": preview_limit is not None and len(valid_rows) > preview_limit,
-                        "excluded_error_rows": len(sheet_profile["row_errors"]),
-                    }
-                sheets.append(sheet_profile)
-            if table_name is not None and not selected_table_found:
-                raise InputError("XLSX_TABLE_NOT_FOUND", str(resolved), f"Table not found: {table_name}")
-            return {
-                "path": str(resolved), "date_system": "1904" if date_1904 else "1900",
-                "selected_sheets": sorted(requested_sheets) if requested_sheets is not None else None,
-                "selected_table": table_name,
-                "sheets": sheets, "issues": workbook_issues,
-            }
-    except BadZipFile as exc:
-        raise InputError("INVALID_XLSX", str(resolved), "Not a valid .xlsx ZIP archive") from exc
-    except PermissionError as exc:
-        raise InputError("XLSX_LOCKED", str(resolved), "Workbook is locked or permission was denied") from exc
+    return resolved
+
+
+def _read_archive_context(archive: ZipFile, resolved: Path) -> tuple[dict[str, Any], list[str]]:
+    """Open the package once and read the parts every sheet profile needs."""
+    members = archive.infolist()
+    if any(item.flag_bits & 0x1 for item in members):
+        raise InputError("ENCRYPTED_XLSX", str(resolved), "Password-protected workbook is not supported")
+    if sum(item.file_size for item in members) > MAX_UNCOMPRESSED:
+        raise InputError("XLSX_LIMIT", str(resolved), "Workbook exceeds uncompressed size limit")
+    if len({item.filename for item in members}) != len(members):
+        raise InputError("INVALID_XLSX", str(resolved), "Duplicate ZIP member names")
+    names = set(archive.namelist())
+    if "xl/workbook.xml" not in names or "xl/_rels/workbook.xml.rels" not in names:
+        raise InputError("INVALID_XLSX", str(resolved), "Workbook metadata is missing")
+    strings: list[str] = []
+    if "xl/sharedStrings.xml" in names:
+        strings = [_text(item) for item in _read_xml(archive, "xl/sharedStrings.xml").findall(f"{{{MAIN}}}si")]
+        if any(len(value) > MAX_CELL_CHARS for value in strings):
+            raise InputError("XLSX_LIMIT", str(resolved), "Shared string exceeds cell size limit")
+    styles = _read_styles(archive, names)
+    relationships = {
+        item.get("Id"): item.get("Target")
+        for item in _read_xml(archive, "xl/_rels/workbook.xml.rels").findall(f"{{{PKG_REL}}}Relationship")
+    }
+    workbook = _read_xml(archive, "xl/workbook.xml")
+    workbook_pr = workbook.find(f"{{{MAIN}}}workbookPr")
+    date_1904 = workbook_pr is not None and workbook_pr.get("date1904", "0").lower() in {"1", "true"}
+    workbook_issues: list[str] = []
+    if workbook.find(f"{{{MAIN}}}workbookProtection") is not None:
+        workbook_issues.append("Workbook structure is protected; profiling remained read-only")
+    sheet_nodes = workbook.findall(f"{{{MAIN}}}sheets/{{{MAIN}}}sheet")
+    if not sheet_nodes:
+        workbook_issues.append("Workbook contains no worksheets")
+    context = {
+        "names": names, "strings": strings, "styles": styles, "relationships": relationships,
+        "date_1904": date_1904, "sheet_nodes": sheet_nodes,
+    }
+    return context, workbook_issues
+
+
+def _profile_worksheets(
+    archive: ZipFile,
+    resolved: Path,
+    context: dict[str, Any],
+    *,
+    sheet_names: Iterable[str] | None,
+    table_name: str | None,
+    include_preview: bool,
+    preview_limit: int | None,
+) -> tuple[list[dict[str, Any]], bool]:
+    """Profile every selected worksheet; report whether the table was found."""
+    sheet_nodes = context["sheet_nodes"]
+    names = context["names"]
+    relationships = context["relationships"]
+    requested_sheets = set(sheet_names) if sheet_names is not None else None
+    if requested_sheets is not None:
+        available_sheets = {sheet.get("name", "") for sheet in sheet_nodes}
+        missing_sheets = sorted(requested_sheets - available_sheets)
+        if missing_sheets:
+            raise InputError("XLSX_SHEET_NOT_FOUND", str(resolved), f"Worksheet(s) not found: {', '.join(missing_sheets)}")
+        sheet_nodes = [sheet for sheet in sheet_nodes if sheet.get("name", "") in requested_sheets]
+
+    sheets: list[dict[str, Any]] = []
+    selected_table_found = False
+    for sheet in sheet_nodes:
+        name = sheet.get("name", "")
+        target = relationships.get(sheet.get(f"{{{REL}}}id"))
+        if not target:
+            raise InputError("INVALID_XLSX", str(resolved), f"Sheet {name!r} has no relationship")
+        member = _safe_member("xl/workbook.xml", target, names, label=f"sheet for {name!r}")
+        rows, types, row_numbers, formula_count, missing_cache_count, parse_issues, sheet_root = _sheet_rows(
+            archive, member, context["strings"], context["styles"], context["date_1904"],
+        )
+        tables = _sheet_tables(archive, names, member, sheet_root)
+        if table_name is not None:
+            selected = next((table for table in tables if table.name == table_name or table.display_name == table_name), None)
+            if selected is None:
+                continue
+            rows, types = _slice_table(rows, types, row_numbers, selected.ref)
+            tables = [selected]
+            selected_table_found = True
+        sheet_profile = asdict(
+            _profile_sheet(
+                name,
+                rows,
+                types,
+                tables,
+                formula_count,
+                missing_cache_count,
+                parse_issues,
+            )
+        )
+        if include_preview:
+            sheet_profile["preview"] = _sheet_preview(rows, sheet_profile, preview_limit)
+        sheets.append(sheet_profile)
+    return sheets, selected_table_found
+
+
+def _sheet_preview(
+    rows: list[list[Any]], sheet_profile: dict[str, Any], preview_limit: int | None,
+) -> dict[str, Any]:
+    """Bounded preview of the valid-width rows, header included."""
+    headers = [
+        str(value).strip() if value is not None else ""
+        for value in (rows[0] if rows else [])
+    ]
+    valid_rows = [
+        (row + [None] * len(headers))[:len(headers)]
+        for row in rows[1:]
+        if len(row) <= len(headers)
+    ]
+    return {
+        "columns": headers,
+        "rows": valid_rows if preview_limit is None else valid_rows[:preview_limit],
+        "limit": preview_limit,
+        "truncated": preview_limit is not None and len(valid_rows) > preview_limit,
+        "excluded_error_rows": len(sheet_profile["row_errors"]),
+    }
 
 
 def compare_workbook_schemas(profiles: Iterable[dict[str, Any]], *, sheet_name: str | None = None) -> dict[str, Any]:

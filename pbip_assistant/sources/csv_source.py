@@ -205,7 +205,43 @@ def profile_csv(
     aggregates. ``include_preview`` is intended only for a local, interactive
     UI and is capped by ``MAX_PREVIEW_ROWS``.
     """
+    resolved, before, payload = _read_bounded_csv(path, header_row, preview_limit)
+    selected_encoding, text = _decode_csv(payload, encoding, resolved)
+    selected_delimiter = _select_delimiter(text, delimiter, header_row, resolved)
+    headers, valid_rows, row_errors, row_count, formula_like_cells = _scan_rows(
+        text, selected_delimiter, header_row, resolved,
+    )
+    source_hash = _assert_source_unchanged(resolved, before, payload)
+    result = {
+        "path": str(resolved),
+        "encoding": selected_encoding,
+        "delimiter": selected_delimiter,
+        "header_row": header_row,
+        "row_count": row_count,
+        "valid_row_count": len(valid_rows),
+        "invalid_row_count": len(row_errors),
+        "columns": _profile_columns(headers, valid_rows),
+        "row_errors": [asdict(error) for error in row_errors],
+        "issues": _reading_issues(row_errors, formula_like_cells),
+        "source_sha256": source_hash,
+        "source_unchanged": True,
+        "mapping_ready": not row_errors,
+    }
+    if include_preview:
+        result["preview"] = {
+            "columns": headers,
+            "rows": valid_rows[:preview_limit],
+            "limit": preview_limit,
+            "truncated": len(valid_rows) > preview_limit,
+            "excluded_error_rows": len(row_errors),
+        }
+    return result
 
+
+def _read_bounded_csv(
+    path: str | Path, header_row: int, preview_limit: int,
+) -> tuple[Path, Any, bytes]:
+    """Validate the request, resolve the path and read the file within limits."""
     requested_path = Path(path)
     if requested_path.suffix.lower() != ".csv":
         raise InputError("UNSUPPORTED_CSV", str(requested_path), "Only .csv is supported")
@@ -229,17 +265,26 @@ def profile_csv(
     payload = resolved.read_bytes()
     if len(payload) > MAX_BYTES:
         raise InputError("CSV_LIMIT", str(resolved), f"CSV exceeds {MAX_BYTES} byte limit")
+    return resolved, before, payload
+
+
+def _decode_csv(payload: bytes, encoding: str | None, resolved: Path) -> tuple[str, str]:
+    """Pick the encoding and decode strictly; a bad guess is an actionable error."""
     selected_encoding = _select_encoding(payload, encoding, resolved)
     try:
-        text = payload.decode(selected_encoding, errors="strict")
+        return selected_encoding, payload.decode(selected_encoding, errors="strict")
     except UnicodeDecodeError as exc:
         raise InputError(
             "CSV_ENCODING",
             str(resolved),
             f"Content is not valid {selected_encoding}; select the correct encoding",
         ) from exc
-    selected_delimiter = _select_delimiter(text, delimiter, header_row, resolved)
 
+
+def _scan_rows(
+    text: str, selected_delimiter: str, header_row: int, resolved: Path,
+) -> tuple[list[str], list[list[str]], list[CsvRowError], int, int]:
+    """Walk the records once, separating the header, valid rows and bad widths."""
     headers: list[str] | None = None
     valid_rows: list[list[str]] = []
     row_errors: list[CsvRowError] = []
@@ -251,26 +296,7 @@ def profile_csv(
             if record_number < header_row:
                 continue
             if record_number == header_row:
-                if len(row) > MAX_COLUMNS:
-                    raise InputError("CSV_LIMIT", str(resolved), f"Header exceeds {MAX_COLUMNS} columns")
-                headers = [value.strip() for value in row]
-                if any(len(value) > MAX_CELL_CHARS for value in headers):
-                    raise InputError(
-                        "CSV_LIMIT", str(resolved),
-                        f"Header contains a cell over {MAX_CELL_CHARS} characters",
-                    )
-                if not headers or all(value == "" for value in headers):
-                    raise InputError("CSV_HEADER", str(resolved), "Selected header is empty")
-                if any(value == "" for value in headers):
-                    raise InputError("CSV_HEADER", str(resolved), "Header contains an empty column name")
-                folded = Counter(value.casefold() for value in headers)
-                duplicates = sorted({value for value in headers if folded[value.casefold()] > 1})
-                if duplicates:
-                    raise InputError(
-                        "CSV_DUPLICATE_HEADER",
-                        str(resolved),
-                        f"Duplicate column names: {', '.join(duplicates)}",
-                    )
+                headers = _validated_headers(row, resolved)
                 continue
             row_count += 1
             if row_count > MAX_ROWS:
@@ -299,7 +325,36 @@ def profile_csv(
         raise InputError("INVALID_CSV", str(resolved), f"CSV syntax error near line {reader.line_num}: {exc}") from exc
     if headers is None:
         raise InputError("CSV_HEADER", str(resolved), "Selected header row does not exist")
+    return headers, valid_rows, row_errors, row_count, formula_like_cells
 
+
+def _validated_headers(row: list[str], resolved: Path) -> list[str]:
+    """Trim the header and reject shapes that cannot be mapped."""
+    if len(row) > MAX_COLUMNS:
+        raise InputError("CSV_LIMIT", str(resolved), f"Header exceeds {MAX_COLUMNS} columns")
+    headers = [value.strip() for value in row]
+    if any(len(value) > MAX_CELL_CHARS for value in headers):
+        raise InputError(
+            "CSV_LIMIT", str(resolved),
+            f"Header contains a cell over {MAX_CELL_CHARS} characters",
+        )
+    if not headers or all(value == "" for value in headers):
+        raise InputError("CSV_HEADER", str(resolved), "Selected header is empty")
+    if any(value == "" for value in headers):
+        raise InputError("CSV_HEADER", str(resolved), "Header contains an empty column name")
+    folded = Counter(value.casefold() for value in headers)
+    duplicates = sorted({value for value in headers if folded[value.casefold()] > 1})
+    if duplicates:
+        raise InputError(
+            "CSV_DUPLICATE_HEADER",
+            str(resolved),
+            f"Duplicate column names: {', '.join(duplicates)}",
+        )
+    return headers
+
+
+def _assert_source_unchanged(resolved: Path, before: Any, payload: bytes) -> str:
+    """Re-read the file and prove nothing changed during the profile."""
     after_payload = resolved.read_bytes()
     after = resolved.stat()
     source_hash = _hash_bytes(payload)
@@ -309,7 +364,11 @@ def profile_csv(
         or source_hash != _hash_bytes(after_payload)
     ):
         raise InputError("SOURCE_CHANGED", str(resolved), "CSV changed while it was being profiled")
+    return source_hash
 
+
+def _reading_issues(row_errors: list[CsvRowError], formula_like_cells: int) -> list[str]:
+    """Human-readable consequences of what the scan found."""
     issues: list[str] = []
     if row_errors:
         issues.append(f"{len(row_errors)} record(s) have a different column count and require correction")
@@ -317,27 +376,4 @@ def profile_csv(
         issues.append(
             f"{formula_like_cells} cell(s) look like spreadsheet formulas; values remain inert CSV text"
         )
-    result = {
-        "path": str(resolved),
-        "encoding": selected_encoding,
-        "delimiter": selected_delimiter,
-        "header_row": header_row,
-        "row_count": row_count,
-        "valid_row_count": len(valid_rows),
-        "invalid_row_count": len(row_errors),
-        "columns": _profile_columns(headers, valid_rows),
-        "row_errors": [asdict(error) for error in row_errors],
-        "issues": issues,
-        "source_sha256": source_hash,
-        "source_unchanged": True,
-        "mapping_ready": not row_errors,
-    }
-    if include_preview:
-        result["preview"] = {
-            "columns": headers,
-            "rows": valid_rows[:preview_limit],
-            "limit": preview_limit,
-            "truncated": len(valid_rows) > preview_limit,
-            "excluded_error_rows": len(row_errors),
-        }
-    return result
+    return issues

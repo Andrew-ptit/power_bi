@@ -294,6 +294,28 @@ def _catalog_modern_report(
     issues: list[dict[str, str]],
 ) -> dict[str, Any]:
     definition_root = report_root / "definition"
+    documents, allowed_paths, out_of_allowlist = _scan_definition_files(definition_root, report_root, issues)
+    _check_definition_contract(documents, report_root, issues)
+    pages, visuals, bookmarks, filters = _collect_report_objects(documents, report_root, issues)
+    page_order, active_page = _check_page_references(documents, pages, visuals, report_root, issues)
+    return {
+        "allowed_definition_paths": allowed_paths,
+        "out_of_allowlist_paths": out_of_allowlist,
+        "pages": pages,
+        "visuals": visuals,
+        "bookmarks": bookmarks,
+        "filters": filters,
+        "page_order": page_order,
+        "active_page_name": active_page,
+    }
+
+
+def _scan_definition_files(
+    definition_root: Path,
+    report_root: Path,
+    issues: list[dict[str, str]],
+) -> tuple[dict[str, tuple[str, dict[str, Any]]], list[str], list[str]]:
+    """Read every definition file, classifying it against the pinned allowlist."""
     documents: dict[str, tuple[str, dict[str, Any]]] = {}
     allowed_paths: list[str] = []
     out_of_allowlist: list[str] = []
@@ -317,7 +339,15 @@ def _catalog_modern_report(
             continue
         _validate_contract(kind, document, f"{report_root.name}/{relative_report}", issues)
         documents[relative_report] = (kind, document)
+    return documents, allowed_paths, out_of_allowlist
 
+
+def _check_definition_contract(
+    documents: dict[str, tuple[str, dict[str, Any]]],
+    report_root: Path,
+    issues: list[dict[str, str]],
+) -> None:
+    """Require the modern PBIR core files and the pinned definition version."""
     for required in ("definition/version.json", "definition/report.json", "definition/pages/pages.json"):
         if required not in documents:
             issues.append(_issue(
@@ -336,6 +366,13 @@ def _catalog_modern_report(
             f"Pinned R1 PBIR version is {SUPPORTED_PBIR_VERSION}",
         ))
 
+
+def _collect_report_objects(
+    documents: dict[str, tuple[str, dict[str, Any]]],
+    report_root: Path,
+    issues: list[dict[str, str]],
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
+    """Turn definition documents into pages, visuals, bookmarks and filters."""
     pages: list[dict[str, Any]] = []
     visuals: list[dict[str, Any]] = []
     bookmarks: list[dict[str, Any]] = []
@@ -400,7 +437,17 @@ def _catalog_modern_report(
     report_filter = _filter_summary(report_document, scope="report", relative_path="definition/report.json")
     if report_filter:
         filters.append(report_filter)
+    return pages, visuals, bookmarks, filters
 
+
+def _check_page_references(
+    documents: dict[str, tuple[str, dict[str, Any]]],
+    pages: list[dict[str, Any]],
+    visuals: list[dict[str, Any]],
+    report_root: Path,
+    issues: list[dict[str, str]],
+) -> tuple[list[str], str | None]:
+    """Validate page order, the active page and every visual's owning page."""
     page_names = {page["name"] for page in pages}
     metadata = documents.get("definition/pages/pages.json", (None, {}))[1]
     page_order = metadata.get("pageOrder", []) if isinstance(metadata, dict) else []
@@ -415,17 +462,7 @@ def _catalog_modern_report(
                 "PBIR_VISUAL_PAGE_INVALID", "blocked", f"{report_root.name}/{visual['path']}",
                 "Visual folder references a page without a valid page.json",
             ))
-
-    return {
-        "allowed_definition_paths": allowed_paths,
-        "out_of_allowlist_paths": out_of_allowlist,
-        "pages": pages,
-        "visuals": visuals,
-        "bookmarks": bookmarks,
-        "filters": filters,
-        "page_order": page_order,
-        "active_page_name": active_page,
-    }
+    return page_order, active_page
 
 
 def _report_files(report_root: Path) -> Iterable[Path]:
