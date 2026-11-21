@@ -6,6 +6,17 @@
   <title>Reqwise-excel-mcp · Excel task pane</title>
   <link rel="stylesheet" href="/assets/taskpane.css">
   <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+  <script src="/assets/assistant_custom_xml.js" defer></script>
+  <script src="/assets/preparation_runtime.js" defer></script>
+  <script src="/assets/preparation_session.js" defer></script>
+  <script src="/assets/preparation_bridge.js" defer></script>
+  <script src="/assets/preparation_controller.js" defer></script>
+  <script src="/assets/assistant_entry.js" defer></script>
+  <script src="/assets/taskpane_core.js" defer></script>
+  <script src="/assets/taskpane_flow.js" defer></script>
+  <script src="/assets/taskpane_workspace.js" defer></script>
+  <script src="/assets/taskpane_problem_chain.js" defer></script>
+  <script src="/assets/taskpane_typed_pq.js" defer></script>
   <script src="/assets/taskpane.js" defer></script>
 </head>
 <body>
@@ -21,21 +32,7 @@
     <span id="connection-badge" class="badge badge-wait">Đang kết nối</span>
   </header>
 
-  <div class="connection-toolbar" aria-label="Trạng thái và thiết lập phân tích">
-    <div class="connection-status-row">
-      <p id="codex-status" class="connection-status">Đang kiểm tra Codex…</p>
-    </div>
-    <div class="connection-controls">
-      <span class="shortcut-hint"><kbd>Ctrl</kbd>+<kbd>Enter</kbd> Phân tích & đọc lại</span>
-      <div class="separator-select-wrap">
-        <label for="formula-list-separator">Dấu công thức</label>
-        <select id="formula-list-separator" title="Dấu ngăn đối số công thức trên máy bạn">
-          <option value=";" selected>; (máy bạn)</option>
-          <option value=",">,</option>
-        </select>
-      </div>
-    </div>
-  </div>
+  <p class="shortcut-hint"><kbd>Ctrl</kbd>+<kbd>Enter</kbd> Đo cấu trúc và đọc lại nguồn đã chọn</p>
 
   <nav class="tab-bar" aria-label="Chức năng">
     <button id="tab-assistant-button" class="tab-button active" type="button" aria-selected="true">Trợ lý</button>
@@ -44,92 +41,198 @@
 
   <main>
     <div id="tab-assistant" class="tab-content">
-    <section class="card" aria-labelledby="workbook-title">
+    <section id="flow-workbook-section" class="card assistant-context" data-state="new" aria-labelledby="workbook-title">
+      <span id="flow-workbook-section-status" class="sr-only" role="status" aria-live="polite">Chưa đọc workbook</span>
       <div class="section-heading">
         <div>
-          <p class="step">01 · Workbook</p>
-          <h2 id="workbook-title">Workbook đang mở</h2>
+          <h2 id="workbook-title" class="sr-only">Workbook đang mở</h2>
+          <p id="assistant-workbook-summary" class="workbook-summary">Workbook · Đang kết nối</p>
         </div>
         <button id="refresh-button" class="button button-ghost" type="button">Đọc lại</button>
       </div>
+      <details class="assistant-workbook-details">
+      <summary>Thông tin workbook</summary>
       <dl class="facts">
         <div><dt>Tệp</dt><dd id="workbook-name">—</dd></div>
         <div><dt>Sheet hiện tại</dt><dd id="active-sheet">—</dd></div>
         <div><dt>Schema</dt><dd id="schema-summary">—</dd></div>
         <div><dt>ExcelApi</dt><dd id="api-version">—</dd></div>
       </dl>
-      <p id="workbook-message" class="hint">Task pane chỉ đọc metadata và tối đa 20 dòng preview.</p>
+      <p id="workbook-message" class="hint">Metadata và mẫu dùng để hiểu; luồng Trợ lý đọc đầy đủ nguồn được chọn khi tính A/B.</p>
+      </details>
     </section>
 
-    <section class="card" aria-labelledby="prompt-title">
-      <p class="step">02 · Yêu cầu</p>
+    <nav class="assistant-journey" aria-label="Quy trình trợ lý">
+      <button id="assistant-step-source" type="button" aria-current="step">1. Nguồn</button>
+      <span aria-hidden="true">→</span>
+      <button id="assistant-step-clean" type="button" disabled>2. Làm sạch</button>
+      <span aria-hidden="true">→</span>
+      <button id="assistant-step-problem" type="button" disabled>3. Đề bài</button>
+    </nav>
+    <button id="assistant-add-source" class="button button-ghost" type="button" hidden>+ Thêm nguồn</button>
+
+    <section id="flow-source-section" class="card hidden" data-state="new" aria-labelledby="flow-source-title">
+      <span id="flow-source-section-status" class="sr-only" role="status" aria-live="polite">Chưa chọn nguồn</span>
+      <h2 id="flow-source-title">Bạn muốn lấy dữ liệu từ đâu?</h2>
+      <div id="assistant-source-choice" class="assistant-source-choice">
+        <button id="assistant-choose-folder" class="button button-primary" type="button" disabled>Chọn thư mục</button>
+        <button id="assistant-choose-workbook" class="button button-ghost" type="button" disabled>Dùng dữ liệu trong workbook</button>
+      </div>
+      <p id="assistant-source-message" class="hint" role="status" aria-live="polite">Đang kết nối với Excel…</p>
+      <button id="assistant-reconnect" class="button button-ghost" type="button" hidden>Kết nối lại</button>
+      <button id="assistant-new-session" class="button button-ghost" type="button" hidden>Bắt đầu phiên mới với workbook này</button>
+      <div id="assistant-folder-result" hidden></div>
+      <div id="assistant-import-actions" class="flow-actions" hidden>
+        <button id="assistant-select-all" class="button button-ghost" type="button">Chọn tất cả / bỏ chọn</button>
+        <span id="assistant-selected-count" role="status" aria-live="polite"></span>
+        <button id="assistant-import-selected" class="button button-primary" type="button" disabled>Nhập các file đã chọn</button>
+        <p id="assistant-import-message" class="hint" aria-hidden="true"></p>
+      </div>
+      <details id="preparation-wizard" class="preparation-wizard" hidden>
+        <summary>Chuẩn bị dữ liệu · quét và xem trước</summary>
+        <p class="hint">Quét tất cả sheet có dữ liệu trong workbook tại máy. Không gửi sang AI. Bản xem trước phản ánh lần quét gần nhất; chỉ áp dụng sau khi bạn duyệt.</p>
+        <label for="preparation-date-system">Hệ ngày của workbook (kiểm tra trong Excel Options → Advanced)</label>
+        <select id="preparation-date-system">
+          <option value="">Chọn hệ ngày trước khi quét</option>
+          <option value="1900">1900 · workbook dùng hệ 1900</option>
+          <option value="1904">1904 · workbook dùng hệ 1904</option>
+        </select>
+        <div class="flow-actions">
+          <button id="preparation-scan" class="button button-primary" type="button">Quét lại toàn bộ workbook</button>
+          <button id="preparation-inventory" class="button button-ghost" type="button" hidden>Liệt kê thư mục</button>
+        </div>
+        <p id="preparation-message" class="hint" role="status" aria-live="polite"></p>
+        <div id="preparation-panel"></div>
+      </details>
+      <div id="flow-source-legacy" hidden>
+      <label for="flow-root-input">Thư mục gốc tuyệt đối</label>
+      <input id="flow-root-input" type="text" placeholder="C:\\DuLieu\\Nguon" autocomplete="off">
+      <button id="flow-root-button" class="button button-ghost" type="button" disabled>Gắn thư mục</button>
+      <span id="flow-root-label" class="hint"></span>
+      <label for="flow-path-input">Đường dẫn file hoặc thư mục trong thư mục gốc</label>
+      <input id="flow-path-input" type="text" autocomplete="off">
+      <div class="flow-fields">
+        <label>Sheet Excel<input id="flow-sheet-input" type="text" placeholder="Chọn sheet nếu file có nhiều sheet"></label>
+        <label>Table Excel<input id="flow-table-input" type="text" placeholder="Tên Table (nếu có)"></label>
+        <label>Pattern thư mục<input id="flow-pattern-input" type="text" value="*.csv"></label>
+      </div>
+      <div class="flow-actions">
+        <button id="flow-add-csv" class="button button-ghost" type="button" disabled>Thêm CSV</button>
+        <button id="flow-add-xlsx" class="button button-ghost" type="button" disabled>Thêm Excel</button>
+        <button id="flow-add-folder" class="button button-ghost" type="button" disabled>Thêm thư mục</button>
+        <button id="flow-add-workbook" class="button button-ghost" type="button" disabled>Thêm workbook đang mở</button>
+      </div>
+      <p class="hint">File phải đã được Save. Nếu đang mở mà chưa Save, bản trên đĩa là bản cũ. Workbook đang mở được đọc trực tiếp bằng Office.js.</p>
+      <p id="flow-source-status" class="hint" aria-live="polite"></p>
+      <div id="flow-source-list"></div>
+      <div id="flow-navigator" class="flow-navigator" aria-label="Chọn bảng nguồn"></div>
+      <div id="flow-rename-list" class="notice notice-warning"></div>
+      <div id="flow-csv-options"></div>
+      <div id="flow-error-list" class="notice notice-warning" aria-live="polite"></div>
+      <span id="flow-mode-badge" class="badge">CHƯA NẠP</span>
+      <p id="flow-sample-info" class="hint"></p>
+      <div class="flow-actions">
+        <button id="flow-ingest-sample" class="button button-primary" type="button" disabled>Nạp 20 dòng để hiểu</button>
+        <button id="flow-ingest-full" class="button button-ghost" type="button" disabled>Đọc toàn bộ để tính</button>
+        <button id="flow-reset-button" class="button button-ghost" type="button" disabled>Bắt đầu lại</button>
+      </div>
+      </div>
+    </section>
+
+    <section id="flow-prompt-section" class="card hidden" data-state="new" aria-labelledby="prompt-title">
+      <span id="flow-prompt-section-status" class="badge badge-wait" role="status" aria-live="polite">Chưa nạp</span>
+      <p class="step">03 · Đề bài</p>
       <h2 id="prompt-title">Bạn muốn xử lý dữ liệu thế nào?</h2>
       <label class="sr-only" for="prompt">Yêu cầu xử lý dữ liệu</label>
-      <textarea id="prompt" maxlength="4000" rows="9" placeholder="Ví dụ: Phân tích cột Mã đơn hàng thô và đề xuất công thức tách mã phân bổ, mã vận đơn gốc, hậu tố."></textarea>
+      <textarea id="prompt" maxlength="20000" rows="6" placeholder="Mô tả kết quả bạn cần và các điều kiện nghiệp vụ."></textarea>
       <div class="prompt-footer">
-        <span id="prompt-count">0 / 4000</span>
-        <button id="analyze-button" class="button button-primary" type="button" disabled>Phân tích workbook</button>
+        <span id="prompt-count">0 / 20000</span>
       </div>
-    </section>
-
-    <section id="plan-section" class="card hidden" aria-labelledby="plan-title">
-      <p class="step">03 · Kế hoạch</p>
-      <h2 id="plan-title">Kế hoạch đề xuất</h2>
-      <div id="plan-status"></div>
-      <div class="analysis-text">
-        <h3>Nhận xét</h3>
-        <p id="plan-summary"></p>
-        <div id="analysis-notes"></div>
-      </div>
-      <div id="warning-list" class="notice notice-warning hidden"></div>
-      <section id="code-section" class="code-section hidden" aria-label="Công thức và code có thể sao chép">
-        <h3>Công thức / code đề xuất</h3>
-        <p class="hint">Mỗi khối chỉ chứa code để bạn sao chép riêng; đây vẫn là đề xuất chưa chạy trên Excel.</p>
-        <div id="operation-list" class="operation-list"></div>
-        <div id="code-list" class="code-list"></div>
-      </section>
-    </section>
-
-    <section id="preview-section" class="card hidden" aria-labelledby="preview-title">
-      <p class="step">04 · Preview</p>
-      <div class="section-heading">
-        <h2 id="preview-title">Mẫu dữ liệu nguồn</h2>
-        <span class="badge">SOURCE</span>
-      </div>
-      <p id="preview-label" class="hint"></p>
-      <div class="preview-block">
-        <h3>Dữ liệu Excel đã đọc</h3>
-        <div id="before-table" class="table-scroll"></div>
-      </div>
-    </section>
-
-    <section id="approval-section" class="card hidden" aria-labelledby="approval-title">
-      <p class="step">05 · Duyệt</p>
-      <h2 id="approval-title">Tạo bản copy và chạy Excel</h2>
-      <div class="notice notice-safe">
-        Workbook nguồn không được ghi. File kết quả mới sẽ nằm cạnh file nguồn.
-      </div>
+      <button id="flow-analyze-button" class="button button-primary" type="button" disabled>Đo cấu trúc và hỏi điểm chưa rõ</button>
+      <div id="flow-questions"></div>
+      <div id="flow-answers" aria-live="polite"></div>
       <label class="approval-check">
-        <input id="approval-check" type="checkbox">
-        <span>Tôi đã xem công thức, vùng đích và mẫu dữ liệu nguồn; chưa có kết quả sau khi chạy.</span>
+        <input id="flow-disclosure" type="checkbox" disabled>
+        <span>Sẽ gửi tới Codex: đề bài của bạn, 20 dòng dữ liệu mẫu (đã chọn tất định), tên cột và thống kê mô tả. Không gửi toàn bộ workbook, không gửi đường dẫn tệp.</span>
       </label>
-      <button id="apply-button" class="button button-apply" type="button" disabled>Duyệt, tạo copy và chạy Excel</button>
-      <p id="apply-progress" class="hint" aria-live="polite"></p>
+      <button id="flow-plan-button" class="button button-primary" type="button" disabled>Tạo hai kế hoạch với Codex</button>
     </section>
 
-    <section id="result-section" class="card hidden" aria-labelledby="result-title">
-      <p class="step">06 · Runtime</p>
+    <section id="flow-understand-section" class="card hidden" data-state="new" aria-labelledby="flow-understand-title">
+      <span id="flow-understand-section-status" class="badge badge-wait" role="status" aria-live="polite">Chưa nạp</span>
+      <p class="step">04 · Cách hiểu</p>
       <div class="section-heading">
-        <h2 id="result-title">Kết quả Excel</h2>
-        <span id="runtime-badge" class="badge">—</span>
+        <h2 id="flow-understand-title">Cấu trúc và giả định cần rà soát</h2>
+        <button id="flow-understand-toggle" class="button button-ghost" type="button" aria-expanded="false" aria-controls="flow-understand-body">Xem chi tiết</button>
       </div>
-      <dl class="facts">
-        <div><dt>Bản copy</dt><dd id="copy-path">—</dd></div>
-        <div><dt>Excel</dt><dd id="excel-version">—</dd></div>
-        <div><dt>Đối chiếu fixture</dt><dd id="reconcile-status">—</dd></div>
-      </dl>
-      <div id="runtime-table" class="table-scroll"></div>
+      <p id="flow-understand-summary" class="hint"></p>
+      <div id="flow-understand-body" class="hidden">
+        <h3>Vai trò bảng</h3><div id="flow-role-list"></div>
+        <h3>Quan hệ</h3><div id="flow-relationship-list"></div>
+        <h3>Giả định và cảnh báo</h3><div id="flow-assumption-list"></div>
+      </div>
     </section>
+
+    <section id="flow-branches-section" class="card hidden" data-state="new" aria-labelledby="flow-branches-title">
+      <span id="flow-branches-section-status" class="badge badge-wait" role="status" aria-live="polite">Chưa nạp</span>
+      <p class="step">05 · Hai kế hoạch</p>
+      <h2 id="flow-branches-title">Rà soát cách xử lý A và B</h2>
+      <p id="flow-plan-summary"></p>
+      <div id="flow-plan-questions" aria-live="polite"></div>
+      <div id="flow-plan-assumptions"></div>
+      <button id="flow-branches-button" class="button button-primary" type="button" disabled>Tính và đối soát A/B</button>
+      <p class="hint">Tính từng nhánh bằng Python trên tối đa 100.000 dòng mỗi nguồn, 200 cột đầu vào và 256 cột kết quả. Mỗi nhánh hiển thị thời gian thực tế và tối đa 200 dòng kết quả.</p>
+      <p id="flow-branch-engine" class="hint"></p>
+      <p id="flow-branch-status" role="status" aria-live="polite"></p>
+      <p id="flow-branch-delta" role="status" aria-live="polite"></p>
+      <div id="flow-branches"></div>
+      <label><input id="flow-control-ack" type="checkbox" disabled> Tôi hiểu nhánh này không có đối soát tổng kiểm soát.</label>
+      <button id="flow-freeze-button" class="button button-primary" type="button" disabled>Chốt nhánh</button>
+    </section>
+
+    <section id="flow-spec-section" class="card hidden" data-state="new" aria-labelledby="flow-spec-title">
+      <span id="flow-spec-section-status" class="badge badge-wait" role="status" aria-live="polite">Chưa nạp</span>
+      <p class="step">06 · Chốt kế hoạch</p>
+      <h2 id="flow-spec-title">Execution Spec đã chốt</h2>
+      <p id="flow-spec-summary" role="status" aria-live="polite"></p>
+      <div id="flow-spec-steps"></div>
+      <label><input id="flow-approve-check" type="checkbox" disabled> Tôi đã rà soát đúng revision này và đồng ý ghi values-only vào sheet kết quả mới.</label>
+      <button id="flow-approve-button" class="button button-primary" type="button" disabled>Duyệt Spec</button>
+    </section>
+
+    <section id="flow-apply-section" class="card hidden" data-state="new" aria-labelledby="flow-apply-title">
+      <span id="flow-apply-section-status" class="badge badge-wait" role="status" aria-live="polite">Chưa nạp</span>
+      <p class="step">07 · Ghi kết quả</p>
+      <h2 id="flow-apply-title">Ghi sheet mới</h2>
+      <p>Đọc lại toàn bộ kết quả và marker trước khi xác nhận. Workbook chưa tự lưu. Số Decimal được giữ dạng văn bản để bảo toàn độ chính xác.</p>
+      <button id="flow-apply-button" class="button button-primary" type="button" disabled>Ghi sheet mới và đọc lại</button>
+      <p id="flow-apply-status" role="status" aria-live="polite"></p>
+    </section>
+
+    <section id="flow-result-section" class="card hidden" data-state="new" aria-labelledby="flow-record-title">
+      <span id="flow-result-section-status" class="badge badge-wait" role="status" aria-live="polite">Chưa nạp</span>
+      <p class="step">08 · Kết quả và Record</p>
+      <h2 id="flow-record-title">Decision Record</h2>
+      <p id="flow-record-delta"></p>
+      <p id="flow-record-null-profile" class="hint"></p>
+      <div id="flow-record-column-changes" class="hint"></div>
+      <dl class="facts">
+        <div><dt>Record</dt><dd id="flow-record-id">Chưa tạo Record</dd></div>
+        <div><dt>Hash đầy đủ</dt><dd id="flow-record-hash">—</dd></div>
+        <div><dt>Nhãn</dt><dd id="flow-record-labels">—</dd></div>
+      </dl>
+      <p id="flow-record-stale" class="notice notice-warning" role="status" aria-live="polite"></p>
+      <p id="flow-record-persist" role="status" aria-live="polite">Chưa đọc Record trong workbook.</p>
+      <p id="flow-workbook-saved" class="hint">Workbook đã lưu: Chưa. Add-in không gọi Save.</p>
+      <div class="flow-actions">
+        <button id="flow-record-build" class="button button-primary" type="button" disabled>Tạo Decision Record</button>
+        <button id="flow-record-reload" class="button button-ghost" type="button" disabled>Đọc lại Record</button>
+        <button id="flow-record-save" class="button button-primary" type="button" disabled>Lưu vào workbook</button>
+        <button id="flow-record-download" class="button button-ghost" type="button" disabled>Tải Decision Record</button>
+      </div>
+      <p class="hint">Workbook chỉ chứa metadata và hash. Tệp JSON tải xuống giữ đầy đủ kế hoạch, đối soát và giới hạn engine.</p>
+    </section>
+
     </div>
 
     <div id="tab-pq" class="tab-content hidden">
@@ -249,6 +352,14 @@
             <div id="pq2-blockers" class="notice notice-warning hidden"></div>
             <ol id="pq2-step-list" class="steps typed-step-list"></ol>
             <p id="pq2-step-feedback" class="step-feedback hint" aria-live="polite">Chỉ mở một bước tại một thời điểm.</p>
+            <section id="pq2-correction" class="typed-correction hidden" aria-labelledby="pq2-correction-title">
+              <label id="pq2-correction-title" for="pq2-correction-prompt">Bước nào chưa đúng?</label>
+              <textarea id="pq2-correction-prompt" rows="3" maxlength="4000" placeholder="Ví dụ: bỏ bước lọc Gross Revenue, lọc trên Profit và sắp xếp theo Profit giảm dần."></textarea>
+              <div class="correction-actions">
+                <button id="pq2-correction-submit" class="button button-primary" type="button" disabled>Codex phân tích lại</button>
+              </div>
+              <p id="pq2-correction-note" class="hint" aria-live="polite"></p>
+            </section>
           </div>
         </section>
 
@@ -367,12 +478,13 @@
       <p id="pq-confirm-workbook" class="hint"></p>
       <p id="pq-confirm-detail">M có thể đọc toàn bộ workbook export, file/web/database, dùng credential Excel hoặc gây side effect ngoài workbook. Workbook tạm không phải sandbox. Bước chạy thử chưa ghi workbook đang mở.</p>
       <div class="confirm-actions">
+        <button id="pq-confirm-alt" class="button button-danger hidden" type="button">Lựa chọn khác</button>
         <button id="pq-confirm-cancel" class="button button-ghost" type="button">Hủy</button>
         <button id="pq-confirm-continue" class="button button-primary" type="button">Đồng ý, chạy thử</button>
       </div>
     </section>
   </div>
 
-  <footer>Codex phân tích qua OpenAI khi bạn yêu cầu · Preview tạo sheet kết quả values-only · Apply ghi nguồn sau xác nhận</footer>
+  <footer>Codex soạn kế hoạch từ mẫu khi bạn đồng ý · Engine tính số cục bộ · Mỗi luồng yêu cầu duyệt riêng trước khi ghi</footer>
 </body>
 </html>

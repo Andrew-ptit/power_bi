@@ -6,8 +6,9 @@ const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
 const {TextDecoder, TextEncoder} = require("node:util");
+const taskpaneSource = require("../support/taskpane_source.js");
 
-const source = fs.readFileSync(path.join(__dirname, "../../pbip_assistant/excel_addin/taskpane.js"), "utf8");
+const source = taskpaneSource();
 
 function makeElement(id = "") {
   const listeners = new Map();
@@ -28,6 +29,9 @@ function makeElement(id = "") {
       contains(name) { return classes.has(name); },
     },
     addEventListener(name, callback) { listeners.set(name, callback); },
+    removeEventListener(name, callback) {
+      if (listeners.get(name) === callback) listeners.delete(name);
+    },
     click(event = {}) {
       let stopped = false;
       const evt = {
@@ -226,6 +230,7 @@ const sandbox = {
   document: {
     getElementById: element,
     addEventListener() {},
+    removeEventListener() {},
     createElement(tag) { const el = makeElement(tag); el.tagName = tag; return el; },
     createElementNS(ns, tag) { const el = makeElement(tag); el.tagName = tag; return el; },
   },
@@ -255,6 +260,10 @@ vm.runInNewContext(source + `
   globalThis.__renderChain = renderProblemChain;
   globalThis.__typedPlanFromRevision = typedPlanFromProblemRevision;
   globalThis.__checkout = checkoutProblemRevision;
+  globalThis.__revert = revertToProblemRevision;
+  globalThis.__submitCorrection = submitTypedCorrection;
+  globalThis.__directChildren = problemRevisionDirectChildIds;
+  globalThis.__requestConfirm = requestPQConfirmation;
   globalThis.__deleteProblem = deleteProblemRevision;
   globalThis.__clearHistory = clearProblemChainHistory;
   globalThis.__setConfirmation = (callback) => { requestPQConfirmation = callback; };
@@ -292,7 +301,7 @@ const workbook = {
 sandbox.__workbook = workbook;
 sandbox.__state.workbook = workbook;
 sandbox.__state.officeReady = true;
-sandbox.__state.codexAvailable = true;
+sandbox.__state.capabilities.codexAnalysis = true;
 sandbox.__state.sessionId = "ses-test";
 sandbox.__state.problemChainCapability = true;
 
@@ -743,7 +752,7 @@ sandbox.__api = async (endpoint, payload) => {
   sandbox.__state.problemChainViewRevisionId = treeDescendant.revisionId;
   sandbox.__state.problemChainHydrated = true;
   sandbox.__state.problemChainSupported = true;
-  sandbox.__state.codexAvailable = true;
+  sandbox.__state.capabilities.codexAnalysis = true;
   sandbox.__state.workbook = workbook;
   parts = [];
   makePart(sandbox.__buildXml(treeDocument, hash(treeDocument)));
@@ -1180,7 +1189,7 @@ sandbox.__api = async (endpoint, payload) => {
 
   // AC-UI-001 & AC-UI-002: Offline/local SVG policy & No forbidden glyphs/CDN check
   const taskpaneHtml = fs.readFileSync(path.join(__dirname, "../../pbip_assistant/excel_addin/taskpane.html"), "utf8");
-  const taskpaneJs = fs.readFileSync(path.join(__dirname, "../../pbip_assistant/excel_addin/taskpane.js"), "utf8");
+  const taskpaneJs = taskpaneSource();
 
   // Ensure no external icon CDN references
   assert.equal(/cdn\.(jsdelivr|cloudflare|unpkg)\.com.*(?:lucide|fontawesome|icons)/i.test(taskpaneHtml), false,
@@ -1199,6 +1208,117 @@ sandbox.__api = async (endpoint, payload) => {
     "problem composer must never be moved into a revision node that renderProblemChain replaces");
   assert.match(taskpaneJs, /openProblemBranchEditor\(state\.problemChainDocument \? "newRoot" : "new"\)/,
     "header new-problem button must create an independent root when history exists");
+
+  // =========================================================================
+  // Quay về + xoá nhánh phía dưới, và ô yêu cầu chỉnh lại bước
+  // =========================================================================
+
+  // The confirmation dialog offers a second, explicit action only when the
+  // caller labels it; a revert must never delete descendants implicitly.
+  const altDialog = sandbox.__requestConfirm("Synthetic.xlsx", {
+    title: "Quay về Vấn đề giữa?", detail: "Mô tả", continueLabel: "Quay về, giữ 1 bản sau",
+    altLabel: "Quay về và xoá 1 bản sau",
+  });
+  assert.equal(element("pq-confirm-alt").classList.contains("hidden"), false,
+    "the second action must be offered when the caller labels it");
+  assert.equal(element("pq-confirm-alt").textContent, "Quay về và xoá 1 bản sau");
+  assert.equal(element("pq-confirm-continue").textContent, "Quay về, giữ 1 bản sau");
+  element("pq-confirm-alt").click();
+  assert.equal(await altDialog, "alt", "the second action must resolve to its own value");
+  assert.equal(element("pq-confirm-overlay").classList.contains("hidden"), true, "dialog must close after use");
+  assert.equal(element("pq-confirm-alt").classList.contains("hidden"), true,
+    "the second action must be hidden again after use");
+
+  const binaryDialog = sandbox.__requestConfirm("Synthetic.xlsx", {title: "Quay về?", detail: "Mô tả", continueLabel: "Quay về"});
+  assert.equal(element("pq-confirm-alt").classList.contains("hidden"), true,
+    "callers without a second action keep the dialog binary");
+  element("pq-confirm-continue").click();
+  assert.equal(await binaryDialog, true);
+
+  const cancelDialog = sandbox.__requestConfirm("Synthetic.xlsx", {title: "Quay về?", detail: "Mô tả", continueLabel: "Quay về"});
+  element("pq-confirm-cancel").click();
+  assert.equal(await cancelDialog, false, "cancel must resolve false");
+
+  const revertRoot = revision("rev_r" + "1".repeat(23), null, "Gốc");
+  const revertMiddle = revision("rev_r" + "2".repeat(23), revertRoot.revisionId, "Giữa");
+  const revertTip = revision("rev_r" + "3".repeat(23), revertMiddle.revisionId, "Đầu nhánh");
+  const revertIds = () => Array.from(sandbox.__state.problemChainDocument.revisions, (item) => item.revisionId);
+  const installRevertDocument = () => {
+    const value = documentWith([revertRoot, revertMiddle, revertTip], revertTip.revisionId);
+    sandbox.__state.problemChainDocument = value;
+    sandbox.__state.problemChainHistoryHash = hash(value);
+    sandbox.__state.problemChainHydrated = true;
+    sandbox.__state.problemChainSupported = true;
+    sandbox.__state.pqTypedPreview = null;
+    sandbox.__state.pqTypedApproval = null;
+    parts = [];
+    makePart(sandbox.__buildXml(value, hash(value)));
+    sandbox.__select(revertTip.revisionId);
+  };
+
+  installRevertDocument();
+  sandbox.__renderChain();
+  const revertNodes = element("pqpc-timeline").querySelectorAll(".node");
+  const middleNode = revertNodes.find((item) => item.dataset.revisionId === revertMiddle.revisionId);
+  assert.ok(middleNode, "the revert target must be rendered in the timeline");
+  const revertButton = middleNode.querySelector(".node-revert");
+  assert.ok(revertButton, "every revision must expose a labelled revert button");
+  assert.equal(revertButton.textContent, "Quay về");
+  assert.equal(revertButton.disabled, false, "a non-HEAD revision must be revertible");
+  const headNode = revertNodes.find((item) => item.dataset.revisionId === revertTip.revisionId);
+  assert.equal(headNode.querySelector(".node-revert").disabled, true,
+    "the working HEAD must not offer a revert target");
+
+  // Cancelling the dialog must not move HEAD or contact the coordinator.
+  sandbox.__setConfirmation(async () => false);
+  const callsBeforeReject = calls.length;
+  await revertButton.click();
+  assert.equal(calls.slice(callsBeforeReject).length, 0, "a cancelled revert must not call the coordinator");
+  assert.equal(sandbox.__state.problemChainDocument.headRevisionId, revertTip.revisionId);
+
+  // Reverting while keeping later revisions: HEAD moves, nothing is deleted.
+  sandbox.__setConfirmation(async () => true);
+  const callsBeforeKeep = calls.length;
+  await sandbox.__revert(revertMiddle.revisionId);
+  const keepCalls = calls.slice(callsBeforeKeep);
+  assert.ok(keepCalls.some((call) => call.endpoint.endsWith("/checkout")
+    && call.payload.revisionId === revertMiddle.revisionId), "revert must commit HEAD to the chosen revision");
+  assert.equal(keepCalls.some((call) => call.endpoint.endsWith("/problems/delete")), false,
+    "keeping the later revisions must not issue a delete");
+  assert.equal(sandbox.__state.problemChainDocument.headRevisionId, revertMiddle.revisionId);
+  assert.deepEqual(revertIds(), [revertRoot.revisionId, revertMiddle.revisionId, revertTip.revisionId],
+    "kept descendants must remain in the persisted history");
+
+  // The second action deletes exactly the descendants and keeps the target.
+  installRevertDocument();
+  sandbox.__setConfirmation(async () => "alt");
+  const callsBeforeDelete = calls.length;
+  await sandbox.__revert(revertMiddle.revisionId);
+  const deleteCalls = calls.slice(callsBeforeDelete).filter((call) => call.endpoint.endsWith("/problems/delete"));
+  assert.equal(deleteCalls.length, 1, "each direct child of the revert target is deleted once");
+  assert.equal(deleteCalls[0].payload.revisionId, revertTip.revisionId);
+  assert.equal(sandbox.__state.problemChainDocument.headRevisionId, revertMiddle.revisionId,
+    "HEAD stays on the revert target after deleting its descendants");
+  assert.deepEqual(revertIds(), [revertRoot.revisionId, revertMiddle.revisionId],
+    "only the downstream branch is removed");
+
+  // The correction box re-analyses instead of requiring manual step edits.
+  installRevertDocument();
+  sandbox.__setConfirmation(async () => true);
+  element("pq2-correction-prompt").value = "Sửa bước lọc: dùng Profit thay vì Gross Revenue";
+  const problemsBefore = calls.filter((call) => call.endpoint.endsWith("/problems")).length;
+  await sandbox.__submitCorrection();
+  const correctionCall = calls.filter((call) => call.endpoint.endsWith("/problems")).at(-1);
+  assert.equal(calls.filter((call) => call.endpoint.endsWith("/problems")).length, problemsBefore + 1,
+    "the correction box must run the planner exactly once");
+  assert.equal(correctionCall.payload.creationMode, "editProblem",
+    "a correction on a non-root problem head replaces that attempt as a sibling");
+  assert.equal(correctionCall.payload.editRevisionId, revertTip.revisionId);
+  assert.equal(correctionCall.payload.baseRevisionId, revertMiddle.revisionId);
+  assert.match(correctionCall.payload.prompt, /Profit thay vì Gross Revenue/);
+  assert.equal(element("pq2-correction-prompt").value, "", "the correction box clears after a committed revision");
+  assert.notEqual(sandbox.__state.problemChainDocument.headRevisionId, revertTip.revisionId,
+    "the correction must produce the new HEAD");
 
   assert.ok(syncs > 0, "test must cross actual Office.js sync boundaries");
   console.log(`taskpane Problem Chain tests passed · ${calls.length} API calls · ${syncs} syncs`);

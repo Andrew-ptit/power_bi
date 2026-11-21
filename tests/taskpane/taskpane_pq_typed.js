@@ -4,8 +4,9 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
+const taskpaneSource = require("../support/taskpane_source.js");
 
-const source = fs.readFileSync(path.join(__dirname, "../../pbip_assistant/excel_addin/taskpane.js"), "utf8");
+const source = taskpaneSource();
 const elements = new Map();
 function element(id) {
   if (!elements.has(id)) {
@@ -41,7 +42,7 @@ const preview = {
 const calls = [];
 let writes = 0;
 const sandbox = {
-  document: {getElementById: element, addEventListener() {}, createElement: () => ({})},
+  document: {getElementById: element, addEventListener() {}, createElement: () => ({setAttribute() {}, replaceChildren() {}, appendChild() {}})},
   window: {Office: {context: {requirements: {isSetSupported: () => true}}}},
   Office: {context: {requirements: {isSetSupported: () => true}}},
 };
@@ -52,6 +53,7 @@ vm.runInNewContext(source + `
   globalThis.__preview = previewTypedPlan;
   globalThis.__approve = approveAndApplyTyped;
   globalThis.__revision = createTypedRevision;
+  globalThis.__correction = submitTypedCorrection;
   readWorkbook = async () => globalThis.__workbook;
   exportWorkbookBase64 = async () => "encoded-workbook";
   applyPQValuesToOpenWorkbook = async () => {
@@ -76,7 +78,7 @@ sandbox.__api = async (endpoint, payload) => {
   throw new Error(`Unexpected endpoint ${endpoint}`);
 };
 sandbox.__state.officeReady = true;
-sandbox.__state.codexAvailable = true;
+sandbox.__state.capabilities.codexAnalysis = true;
 sandbox.__state.workbook = workbook;
 sandbox.__state.pqTypedMarker = "localDataCopilot.pqTypedResult.v2";
 element("pq2-prompt").value = "Keep Sales above 1000";
@@ -98,5 +100,15 @@ element("pq2-prompt").value = "Keep Sales above 1000";
   assert.equal(sandbox.__state.pqTypedPlan.revision.revisionId, "rev_b");
   assert.equal(sandbox.__state.pqTypedPreview, null, "editing must invalidate the old preview");
   assert.equal(sandbox.__state.pqTypedApproval, null, "editing must invalidate the old approval");
+  // Standalone mode has no history to branch from: the correction box appends
+  // the new instruction to the request and re-plans.
+  element("pq2-correction-prompt").value = "Bỏ bước lọc, chỉ sắp xếp theo Profit";
+  await sandbox.__correction();
+  const correctionPlanCall = calls.filter((item) => item.endpoint === "/api/pq/v2/plans").at(-1);
+  assert.match(correctionPlanCall.payload.prompt, /Keep Sales above 1000/,
+    "standalone correction must keep the original request text");
+  assert.match(correctionPlanCall.payload.prompt, /Yêu cầu chỉnh sửa: Bỏ bước lọc/,
+    "standalone correction must append the correction to the request");
+  assert.equal(element("pq2-correction-prompt").value, "", "the correction box clears after re-planning");
   console.log("taskpane Typed PQ flow test passed");
 })().catch((error) => { console.error(error); process.exitCode = 1; });

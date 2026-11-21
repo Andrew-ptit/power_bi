@@ -4,8 +4,9 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
+const taskpaneSource = require("../support/taskpane_source.js");
 
-const source = fs.readFileSync(path.join(__dirname, "../../pbip_assistant/excel_addin/taskpane.js"), "utf8");
+const source = taskpaneSource();
 const sheets = [];
 let active;
 let nextValues;

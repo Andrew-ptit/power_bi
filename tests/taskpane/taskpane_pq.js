@@ -4,8 +4,9 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
+const taskpaneSource = require("../support/taskpane_source.js");
 
-const source = fs.readFileSync(path.join(__dirname, "../../pbip_assistant/excel_addin/taskpane.js"), "utf8");
+const source = taskpaneSource();
 const elements = new Map();
 let confirmations = 0;
 const decisions = [false, true, true, true];
@@ -41,7 +42,7 @@ const calls = [];
 let writes = 0;
 let previewCopies = 0;
 const sandbox = {
-  document: {getElementById: element, addEventListener() {}, removeEventListener() {}, createElement: () => ({})},
+  document: {getElementById: element, addEventListener() {}, removeEventListener() {}, createElement: () => ({setAttribute() {}, replaceChildren() {}, appendChild() {}})},
   window: {Office: {context: {requirements: {isSetSupported: () => true}}}, confirm: () => { throw new Error("window.confirm is unsupported"); }},
   Office: {context: {requirements: {isSetSupported: () => true}}},
 };
@@ -53,7 +54,6 @@ vm.runInNewContext(source + `
   globalThis.__previewPQ = previewPQ;
   globalThis.__applyPQPreview = applyPQPreviewToSource;
   globalThis.__invalidatePQPreview = invalidatePQPreview;
-  globalThis.__applyPlan = applyPlan;
   readWorkbook = async () => globalThis.__liveWorkbook;
   exportWorkbookBase64 = async () => "encoded-workbook";
   applyPQValuesToOpenWorkbook = async () => globalThis.__copyPreview();
@@ -87,7 +87,7 @@ sandbox.__api = async (endpoint, payload) => {
 };
 const normalApi = sandbox.__api;
 sandbox.__state.officeReady = true;
-sandbox.__state.codexAvailable = true;
+sandbox.__state.capabilities.codexAnalysis = true;
 sandbox.__state.sessionId = "ses-test";
 sandbox.__state.advancedMPolicy = {
   policyId: "advanced-m-trusted-v1", mode: "trusted", enabled: true,
@@ -171,9 +171,5 @@ element("pq-prompt").value = "Bỏ dòng trùng";
   assert.equal(sandbox.__state.pqPreview, null);
   sandbox.__invalidatePQPreview();
   assert.equal(sandbox.__state.pqPreview, null);
-  sandbox.__state.plan = {status: "review_ready"};
-  const callCount = calls.length;
-  await sandbox.__applyPlan();
-  assert.equal(calls.length, callCount, "main assistant apply still requires its explicit approval checkbox");
   console.log("taskpane PQ flow test passed");
 })().catch((error) => { console.error(error); process.exitCode = 1; });

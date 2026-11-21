@@ -4,8 +4,9 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
+const taskpaneSource = require("../support/taskpane_source.js");
 
-const source = fs.readFileSync(path.join(__dirname, "../../pbip_assistant/excel_addin/taskpane.js"), "utf8");
+const source = taskpaneSource();
 
 function makeElement(id = "") {
   const children = [];
@@ -100,7 +101,7 @@ function findButton(root, label) {
 
 (async () => {
   sandbox.__state.officeReady = true;
-  sandbox.__state.codexAvailable = true;
+  sandbox.__state.capabilities.codexAnalysis = true;
   sandbox.__state.sessionId = "ses_test";
   sandbox.__state.workbook = workbookA;
   sandbox.__state.pqWorkbookKey = "file:///C:/A.xlsx\u0000A.xlsx";

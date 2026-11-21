@@ -8,8 +8,9 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
+const taskpaneSource = require("../support/taskpane_source.js");
 
-const source = fs.readFileSync(path.join(__dirname, "../../pbip_assistant/excel_addin/taskpane.js"), "utf8");
+const source = taskpaneSource();
 const elements = new Map();
 let decisions = [];
 let dialogs = 0;
@@ -99,7 +100,7 @@ async function preview() {
 
 (async () => {
   sandbox.__state.officeReady = true;
-  sandbox.__state.codexAvailable = true;
+  sandbox.__state.capabilities.codexAnalysis = true;
   sandbox.__state.sessionId = "session-1";
   sandbox.__state.advancedMPolicy = policy("advanced-m-trusted-v1");
   decisions = [true, true, true, false];

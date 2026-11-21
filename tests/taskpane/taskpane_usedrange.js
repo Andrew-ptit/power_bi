@@ -4,8 +4,9 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
+const taskpaneSource = require("../support/taskpane_source.js");
 
-const script = fs.readFileSync(path.join(__dirname, "../../pbip_assistant/excel_addin/taskpane.js"), "utf8");
+const script = taskpaneSource();
 const header = ["Date", "Raw ID", "Weight", "Prefix", "Order ID", "Suffix"];
 const rows = Array.from({length: 20}, (_, index) => ["2024-10-15", `A-${index}`, 123, "", "", ""]);
 const values = [header, ...rows];
@@ -34,9 +35,9 @@ const workbook = {
   getActiveCell() { return {rowIndex: 1, columnIndex: 1, load() {}}; },
   load() {},
 };
-const codexStatus = {textContent: ""};
+const codexStatus = {textContent: "", classList: {toggle() {}}, replaceChildren() {}, setAttribute() {}};
 const sandbox = {
-  document: {addEventListener() {}, getElementById() { return codexStatus; }},
+  document: {addEventListener() {}, getElementById() { return codexStatus; }, createElement() { return {setAttribute() {}, replaceChildren() {}, appendChild() {}}; }},
   Office: {context: {document: {url: "https://tenant.example/synthetic.xlsx"}}},
   window: {Office: {context: {document: {url: "https://tenant.example/synthetic.xlsx"}}}},
   Excel: {run: async (callback) => callback({workbook, sync: async () => {}})},

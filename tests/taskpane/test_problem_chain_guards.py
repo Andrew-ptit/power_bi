@@ -28,6 +28,7 @@ from pbip_assistant.problem_chain import (
 )
 from pbip_assistant.workbook_fingerprint import MAIN, workbook_data_fingerprint
 from tests.support.excel_plan import FIXTURE_ROOT
+from tests.support.taskpane_source import taskpane_source
 from tests.support.excel_plan import office_snapshot
 from tests.support.pq_code_m import FakePQRunner
 from tests.support.pq_typed import FakeTypedPlanner
@@ -39,9 +40,7 @@ from tests.support.problem_chain_journey import (_independent_hash, _review_basi
 class ProblemChainTaskPaneStaticCrosscheck(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        cls.script = (
-            Path(__file__).resolve().parents[2] / "pbip_assistant" / "excel_addin" / "taskpane.js"
-        ).read_text(encoding="utf-8")
+        cls.script = taskpane_source()
 
     def function_body(self, name: str, next_name: str) -> str:
         start = self.script.index(f"async function {name}(")
