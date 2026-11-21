@@ -29,6 +29,13 @@ from pbip_assistant.coordinator.endpoints.typed import TypedEndpoints
 from pbip_assistant.coordinator.endpoints.history import HistoryEndpoints
 from pbip_assistant.coordinator.endpoints.diagnostics import DiagnosticsEndpoints
 from pbip_assistant.coordinator.endpoints.fixture import FixtureEndpoints
+from pbip_assistant.coordinator.endpoints.assistant import AssistantEndpoints
+from pbip_assistant.coordinator.endpoints.preparation import PreparationEndpoints
+from pbip_assistant.sources.preparation.store import PreparationStore
+from pbip_assistant.sources.preparation.evidence import PhysicalBudget
+from pbip_assistant.excel.folder_picker import pick_folder
+from pbip_assistant.sources.assistant_session import AssistantSessionStore, _STAGES as ASSISTANT_STAGES
+from pbip_assistant.core import http_io
 from pbip_assistant.core.resources import repository_path, package_path
 from pbip_assistant.errors import InputError
 from pbip_assistant.codex_excel import AnalysisRunner, CodexExecRunner, analyze_workbook, codex_available
@@ -146,16 +153,29 @@ def create_server_from_port_pool(
 
 LOOPBACK_HOSTS = frozenset({"127.0.0.1", "localhost", "::1"})
 STATIC_ROOT = package_path("excel_addin")
+ASSISTANT_PATHS = frozenset("/api/assistant/" + suffix for suffix in (
+    "session", "ingest", "understand", "plan-draft", "branches", "freeze",
+    "approvals", "apply", "record", "state", "reset",
+))
 CODEX_JOB_PATHS = frozenset({
     "/api/excel/analyze", "/api/pq/propose", "/api/pq/v2/plans",
     "/api/pq/v2/problem-chains/problems",
+    "/api/assistant/plan-draft",
 })
 EXCEL_JOB_PATHS = frozenset({
     "/api/pq/v2/previews", "/api/pq/run-sheet", "/api/pq/check-source", "/api/excel/apply",
     "/api/pq/v2/problem-chains/cached-results/prepare",
     "/api/pq/v2/step-diagnostics/runs",
 })
-STATE_PATHS = frozenset({
+PREPARATION_PATHS = frozenset("/api/preparation/" + action for action in (
+    "preservation-begin", "preservation-chunk", "preservation-finish",
+    "attach", "detach", "state", "inventory", "source-snapshot", "source-set", "scan", "answer", "preview", "review-import", "pick-folder",
+    "direct-begin", "direct-write-ready", "direct-complete", "packages", "approve", "begin", "image-begin", "image-chunk", "image-finish", "write-ready", "complete", "undo", "redo", "restore-complete",
+))
+EXCEL_JOB_PATHS = EXCEL_JOB_PATHS | frozenset("/api/preparation/" + action for action in (
+    "direct-begin", "direct-write-ready", "direct-complete", "approve", "begin", "image-begin", "image-chunk", "image-finish", "write-ready", "complete", "undo", "redo", "restore-complete",
+))
+STATE_PATHS = ASSISTANT_PATHS | PREPARATION_PATHS | frozenset({
     "/api/pq/v2/revisions", "/api/pq/v2/repairs", "/api/pq/v2/approvals",
     "/api/pq/v2/applies/prepare", "/api/pq/v2/applies/complete", "/api/excel/plan",
     "/api/pq/v2/problem-chains/load", "/api/pq/v2/problem-chains/checkout",
@@ -245,6 +265,8 @@ class ExcelAddinApp:
         idle_timeout_seconds: int = 1800,
         absolute_timeout_seconds: int = 28800,
         temp_workspaces: TempWorkspaceManager | None = None,
+        assistant_plan_runner: Any = None,
+        preparation_write_enabled: bool = True,
     ) -> None:
         self._session_state_lock = RLock()
         self._state_session_id: str | None = None
@@ -267,6 +289,16 @@ class ExcelAddinApp:
             problem_chain_planner or CodexProblemChainPlanner(workspace_manager=workspace_manager),
         )
         self.step_source_profiles = SourceProfileCache(max_entries=20)
+        self.assistant = AssistantSessionStore()
+        self.physical_budget = PhysicalBudget()
+        self.preparation = PreparationStore(clock=session_clock, start_janitor=True, workspace_manager=workspace_manager, native_write_enabled=preparation_write_enabled, backup_enabled=False)
+        self.preparation._physical_budget = self.physical_budget
+        if self.preparation._journal is not None:
+            self.preparation._journal._physical_budget = self.physical_budget
+        self.preparation_evidence = None
+        self.preparation._evidence = self.preparation_evidence
+        self.folder_picker = pick_folder
+        self.assistant_plan_runner = assistant_plan_runner
         sessions = SessionManager(
             idle_timeout_seconds=idle_timeout_seconds,
             absolute_timeout_seconds=absolute_timeout_seconds,
@@ -286,18 +318,26 @@ class ExcelAddinApp:
         return issued.public_dict()
 
     def _session_invalidated(self, session_id: str, _reason: str) -> None:
+        self.preparation.transport_closed(session_id, _reason)
+        if self.preparation_evidence is not None:
+            self.preparation_evidence.transport_closed(session_id, _reason)
         with self._session_state_lock:
             if self._state_session_id == session_id:
                 self._clear_session_state()
                 self._state_session_id = None
 
     def _clear_session_state(self) -> None:
+        self.assistant.reset()
         self.pq_typed.close()
         self.problem_chains.close()
         self.pq_previews.reset()
         self.step_source_profiles.clear()
 
     def close(self) -> None:
+        if self.preparation_evidence is not None:
+            self.preparation_evidence.close()
+        self.preparation.close()
+        self.assistant.close()
         self.pq_typed.close()
         self.problem_chains.close()
         self.pq_previews.close()
@@ -305,7 +345,7 @@ class ExcelAddinApp:
 
 
 class ExcelAddinRequestHandler(
-    AnalysisEndpoints, AdvancedEndpoints, TypedEndpoints, HistoryEndpoints, DiagnosticsEndpoints, FixtureEndpoints,
+    AnalysisEndpoints, AdvancedEndpoints, TypedEndpoints, HistoryEndpoints, DiagnosticsEndpoints, FixtureEndpoints, AssistantEndpoints, PreparationEndpoints,
     BaseHTTPRequestHandler,
 ):
     protocol_version = "HTTP/1.1"
@@ -349,6 +389,11 @@ class ExcelAddinRequestHandler(
                 },
                 "capabilities": {
                     "officeJsRead": True,
+                    "preparationReadV1": True,
+                    "preparationBackups": self.app.preparation._backup_enabled,
+                    "preparationFolderPicker": True,
+                    "preparationV1": self.app.preparation._native_write_enabled,
+                    "preparationNativeQualification": "user_pending",
                     "localXlsx": True,
                     "sourceWrite": False,
                     "copyApply": True,
@@ -364,6 +409,8 @@ class ExcelAddinRequestHandler(
                     "pqProblemChainV1": True,
                     "pqProblemChainNamespace": "urn:local-data-copilot:pq-problem-chain:v1",
                     "mcpServer": False,
+                    "assistantFlowV2": True,
+                    "assistantFlowStages": list(ASSISTANT_STAGES),
                 },
             })
             return
@@ -380,6 +427,17 @@ class ExcelAddinRequestHandler(
             "/commands.html": ("commands.html", "text/html; charset=utf-8"),
             "/assets/taskpane.css": ("taskpane.css", "text/css; charset=utf-8"),
             "/assets/taskpane.js": ("taskpane.js", "text/javascript; charset=utf-8"),
+            "/assets/taskpane_core.js": ("taskpane_core.js", "text/javascript; charset=utf-8"),
+            "/assets/taskpane_flow.js": ("taskpane_flow.js", "text/javascript; charset=utf-8"),
+            "/assets/taskpane_workspace.js": ("taskpane_workspace.js", "text/javascript; charset=utf-8"),
+            "/assets/taskpane_problem_chain.js": ("taskpane_problem_chain.js", "text/javascript; charset=utf-8"),
+            "/assets/taskpane_typed_pq.js": ("taskpane_typed_pq.js", "text/javascript; charset=utf-8"),
+            "/assets/preparation_runtime.js": ("preparation_runtime.js", "text/javascript; charset=utf-8"),
+            "/assets/preparation_bridge.js": ("preparation_bridge.js", "text/javascript; charset=utf-8"),
+            "/assets/preparation_session.js": ("preparation_session.js", "text/javascript; charset=utf-8"),
+            "/assets/preparation_controller.js": ("preparation_controller.js", "text/javascript; charset=utf-8"),
+            "/assets/assistant_entry.js": ("assistant_entry.js", "text/javascript; charset=utf-8"),
+            "/assets/assistant_custom_xml.js": ("assistant_custom_xml.js", "text/javascript; charset=utf-8"),
         }
         target = static_files.get(path)
         if target is None:
@@ -387,6 +445,9 @@ class ExcelAddinRequestHandler(
             return
         file_path = STATIC_ROOT / target[0]
         if not file_path.is_file():
+            if path == "/assets/assistant_custom_xml.js":
+                self._error(HTTPStatus.NOT_FOUND, "NOT_FOUND", "Assistant helper is not available")
+                return
             self._error(HTTPStatus.INTERNAL_SERVER_ERROR, "ASSET_MISSING", "Excel task pane asset is missing")
             return
         self._bytes(HTTPStatus.OK, file_path.read_bytes(), target[1])
@@ -394,6 +455,18 @@ class ExcelAddinRequestHandler(
     # Host/origin -> session -> execution slot -> state lock stays centralized.
     # Body limits and operation-specific guards belong to individual handlers.
     POST_ENDPOINTS = {
+        **{path: "_post_preparation" for path in PREPARATION_PATHS},
+        '/api/assistant/session': '_post_assistant_session',
+        '/api/assistant/ingest': '_post_assistant_ingest',
+        '/api/assistant/understand': '_post_assistant_understand',
+        '/api/assistant/plan-draft': '_post_assistant_plan_draft',
+        '/api/assistant/branches': '_post_assistant_branches',
+        '/api/assistant/freeze': '_post_assistant_freeze',
+        '/api/assistant/approvals': '_post_assistant_approvals',
+        '/api/assistant/apply': '_post_assistant_apply',
+        '/api/assistant/record': '_post_assistant_record',
+        '/api/assistant/state': '_post_assistant_state',
+        '/api/assistant/reset': '_post_assistant_reset',
         '/api/excel/analyze': '_post_excel_analyze',
         '/api/pq/propose': '_post_pq_propose',
         '/api/pq/v2/plans': '_post_pq_v2_plans',
@@ -489,12 +562,7 @@ class ExcelAddinRequestHandler(
 
 
     def _request_host_allowed(self) -> bool:
-        host_header = self.headers.get("Host", "")
-        try:
-            hostname = urlsplit(f"//{host_header}").hostname
-        except ValueError:
-            hostname = None
-        if hostname not in LOOPBACK_HOSTS:
+        if not http_io.host_header_is_loopback(self.headers.get("Host", "")):
             self._error(HTTPStatus.MISDIRECTED_REQUEST, "HOST_BLOCKED", "Only loopback hosts are accepted")
             return False
         return True
@@ -504,11 +572,7 @@ class ExcelAddinRequestHandler(
             return False
         origin = self.headers.get("Origin")
         if origin:
-            try:
-                parsed = urlsplit(origin)
-            except ValueError:
-                parsed = None
-            if parsed is None or parsed.scheme not in {"http", "https"} or parsed.hostname not in LOOPBACK_HOSTS:
+            if not http_io.origin_is_loopback(origin, schemes=frozenset({"http", "https"})):
                 self._error(HTTPStatus.FORBIDDEN, "ORIGIN_BLOCKED", "Cross-origin request blocked")
                 return False
         return True
@@ -552,22 +616,10 @@ class ExcelAddinRequestHandler(
         self._error(status, exc.code, exc.detail, path=exc.path, headers=headers)
 
     def _read_body(self, maximum: int) -> bytes:
-        value = self.headers.get("Content-Length")
-        if value is None:
-            raise ValueError("Content-Length is required")
-        length = int(value)
-        if length < 0 or length > maximum:
-            raise InputError("REQUEST_LIMIT", "", f"Request exceeds {maximum} bytes")
-        payload = self.rfile.read(length)
-        if len(payload) != length:
-            raise ValueError("Request body ended early")
-        return payload
+        return http_io.read_body(self.headers, self.rfile, maximum)
 
     def _read_json(self, maximum: int) -> dict[str, Any]:
-        value = json.loads(self._read_body(maximum).decode("utf-8"))
-        if not isinstance(value, dict):
-            raise ValueError("JSON body must be an object")
-        return value
+        return http_io.read_json(self.headers, self.rfile, maximum)
 
     def _security_headers(self) -> None:
         self.send_header("Cache-Control", "no-store")
@@ -616,9 +668,13 @@ class ExcelAddinRequestHandler(
     def _error(
         self, status: HTTPStatus, code: str, detail: str, *, path: str = "",
         headers: dict[str, str] | None = None,
+        extra: dict[str, Any] | None = None,
     ) -> None:
         self.close_connection = True
-        self._json(status, {"error": {"code": code, "detail": detail, "path": path}}, headers=headers)
+        payload = {"code": code, "detail": detail, "path": path}
+        if extra:
+            payload.update(extra)
+        self._json(status, {"error": payload}, headers=headers)
 
 
 class LocalThreadingHTTPServer(ThreadingHTTPServer):
@@ -655,6 +711,8 @@ def create_server(
     idle_timeout_seconds: int = 1800,
     absolute_timeout_seconds: int = 28800,
     temp_workspaces: TempWorkspaceManager | None = None,
+    assistant_plan_runner: Any = None,
+    preparation_write_enabled: bool = True,
 ) -> LocalThreadingHTTPServer:
     if host not in {"127.0.0.1", "::1"}:
         raise ValueError("The Excel add-in server may bind only to a loopback address")
@@ -664,6 +722,8 @@ def create_server(
         idle_timeout_seconds=idle_timeout_seconds,
         absolute_timeout_seconds=absolute_timeout_seconds,
         temp_workspaces=temp_workspaces,
+        assistant_plan_runner=assistant_plan_runner,
+        preparation_write_enabled=preparation_write_enabled,
     )
 
     def handler(*args: Any, **kwargs: Any) -> ExcelAddinRequestHandler:

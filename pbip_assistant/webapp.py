@@ -25,6 +25,7 @@ MAX_TOTAL_BYTES = 128 * 1024 * 1024
 MAX_JSON_BYTES = 256 * 1024
 SUPPORTED_EXTENSIONS = frozenset({".xlsx", ".csv"})
 LOOPBACK_HOSTS = frozenset({"127.0.0.1", "localhost", "::1"})
+from .core import http_io
 from .core.resources import package_path
 
 STATIC_ROOT = package_path("web")
@@ -328,12 +329,7 @@ class LocalRequestHandler(BaseHTTPRequestHandler):
         self._json(HTTPStatus.OK, {"removed": file_id})
 
     def _request_host_allowed(self) -> bool:
-        host_header = self.headers.get("Host", "")
-        try:
-            hostname = urlsplit(f"//{host_header}").hostname
-        except ValueError:
-            hostname = None
-        if hostname not in LOOPBACK_HOSTS:
+        if not http_io.host_header_is_loopback(self.headers.get("Host", "")):
             self._error(HTTPStatus.MISDIRECTED_REQUEST, "HOST_BLOCKED", "Only loopback hosts are accepted")
             return False
         return True
@@ -343,11 +339,7 @@ class LocalRequestHandler(BaseHTTPRequestHandler):
             return False
         origin = self.headers.get("Origin")
         if origin:
-            try:
-                parsed = urlsplit(origin)
-            except ValueError:
-                parsed = None
-            if parsed is None or parsed.scheme != "http" or parsed.hostname not in LOOPBACK_HOSTS:
+            if not http_io.origin_is_loopback(origin, schemes=frozenset({"http"})):
                 self._error(HTTPStatus.FORBIDDEN, "ORIGIN_BLOCKED", "Cross-origin request blocked")
                 return False
         if not secrets.compare_digest(self.headers.get("X-Local-Token", ""), self.app.token):
@@ -356,23 +348,10 @@ class LocalRequestHandler(BaseHTTPRequestHandler):
         return True
 
     def _read_body(self, maximum: int) -> bytes:
-        value = self.headers.get("Content-Length")
-        if value is None:
-            raise ValueError("Content-Length is required")
-        length = int(value)
-        if length < 0 or length > maximum:
-            raise InputError("REQUEST_LIMIT", "", f"Request exceeds {maximum} bytes")
-        payload = self.rfile.read(length)
-        if len(payload) != length:
-            raise ValueError("Request body ended early")
-        return payload
+        return http_io.read_body(self.headers, self.rfile, maximum)
 
     def _read_json(self) -> dict[str, Any]:
-        payload = self._read_body(MAX_JSON_BYTES)
-        value = json.loads(payload.decode("utf-8"))
-        if not isinstance(value, dict):
-            raise ValueError("JSON body must be an object")
-        return value
+        return http_io.read_json(self.headers, self.rfile, MAX_JSON_BYTES)
 
     def _security_headers(self) -> None:
         self.send_header("Cache-Control", "no-store")
