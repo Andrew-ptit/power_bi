@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from examples.pbip_fixtures import (
+from tests.support.pbip_fixtures import (
     PAGE_ID, VISUAL_ID, VARIANTS, fixture_manifest, make_retail_pbip, make_fixture_bundle,
 )
 from pbip_assistant.pbip import inventory_pbip

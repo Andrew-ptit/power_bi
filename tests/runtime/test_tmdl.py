@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from examples.pbip_fixtures import make_retail_pbip
+from tests.support.pbip_fixtures import make_retail_pbip
 from pbip_assistant.errors import InputError
 from pbip_assistant.tmdl import catalog_tmdl
 
