@@ -1,0 +1,10 @@
+AccountCode,AccountName,AccountType,PnlGroup,NormalSide
+511100,Product Revenue,Revenue,NetRevenue,C
+511200,Service Revenue,Revenue,NetRevenue,C
+511700,Intercompany Revenue,Revenue,NetRevenue,C
+511900,Rebates and Allowances,ContraRevenue,NetRevenue,D
+632100,COGS Product,COGS,COGS,D
+632200,COGS Service,COGS,COGS,D
+632700,Intercompany COGS,COGS,COGS,D
+641100,Salaries and Wages,Opex,Opex,D
+642100,IT and Software,Opex,Opex,D

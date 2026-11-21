@@ -1,0 +1,5 @@
+OrderID,OrderDate,CustomerID,TerritoryID,Status,Channel
+O-2607-01,2026-07-06,C-001,T-SOUTH,Completed,Retail
+O-2607-02,2026-07-14,C-002,T-NORTH,Completed,Wholesale
+O-2607-03,2026-07-21,C-999,,Completed,Online
+O-2607-04,2026-07-28,C-003,T-CENTRAL,Cancelled,Retail

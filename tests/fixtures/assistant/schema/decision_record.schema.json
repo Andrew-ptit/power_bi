@@ -1,0 +1,1219 @@
+{
+  "$defs": {
+    "assumption": {
+      "additionalProperties": false,
+      "properties": {
+        "confidence": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "evidence": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "formulaId": {
+                "anyOf": [
+                  {
+                    "pattern": "^fm_[A-Za-z0-9_]+$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "kind": {
+                "type": "string"
+              },
+              "ref": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "value": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "kind",
+              "value",
+              "ref",
+              "formulaId"
+            ],
+            "type": "object"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "id": {
+          "pattern": "^asm_[a-f0-9]{12}$",
+          "type": "string"
+        },
+        "risk": {
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ]
+        },
+        "source": {
+          "enum": [
+            "pack",
+            "data",
+            "history",
+            "llm",
+            "user"
+          ]
+        },
+        "statement": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "statement",
+        "source",
+        "confidence",
+        "risk",
+        "evidence"
+      ],
+      "type": "object"
+    },
+    "reconciliation": {
+      "additionalProperties": false,
+      "properties": {
+        "blockers": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "code": {
+                "enum": [
+                  "AF_INGEST_FAILED",
+                  "AF_SOURCE_LOST",
+                  "AF_FANOUT_RISK",
+                  "AF_MISSING_DATA",
+                  "AF_RECONCILE_FAILED",
+                  "AF_SPEC_STALE",
+                  "AF_WRITE_PARTIAL"
+                ]
+              },
+              "message": {
+                "type": "string"
+              },
+              "severity": {
+                "enum": [
+                  "blocker",
+                  "warning"
+                ]
+              }
+            },
+            "required": [
+              "code",
+              "severity",
+              "message"
+            ],
+            "type": "object"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "bridge": {
+          "oneOf": [
+            {
+              "additionalProperties": false,
+              "properties": {
+                "actualUsd": {
+                  "anyOf": [
+                    {
+                      "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "actualVnd": {
+                  "anyOf": [
+                    {
+                      "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "applicable": {
+                  "type": "boolean"
+                },
+                "budgetUsd": {
+                  "anyOf": [
+                    {
+                      "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "budgetVnd": {
+                  "anyOf": [
+                    {
+                      "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "fx": {
+                  "anyOf": [
+                    {
+                      "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "op": {
+                  "anyOf": [
+                    {
+                      "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "passed": {
+                  "anyOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "rateActual": {
+                  "anyOf": [
+                    {
+                      "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "rateBudget": {
+                  "anyOf": [
+                    {
+                      "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "scope": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "total": {
+                  "anyOf": [
+                    {
+                      "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "variance": {
+                  "anyOf": [
+                    {
+                      "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "applicable",
+                "scope",
+                "actualUsd",
+                "actualVnd",
+                "budgetUsd",
+                "budgetVnd",
+                "rateActual",
+                "rateBudget",
+                "op",
+                "fx",
+                "total",
+                "variance",
+                "passed"
+              ],
+              "type": "object"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "applicable": {
+                  "enum": [
+                    false
+                  ]
+                },
+                "fx": {
+                  "enum": [
+                    null
+                  ]
+                },
+                "op": {
+                  "enum": [
+                    null
+                  ]
+                },
+                "passed": {
+                  "enum": [
+                    null
+                  ]
+                },
+                "scope": {
+                  "enum": [
+                    null
+                  ]
+                },
+                "total": {
+                  "enum": [
+                    null
+                  ]
+                },
+                "variance": {
+                  "enum": [
+                    null
+                  ]
+                }
+              },
+              "required": [
+                "applicable",
+                "scope",
+                "op",
+                "fx",
+                "total",
+                "variance",
+                "passed"
+              ],
+              "type": "object"
+            }
+          ]
+        },
+        "checks": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "detail": {
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              },
+              "passed": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "id",
+              "passed",
+              "detail"
+            ],
+            "type": "object"
+          },
+          "minItems": 3,
+          "type": "array"
+        },
+        "colsIn": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "colsOut": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "controlTotalPassed": {
+          "type": "boolean"
+        },
+        "controlTotalRawSource": {
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+          "type": "string"
+        },
+        "controlTotalResult": {
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+          "type": "string"
+        },
+        "controlTotalSource": {
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+          "type": "string"
+        },
+        "controlTotalTolerance": {
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+          "type": "string"
+        },
+        "droppedByDedupe": {
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+          "type": "string"
+        },
+        "hashBasis": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "labels": {
+          "items": {
+            "enum": [
+              "unverified",
+              "assumed",
+              "out_of_scope",
+              "stale"
+            ]
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "passed": {
+          "type": "boolean"
+        },
+        "previewHash": {
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "type": "string"
+        },
+        "reconcileHash": {
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "type": "string"
+        },
+        "rowsIn": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "rowsInDeduped": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "rowsOut": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "schemaVersion": {
+          "enum": [
+            "1.0"
+          ]
+        },
+        "specFingerprint": {
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "type": "string"
+        },
+        "variantOf": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "variantReason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "warnings": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "code": {
+                "enum": [
+                  "AF_INGEST_FAILED",
+                  "AF_SOURCE_LOST",
+                  "AF_FANOUT_RISK",
+                  "AF_MISSING_DATA",
+                  "AF_RECONCILE_FAILED",
+                  "AF_SPEC_STALE",
+                  "AF_WRITE_PARTIAL"
+                ]
+              },
+              "message": {
+                "type": "string"
+              },
+              "severity": {
+                "enum": [
+                  "blocker",
+                  "warning"
+                ]
+              }
+            },
+            "required": [
+              "code",
+              "severity",
+              "message"
+            ],
+            "type": "object"
+          },
+          "minItems": 0,
+          "type": "array"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "specFingerprint",
+        "previewHash",
+        "rowsIn",
+        "rowsInDeduped",
+        "rowsOut",
+        "colsIn",
+        "colsOut",
+        "controlTotalRawSource",
+        "droppedByDedupe",
+        "controlTotalSource",
+        "controlTotalResult",
+        "controlTotalTolerance",
+        "controlTotalPassed",
+        "bridge",
+        "checks",
+        "blockers",
+        "warnings",
+        "labels",
+        "passed",
+        "hashBasis",
+        "reconcileHash",
+        "variantOf",
+        "variantReason"
+      ],
+      "type": "object"
+    },
+    "step": {
+      "additionalProperties": false,
+      "properties": {
+        "decisionRefs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "dependsOn": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "guard": {
+          "anyOf": [
+            {
+              "enum": [
+                "AF_INGEST_FAILED",
+                "AF_SOURCE_LOST",
+                "AF_FANOUT_RISK",
+                "AF_MISSING_DATA",
+                "AF_RECONCILE_FAILED",
+                "AF_SPEC_STALE",
+                "AF_WRITE_PARTIAL"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "id": {
+          "pattern": "^st_[0-9]{2}$",
+          "type": "string"
+        },
+        "inputs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "kind": {
+          "enum": [
+            "recipe",
+            "lookup",
+            "join",
+            "group",
+            "calc",
+            "filter",
+            "sort",
+            "output"
+          ]
+        },
+        "label": {
+          "type": "string"
+        },
+        "output": {
+          "type": "string"
+        },
+        "params": {
+          "additionalProperties": false,
+          "properties": {
+            "columns": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "minItems": 0,
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "formulaId": {
+              "anyOf": [
+                {
+                  "pattern": "^fm_[A-Za-z0-9_]+$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "operation": {
+              "type": "string"
+            },
+            "tableId": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "operation",
+            "tableId",
+            "columns",
+            "formulaId"
+          ],
+          "type": "object"
+        },
+        "status": {
+          "enum": [
+            "ok",
+            "pending",
+            "blocked"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "label",
+        "decisionRefs",
+        "inputs",
+        "params",
+        "output",
+        "dependsOn",
+        "status",
+        "guard"
+      ],
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "oneOf": [
+    {
+      "additionalProperties": false,
+      "properties": {
+        "assumptions": {
+          "items": {
+            "$ref": "#/$defs/assumption"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "brief": {
+          "additionalProperties": false,
+          "properties": {
+            "briefHash": {
+              "pattern": "^sha256:[a-f0-9]{64}$",
+              "type": "string"
+            },
+            "prompt": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "briefHash",
+            "prompt"
+          ],
+          "type": "object"
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "decisions": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "decidedAt": {
+                "type": "string"
+              },
+              "decidedBy": {
+                "enum": [
+                  "user"
+                ]
+              },
+              "optionId": {
+                "enum": [
+                  "A",
+                  "B"
+                ]
+              },
+              "rationale": {
+                "type": "string"
+              },
+              "subProblemId": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "subProblemId",
+              "optionId",
+              "decidedBy",
+              "decidedAt",
+              "rationale"
+            ],
+            "type": "object"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "delta": {
+          "additionalProperties": false,
+          "properties": {
+            "changedColumns": {
+              "items": {
+                "type": "string"
+              },
+              "minItems": 0,
+              "type": "array"
+            },
+            "duplicatesAfter": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "duplicatesBefore": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "nullsAfter": {
+              "oneOf": [
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "PartnerEntity": {
+                      "minimum": 0,
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "PartnerEntity"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "CustomerID": {
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    "TerritoryID": {
+                      "minimum": 0,
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "TerritoryID",
+                    "CustomerID"
+                  ],
+                  "type": "object"
+                }
+              ]
+            },
+            "nullsBefore": {
+              "oneOf": [
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "PartnerEntity": {
+                      "minimum": 0,
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "PartnerEntity"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "CustomerID": {
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    "TerritoryID": {
+                      "minimum": 0,
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "TerritoryID",
+                    "CustomerID"
+                  ],
+                  "type": "object"
+                }
+              ]
+            },
+            "rowsIn": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "rowsOut": {
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "rowsIn",
+            "rowsOut",
+            "nullsBefore",
+            "nullsAfter",
+            "duplicatesBefore",
+            "duplicatesAfter",
+            "changedColumns"
+          ],
+          "type": "object"
+        },
+        "hash": {
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "type": "string"
+        },
+        "hashBasis": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "id": {
+          "pattern": "^rec_[a-f0-9]{24}$",
+          "type": "string"
+        },
+        "labels": {
+          "items": {
+            "enum": [
+              "unverified",
+              "assumed",
+              "out_of_scope",
+              "stale"
+            ]
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "reconciliations": {
+          "items": {
+            "$ref": "#/$defs/reconciliation"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "schemaVersion": {
+          "enum": [
+            "1.0"
+          ]
+        },
+        "snapshot": {
+          "additionalProperties": false,
+          "properties": {
+            "snapshotHash": {
+              "pattern": "^sha256:[a-f0-9]{64}$",
+              "type": "string"
+            },
+            "sourceFingerprint": {
+              "pattern": "^sha256:[a-f0-9]{64}$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "snapshotHash",
+            "sourceFingerprint"
+          ],
+          "type": "object"
+        },
+        "stale": {
+          "type": "boolean"
+        },
+        "steps": {
+          "items": {
+            "$ref": "#/$defs/step"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "variantOf": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "variantReason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "id",
+        "createdAt",
+        "snapshot",
+        "brief",
+        "decisions",
+        "assumptions",
+        "steps",
+        "reconciliations",
+        "delta",
+        "labels",
+        "stale",
+        "hashBasis",
+        "hash",
+        "variantOf",
+        "variantReason"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "assumptions": {
+          "items": {
+            "$ref": "#/$defs/assumption"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "brief": {
+          "additionalProperties": false,
+          "properties": {
+            "briefHash": {
+              "pattern": "^sha256:[a-f0-9]{64}$",
+              "type": "string"
+            },
+            "prompt": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "briefHash",
+            "prompt"
+          ],
+          "type": "object"
+        },
+        "code": {
+          "enum": [
+            "AF_SPEC_STALE"
+          ]
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "decisions": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "decidedAt": {
+                "type": "string"
+              },
+              "decidedBy": {
+                "enum": [
+                  "user"
+                ]
+              },
+              "optionId": {
+                "enum": [
+                  "A",
+                  "B"
+                ]
+              },
+              "rationale": {
+                "type": "string"
+              },
+              "subProblemId": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "subProblemId",
+              "optionId",
+              "decidedBy",
+              "decidedAt",
+              "rationale"
+            ],
+            "type": "object"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "delta": {
+          "additionalProperties": false,
+          "properties": {
+            "changedColumns": {
+              "items": {
+                "type": "string"
+              },
+              "minItems": 0,
+              "type": "array"
+            },
+            "duplicatesAfter": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "duplicatesBefore": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "nullsAfter": {
+              "oneOf": [
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "PartnerEntity": {
+                      "minimum": 0,
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "PartnerEntity"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "CustomerID": {
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    "TerritoryID": {
+                      "minimum": 0,
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "TerritoryID",
+                    "CustomerID"
+                  ],
+                  "type": "object"
+                }
+              ]
+            },
+            "nullsBefore": {
+              "oneOf": [
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "PartnerEntity": {
+                      "minimum": 0,
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "PartnerEntity"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "CustomerID": {
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    "TerritoryID": {
+                      "minimum": 0,
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "TerritoryID",
+                    "CustomerID"
+                  ],
+                  "type": "object"
+                }
+              ]
+            },
+            "rowsIn": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "rowsOut": {
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "rowsIn",
+            "rowsOut",
+            "nullsBefore",
+            "nullsAfter",
+            "duplicatesBefore",
+            "duplicatesAfter",
+            "changedColumns"
+          ],
+          "type": "object"
+        },
+        "hash": {
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "type": "string"
+        },
+        "hashBasis": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "id": {
+          "pattern": "^rec_[a-f0-9]{24}$",
+          "type": "string"
+        },
+        "labels": {
+          "items": {
+            "enum": [
+              "unverified",
+              "assumed",
+              "out_of_scope",
+              "stale"
+            ]
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "reconciliations": {
+          "items": {
+            "$ref": "#/$defs/reconciliation"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "schemaVersion": {
+          "enum": [
+            "1.0"
+          ]
+        },
+        "snapshot": {
+          "additionalProperties": false,
+          "properties": {
+            "snapshotHash": {
+              "pattern": "^sha256:[a-f0-9]{64}$",
+              "type": "string"
+            },
+            "sourceFingerprint": {
+              "pattern": "^sha256:[a-f0-9]{64}$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "snapshotHash",
+            "sourceFingerprint"
+          ],
+          "type": "object"
+        },
+        "stale": {
+          "type": "boolean"
+        },
+        "steps": {
+          "items": {
+            "$ref": "#/$defs/step"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "variantOf": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "variantReason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "id",
+        "createdAt",
+        "snapshot",
+        "brief",
+        "decisions",
+        "assumptions",
+        "steps",
+        "reconciliations",
+        "delta",
+        "labels",
+        "stale",
+        "hashBasis",
+        "hash",
+        "variantOf",
+        "variantReason",
+        "code"
+      ],
+      "type": "object"
+    }
+  ]
+}

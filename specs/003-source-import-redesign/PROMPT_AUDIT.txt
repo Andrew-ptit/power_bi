@@ -1,0 +1,25 @@
+Repo: C:\Users\COLAIG\Downloads\power_bi
+
+Bạn review tiến độ feature 003 (Codex đang thi công trong worktree .artifacts\worktrees\source-import-003,
+branch codex/source-import-003).
+
+Đọc trước, theo thứ tự:
+1. specs/003-source-import-redesign/STATUS_2026-11-20.md   ← audit gần nhất (2026-11-20 15:30)
+2. specs/003-source-import-redesign/CODEX_MASTER_PROMPT.md  ← plan + task + luật
+3. .artifacts/worktrees/source-import-003/specs/003-source-import-redesign/acceptance.md  ← evidence Codex ghi
+
+Nhiệm vụ:
+a) So tiến độ thực tế (git log worktree + acceptance.md) với §6/§7 của master prompt: task nào xong,
+   task nào đang dở, có nhảy cóc sóng không.
+b) Kiểm tra đi đúng contract: đọc contracts/source-import.md và diff code trong worktree; chỉ ra chỗ
+   lệch (field thiếu, reasonCode sai, numberFormat sai, thay đổi ngoài allowlist).
+c) Kiểm tra chất lượng bằng chứng: có lệnh + output thật không, có ghi "Pass" khống không,
+   có test nào bị nới lỏng/skip không, có file nào sửa ngoài allowlist không.
+d) Chạy lại (không tin báo cáo):
+   cd .artifacts\worktrees\source-import-003
+   py tools/review_003.py --task T304
+   py -m unittest tests.unit.test_csv_typing -v
+   py -m unittest tests.unit.test_preparation_packages tests.integration.test_preparation_api -v
+e) Kết luận: ĐÚNG HƯỚNG | LỆCH (kèm mức độ), 3 việc phải sửa trước khi cho mở T305.
+
+Không sửa code trong lượt này. Nếu thiếu bằng chứng để kết luận thì nói rõ thiếu gì.

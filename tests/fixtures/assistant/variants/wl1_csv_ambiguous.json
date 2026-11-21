@@ -1,0 +1,1415 @@
+{
+  "csvProfile": {
+    "auto": {
+      "delimiter": ";",
+      "encoding": "utf-8",
+      "fingerprint": "sha256:bddadac712efb8fd2b57a1173d675946b5fd0576e8c5b883aad77c3ac319726a",
+      "header": true,
+      "mode": "auto"
+    },
+    "manual": {
+      "delimiter": ",",
+      "encoding": "utf-8",
+      "fingerprint": "sha256:6592c7e6833c73dcd81b3b935f6683e8bbe9785d4f3bfea865c52f49062c9f14",
+      "header": true,
+      "mode": "manual"
+    }
+  },
+  "hashBasis": [
+    "snapshot",
+    "sources",
+    "tables",
+    "variantOf",
+    "variantReason",
+    "status",
+    "synthetic",
+    "csvProfile"
+  ],
+  "schemaVersion": "1.0",
+  "snapshot": {
+    "createdAt": "2026-10-26T09:00:00Z",
+    "sessionId": "sess_a03d1126c2f8",
+    "snapshotId": "snap_a03d1126c2f8fdbbeaf217e9",
+    "sourceCount": 7,
+    "tableCount": 7
+  },
+  "snapshotHash": "sha256:b3f016eb458f976d414fda068c7a50930786f6c767b854cb5abceb553873c67d",
+  "sources": [
+    {
+      "addedAt": "2026-10-26T09:00:00Z",
+      "hash": "sha256:03fb777b1a306e6b780c12293e28bda5d81901aea64f721cabd7a2cb1ff11a2d",
+      "id": "src_a90b2dbd61c5",
+      "name": "Budget_2026.csv",
+      "origin": "source/Budget_2026.csv",
+      "type": "csv"
+    },
+    {
+      "addedAt": "2026-10-26T09:00:00Z",
+      "hash": "sha256:a44a9e9cee8c0a4122c33bc92b2b925cb7a351235d997aaf9c96ffebaacca5c7",
+      "id": "src_eee82d73e347",
+      "name": "CoA.csv",
+      "origin": "source/CoA.csv",
+      "type": "csv"
+    },
+    {
+      "addedAt": "2026-10-26T09:00:00Z",
+      "hash": "sha256:710b09d9f422568d71ff2f1891a4ce83ffbe7561819a8ca6ab9935febd2b0fc1",
+      "id": "src_622b0ca12e33",
+      "name": "CostCenter.csv",
+      "origin": "source/CostCenter.csv",
+      "type": "csv"
+    },
+    {
+      "addedAt": "2026-10-26T09:00:00Z",
+      "hash": "sha256:574b12e83673e387689dcab1eb04a9c36290c04ddb19751c187dda85981ac8ee",
+      "id": "src_dc3eb42975d1",
+      "name": "Currency.csv",
+      "origin": "source/Currency.csv",
+      "type": "csv"
+    },
+    {
+      "addedAt": "2026-10-26T09:00:00Z",
+      "hash": "sha256:8a57a2632a917f9a76e0b624ae620a6055c537c4486ec8cabdd1e3d5c018e41f",
+      "id": "src_c58fa00f407f",
+      "name": "Entity.csv",
+      "origin": "source/Entity.csv",
+      "type": "csv"
+    },
+    {
+      "addedAt": "2026-10-26T09:00:00Z",
+      "hash": "sha256:5dfe75002b7364ce52bbabc811382951e5bf8b1bed56abe5139e3c4a9334a2b6",
+      "id": "src_d934591b174e",
+      "name": "FX_Rates_2026.csv",
+      "origin": "source/FX_Rates_2026.csv",
+      "type": "csv"
+    },
+    {
+      "addedAt": "2026-10-26T09:00:00Z",
+      "hash": "sha256:babb63838aa928b76d5f440c906de8a063f9363a590ecd785a4acf3d4c711628",
+      "id": "src_d77145e20992",
+      "name": "GL_Actuals_2026-09.csv",
+      "origin": "source/GL_Actuals_2026-09.csv",
+      "type": "csv"
+    }
+  ],
+  "status": "needs_clarification",
+  "synthetic": true,
+  "tables": [
+    {
+      "columnCount": 5,
+      "columns": [
+        {
+          "distinctCount": 7,
+          "distinctRatio": 0.538,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "0.538"
+            }
+          ],
+          "name": "AccountCode",
+          "nullRate": 0.0,
+          "role": "key",
+          "roleStatus": "inferred",
+          "sample": [
+            "511100",
+            "511100",
+            "511200",
+            "511900",
+            "511100",
+            "511200",
+            "632100",
+            "632200",
+            "632100",
+            "641100",
+            "641100",
+            "642100",
+            "642100"
+          ],
+          "type": "text"
+        },
+        {
+          "distinctCount": 5,
+          "distinctRatio": 0.385,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "0.385"
+            }
+          ],
+          "name": "CostCenter",
+          "nullRate": 0.0,
+          "role": "key",
+          "roleStatus": "inferred",
+          "sample": [
+            "CC-100",
+            "CC-100",
+            "CC-110",
+            "CC-100",
+            "CC-130",
+            "CC-130",
+            "CC-120",
+            "CC-110",
+            "CC-130",
+            "CC-100",
+            "CC-110",
+            "CC-140",
+            "CC-130"
+          ],
+          "type": "text"
+        },
+        {
+          "distinctCount": 1,
+          "distinctRatio": 0.077,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "0.077"
+            }
+          ],
+          "name": "Month",
+          "nullRate": 0.0,
+          "role": "date",
+          "roleStatus": "inferred",
+          "sample": [
+            "2026-09",
+            "2026-09",
+            "2026-09",
+            "2026-09",
+            "2026-09",
+            "2026-09",
+            "2026-09",
+            "2026-09",
+            "2026-09",
+            "2026-09",
+            "2026-09",
+            "2026-09",
+            "2026-09"
+          ],
+          "type": "text"
+        },
+        {
+          "distinctCount": 2,
+          "distinctRatio": 0.154,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "0.154"
+            }
+          ],
+          "name": "Currency",
+          "nullRate": 0.0,
+          "role": "currency",
+          "roleStatus": "inferred",
+          "sample": [
+            "VND",
+            "VND",
+            "VND",
+            "VND",
+            "USD",
+            "USD",
+            "VND",
+            "VND",
+            "USD",
+            "VND",
+            "VND",
+            "USD",
+            "USD"
+          ],
+          "type": "text"
+        },
+        {
+          "distinctCount": 13,
+          "distinctRatio": 1.0,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "1"
+            }
+          ],
+          "name": "Amount",
+          "nullRate": 0.0,
+          "role": "amount",
+          "roleStatus": "inferred",
+          "sample": [
+            "4300000000",
+            "2620000000",
+            "1730000000",
+            "85000000",
+            "1196000.00",
+            "274000.00",
+            "4330000000",
+            "600000000",
+            "1010000.00",
+            "1300000000",
+            "620000000",
+            "45000.00",
+            "20000.00"
+          ],
+          "type": "decimal"
+        }
+      ],
+      "fingerprint": "sha256:fd70b6a797be179ed0941b19f4c0eb6794797bc6b46a3c456a8b3637cbf596f8",
+      "headerHash": "sha256:ff55cf6f43e9d6f35647fd2806c6d5065ede988c0f56459ab2d3ed3adad3fb28",
+      "id": "tbl_a90b2dbd61c5",
+      "locator": {
+        "fileCount": 1,
+        "kind": "file",
+        "path": "source/Budget_2026.csv",
+        "range": null,
+        "sheet": null
+      },
+      "name": "Budget_2026",
+      "rowCount": 13,
+      "sampleHash": "sha256:ed4173f620e6490e5169270acd4425a44c54537327e44275a2f7a8fd4a75587b",
+      "sourceId": "src_a90b2dbd61c5"
+    },
+    {
+      "columnCount": 5,
+      "columns": [
+        {
+          "distinctCount": 9,
+          "distinctRatio": 1.0,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "1"
+            }
+          ],
+          "name": "AccountCode",
+          "nullRate": 0.0,
+          "role": "key",
+          "roleStatus": "inferred",
+          "sample": [
+            "511100",
+            "511200",
+            "511700",
+            "511900",
+            "632100",
+            "632200",
+            "632700",
+            "641100",
+            "642100"
+          ],
+          "type": "text"
+        },
+        {
+          "distinctCount": 9,
+          "distinctRatio": 1.0,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "1"
+            }
+          ],
+          "name": "AccountName",
+          "nullRate": 0.0,
+          "role": "text",
+          "roleStatus": "inferred",
+          "sample": [
+            "Product Revenue",
+            "Service Revenue",
+            "Intercompany Revenue",
+            "Rebates and Allowances",
+            "COGS Product",
+            "COGS Service",
+            "Intercompany COGS",
+            "Salaries and Wages",
+            "IT and Software"
+          ],
+          "type": "text"
+        },
+        {
+          "distinctCount": 4,
+          "distinctRatio": 0.444,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "0.444"
+            }
+          ],
+          "name": "AccountType",
+          "nullRate": 0.0,
+          "role": "text",
+          "roleStatus": "inferred",
+          "sample": [
+            "Revenue",
+            "Revenue",
+            "Revenue",
+            "ContraRevenue",
+            "COGS",
+            "COGS",
+            "COGS",
+            "Opex",
+            "Opex"
+          ],
+          "type": "text"
+        },
+        {
+          "distinctCount": 3,
+          "distinctRatio": 0.333,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "0.333"
+            }
+          ],
+          "name": "PnlGroup",
+          "nullRate": 0.0,
+          "role": "text",
+          "roleStatus": "inferred",
+          "sample": [
+            "NetRevenue",
+            "NetRevenue",
+            "NetRevenue",
+            "NetRevenue",
+            "COGS",
+            "COGS",
+            "COGS",
+            "Opex",
+            "Opex"
+          ],
+          "type": "text"
+        },
+        {
+          "distinctCount": 2,
+          "distinctRatio": 0.222,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "0.222"
+            }
+          ],
+          "name": "NormalSide",
+          "nullRate": 0.0,
+          "role": "text",
+          "roleStatus": "inferred",
+          "sample": [
+            "C",
+            "C",
+            "C",
+            "D",
+            "D",
+            "D",
+            "D",
+            "D",
+            "D"
+          ],
+          "type": "text"
+        }
+      ],
+      "fingerprint": "sha256:ba1de136311cd596d4f4de727a2d630510574adccfdd2e4c65b1b35342a75225",
+      "headerHash": "sha256:21aecfb38462bead88d36b16c4b2a31ae1378629e1abadd5a51cf815c068bd18",
+      "id": "tbl_eee82d73e347",
+      "locator": {
+        "fileCount": 1,
+        "kind": "file",
+        "path": "source/CoA.csv",
+        "range": null,
+        "sheet": null
+      },
+      "name": "CoA",
+      "rowCount": 9,
+      "sampleHash": "sha256:9ccdbdb021272f22c88013dd16fc80b65a3dc24eefe73d70effac53bd4c8aaeb",
+      "sourceId": "src_eee82d73e347"
+    },
+    {
+      "columnCount": 4,
+      "columns": [
+        {
+          "distinctCount": 5,
+          "distinctRatio": 1.0,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "1"
+            }
+          ],
+          "name": "CostCenter",
+          "nullRate": 0.0,
+          "role": "key",
+          "roleStatus": "inferred",
+          "sample": [
+            "CC-100",
+            "CC-110",
+            "CC-120",
+            "CC-130",
+            "CC-140"
+          ],
+          "type": "text"
+        },
+        {
+          "distinctCount": 5,
+          "distinctRatio": 1.0,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "1"
+            }
+          ],
+          "name": "CostCenterName",
+          "nullRate": 0.0,
+          "role": "text",
+          "roleStatus": "inferred",
+          "sample": [
+            "Commercial VN",
+            "Service Delivery VN",
+            "Operations VN",
+            "Commercial SG",
+            "Group IT"
+          ],
+          "type": "text"
+        },
+        {
+          "distinctCount": 2,
+          "distinctRatio": 0.4,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "0.4"
+            }
+          ],
+          "name": "EntityCode",
+          "nullRate": 0.0,
+          "role": "key",
+          "roleStatus": "inferred",
+          "sample": [
+            "VN01",
+            "VN01",
+            "VN01",
+            "SG01",
+            "SG01"
+          ],
+          "type": "text"
+        },
+        {
+          "distinctCount": 5,
+          "distinctRatio": 1.0,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "1"
+            }
+          ],
+          "name": "Manager",
+          "nullRate": 0.0,
+          "role": "text",
+          "roleStatus": "inferred",
+          "sample": [
+            "Tran",
+            "Le",
+            "Pham",
+            "Lim",
+            "Tan"
+          ],
+          "type": "text"
+        }
+      ],
+      "fingerprint": "sha256:7cb3e8d7528c06a1492746673f643f7cb0ffc7ec9c0639aaffc16ccdaa2d8d45",
+      "headerHash": "sha256:4a28287b6ed5813b5ddcfe3e8fc6cc7e8e098f42aebdaa8a48d8f9814429945e",
+      "id": "tbl_622b0ca12e33",
+      "locator": {
+        "fileCount": 1,
+        "kind": "file",
+        "path": "source/CostCenter.csv",
+        "range": null,
+        "sheet": null
+      },
+      "name": "CostCenter",
+      "rowCount": 5,
+      "sampleHash": "sha256:5a06bd5d9b3374e0969d1ecd8ab096399fcf54dc715d42abb3a0aab1d936cda2",
+      "sourceId": "src_622b0ca12e33"
+    },
+    {
+      "columnCount": 4,
+      "columns": [
+        {
+          "distinctCount": 3,
+          "distinctRatio": 1.0,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "1"
+            }
+          ],
+          "name": "CurrencyCode",
+          "nullRate": 0.0,
+          "role": "currency",
+          "roleStatus": "inferred",
+          "sample": [
+            "VND",
+            "USD",
+            "EUR"
+          ],
+          "type": "text"
+        },
+        {
+          "distinctCount": 3,
+          "distinctRatio": 1.0,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "1"
+            }
+          ],
+          "name": "CurrencyName",
+          "nullRate": 0.0,
+          "role": "currency",
+          "roleStatus": "inferred",
+          "sample": [
+            "Vietnamese Dong",
+            "US Dollar",
+            "Euro"
+          ],
+          "type": "text"
+        },
+        {
+          "distinctCount": 2,
+          "distinctRatio": 0.667,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "0.667"
+            }
+          ],
+          "name": "DecimalPlaces",
+          "nullRate": 0.0,
+          "role": "text",
+          "roleStatus": "inferred",
+          "sample": [
+            "0",
+            "2",
+            "2"
+          ],
+          "type": "integer"
+        },
+        {
+          "distinctCount": 2,
+          "distinctRatio": 0.667,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "0.667"
+            }
+          ],
+          "name": "IsReportingCurrency",
+          "nullRate": 0.0,
+          "role": "currency",
+          "roleStatus": "inferred",
+          "sample": [
+            "Y",
+            "N",
+            "N"
+          ],
+          "type": "text"
+        }
+      ],
+      "fingerprint": "sha256:8575a59501d2d8ada7f0626a4641a50704d9372c674be690bdcd52a2daab82cb",
+      "headerHash": "sha256:18916378f85035781ee868f173c8e1804ea230c02237c4cfb19456fb7c10a565",
+      "id": "tbl_dc3eb42975d1",
+      "locator": {
+        "fileCount": 1,
+        "kind": "file",
+        "path": "source/Currency.csv",
+        "range": null,
+        "sheet": null
+      },
+      "name": "Currency",
+      "rowCount": 3,
+      "sampleHash": "sha256:d7ad1927283e0cba68501e0f8060083e8e432f1a4ae101ad02ace79d57eae7a7",
+      "sourceId": "src_dc3eb42975d1"
+    },
+    {
+      "columnCount": 4,
+      "columns": [
+        {
+          "distinctCount": 2,
+          "distinctRatio": 1.0,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "1"
+            }
+          ],
+          "name": "EntityCode",
+          "nullRate": 0.0,
+          "role": "key",
+          "roleStatus": "inferred",
+          "sample": [
+            "SG01",
+            "VN01"
+          ],
+          "type": "text"
+        },
+        {
+          "distinctCount": 2,
+          "distinctRatio": 1.0,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "1"
+            }
+          ],
+          "name": "EntityName",
+          "nullRate": 0.0,
+          "role": "text",
+          "roleStatus": "inferred",
+          "sample": [
+            "Reqwise Singapore Pte Ltd",
+            "Reqwise Vietnam Co Ltd"
+          ],
+          "type": "text"
+        },
+        {
+          "distinctCount": 2,
+          "distinctRatio": 1.0,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "1"
+            }
+          ],
+          "name": "CountryCode",
+          "nullRate": 0.0,
+          "role": "text",
+          "roleStatus": "inferred",
+          "sample": [
+            "SG",
+            "VN"
+          ],
+          "type": "text"
+        },
+        {
+          "distinctCount": 2,
+          "distinctRatio": 1.0,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "1"
+            }
+          ],
+          "name": "FunctionalCurrency",
+          "nullRate": 0.0,
+          "role": "currency",
+          "roleStatus": "inferred",
+          "sample": [
+            "USD",
+            "VND"
+          ],
+          "type": "text"
+        }
+      ],
+      "fingerprint": "sha256:f49170aa3685fb2fefbf5ce0f44f9d5edf53193a931360f25ee88e85b3fa2e43",
+      "headerHash": "sha256:b939b5c0b1c1c6d9f5a1bcd1d9a3928e7efc9ae574bd5bfee73a6289feffc7eb",
+      "id": "tbl_c58fa00f407f",
+      "locator": {
+        "fileCount": 1,
+        "kind": "file",
+        "path": "source/Entity.csv",
+        "range": null,
+        "sheet": null
+      },
+      "name": "Entity",
+      "rowCount": 2,
+      "sampleHash": "sha256:fbfe86d87ca0fe6a0b7573047634b435e448631b66828ac914132d3d1ae8d86a",
+      "sourceId": "src_c58fa00f407f"
+    },
+    {
+      "columnCount": 5,
+      "columns": [
+        {
+          "distinctCount": 3,
+          "distinctRatio": 0.3,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "0.3"
+            }
+          ],
+          "name": "CurrencyCode",
+          "nullRate": 0.0,
+          "role": "currency",
+          "roleStatus": "inferred",
+          "sample": [
+            "USD",
+            "USD",
+            "USD",
+            "USD",
+            "USD",
+            "EUR",
+            "EUR",
+            "EUR",
+            "EUR",
+            "VND"
+          ],
+          "type": "text"
+        },
+        {
+          "distinctCount": 3,
+          "distinctRatio": 0.3,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "0.3"
+            }
+          ],
+          "name": "Month",
+          "nullRate": 0.0,
+          "role": "date",
+          "roleStatus": "inferred",
+          "sample": [
+            "2026-07",
+            "2026-07",
+            "2026-08",
+            "2026-09",
+            "2026-09",
+            "2026-07",
+            "2026-07",
+            "2026-08",
+            "2026-08",
+            "2026-09"
+          ],
+          "type": "text"
+        },
+        {
+          "distinctCount": 2,
+          "distinctRatio": 0.2,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "0.2"
+            }
+          ],
+          "name": "RateType",
+          "nullRate": 0.0,
+          "role": "text",
+          "roleStatus": "inferred",
+          "sample": [
+            "average",
+            "closing",
+            "average",
+            "average",
+            "closing",
+            "average",
+            "closing",
+            "average",
+            "closing",
+            "average"
+          ],
+          "type": "text"
+        },
+        {
+          "distinctCount": 10,
+          "distinctRatio": 1.0,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "1"
+            }
+          ],
+          "name": "Rate",
+          "nullRate": 0.0,
+          "role": "amount",
+          "roleStatus": "inferred",
+          "sample": [
+            "24050",
+            "24100",
+            "24120",
+            "24300",
+            "24450",
+            "26400",
+            "26480",
+            "26510",
+            "26560",
+            "1"
+          ],
+          "type": "decimal"
+        },
+        {
+          "distinctCount": 2,
+          "distinctRatio": 0.2,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "0.2"
+            }
+          ],
+          "name": "Source",
+          "nullRate": 0.0,
+          "role": "text",
+          "roleStatus": "inferred",
+          "sample": [
+            "Group Treasury",
+            "Group Treasury",
+            "Group Treasury",
+            "Group Treasury",
+            "Group Treasury",
+            "Group Treasury",
+            "Group Treasury",
+            "Group Treasury",
+            "Group Treasury",
+            "Reporting currency"
+          ],
+          "type": "text"
+        }
+      ],
+      "fingerprint": "sha256:dd5a9c9bb6eadc76da48250965d2d53c777df12cdf2ebf8dcc0e10ac25ba1ef7",
+      "headerHash": "sha256:6c4a58153bb0caf42ac8b1454ef1712dacb785b278921e9b4802c0316306f8f0",
+      "id": "tbl_d934591b174e",
+      "locator": {
+        "fileCount": 1,
+        "kind": "file",
+        "path": "source/FX_Rates_2026.csv",
+        "range": null,
+        "sheet": null
+      },
+      "name": "FX_Rates_2026",
+      "rowCount": 10,
+      "sampleHash": "sha256:b606f2c31d2c4d3b8de9eb8bbb733e5867512161980ad13f701a179d0f2f11b4",
+      "sourceId": "src_d934591b174e"
+    },
+    {
+      "columnCount": 12,
+      "columns": [
+        {
+          "distinctCount": 29,
+          "distinctRatio": 0.935,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "0.935"
+            }
+          ],
+          "name": "DocNo",
+          "nullRate": 0.0,
+          "role": "key",
+          "roleStatus": "inferred",
+          "sample": [
+            "GJ-2026-09-001",
+            "GJ-2026-09-002",
+            "GJ-2026-09-003",
+            "GJ-2026-09-004",
+            "GJ-2026-09-005",
+            "GJ-2026-09-006",
+            "GJ-2026-09-007",
+            "GJ-2026-09-008",
+            "GJ-2026-09-009",
+            "GJ-2026-09-010",
+            "GJ-2026-09-011",
+            "GJ-2026-09-012",
+            "GJ-2026-09-013",
+            "GJ-2026-09-014",
+            "GJ-2026-09-015",
+            "GJ-2026-09-016",
+            "GJ-2026-09-017",
+            "GJ-2026-09-018",
+            "GJ-2026-09-019",
+            "GJ-2026-09-020"
+          ],
+          "type": "text"
+        },
+        {
+          "distinctCount": 2,
+          "distinctRatio": 0.065,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "0.065"
+            }
+          ],
+          "name": "LineNo",
+          "nullRate": 0.0,
+          "role": "key",
+          "roleStatus": "inferred",
+          "sample": [
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1"
+          ],
+          "type": "integer"
+        },
+        {
+          "distinctCount": 25,
+          "distinctRatio": 0.806,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "0.806"
+            }
+          ],
+          "name": "PostingDate",
+          "nullRate": 0.0,
+          "role": "date",
+          "roleStatus": "inferred",
+          "sample": [
+            "2026-09-03",
+            "2026-09-04",
+            "2026-09-05",
+            "2026-09-06",
+            "2026-09-07",
+            "2026-09-08",
+            "2026-09-09",
+            "2026-09-10",
+            "2026-09-11",
+            "2026-09-12",
+            "2026-09-13",
+            "2026-09-14",
+            "2026-09-15",
+            "2026-09-16",
+            "2026-09-17",
+            "2026-09-18",
+            "2026-09-19",
+            "2026-09-20",
+            "2026-09-21",
+            "2026-09-22"
+          ],
+          "type": "date"
+        },
+        {
+          "distinctCount": 2,
+          "distinctRatio": 0.065,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "0.065"
+            }
+          ],
+          "name": "Ledger",
+          "nullRate": 0.0,
+          "role": "text",
+          "roleStatus": "inferred",
+          "sample": [
+            "LOCAL",
+            "LOCAL",
+            "LOCAL",
+            "LOCAL",
+            "LOCAL",
+            "LOCAL",
+            "LOCAL",
+            "LOCAL",
+            "LOCAL",
+            "GROUP",
+            "LOCAL",
+            "LOCAL",
+            "LOCAL",
+            "LOCAL",
+            "LOCAL",
+            "GROUP",
+            "LOCAL",
+            "LOCAL",
+            "LOCAL",
+            "LOCAL"
+          ],
+          "type": "text"
+        },
+        {
+          "distinctCount": 2,
+          "distinctRatio": 0.065,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "0.065"
+            }
+          ],
+          "name": "EntityCode",
+          "nullRate": 0.0,
+          "role": "key",
+          "roleStatus": "inferred",
+          "sample": [
+            "VN01",
+            "VN01",
+            "VN01",
+            "VN01",
+            "SG01",
+            "SG01",
+            "SG01",
+            "VN01",
+            "VN01",
+            "SG01",
+            "VN01",
+            "VN01",
+            "SG01",
+            "SG01",
+            "VN01",
+            "VN01",
+            "VN01",
+            "VN01",
+            "SG01",
+            "SG01"
+          ],
+          "type": "text"
+        },
+        {
+          "distinctCount": 12,
+          "distinctRatio": 0.387,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "0.387"
+            }
+          ],
+          "name": "CostCenter",
+          "nullRate": 0.0,
+          "role": "key",
+          "roleStatus": "inferred",
+          "sample": [
+            "CC-100",
+            "CC-100",
+            "CC-110",
+            "CC-110",
+            "CC-130",
+            "CC-130",
+            "CC-130",
+            "CC-100",
+            "CC-100",
+            "CC-130",
+            "CC-120",
+            "CC-110",
+            "CC-130",
+            "CC-140",
+            "CC-120",
+            "CC-120",
+            "CC-100",
+            "CC-110",
+            "CC-140",
+            "CC-130"
+          ],
+          "type": "text"
+        },
+        {
+          "distinctCount": 12,
+          "distinctRatio": 0.387,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "0.387"
+            }
+          ],
+          "name": "AccountCode",
+          "nullRate": 0.0,
+          "role": "key",
+          "roleStatus": "inferred",
+          "sample": [
+            "511100",
+            "511100",
+            "511200",
+            "511200",
+            "511100",
+            "511100",
+            "511200",
+            "511150",
+            "511900",
+            "511700",
+            "632100",
+            "632200",
+            "632100",
+            "632200",
+            "632150",
+            "632700",
+            "641100",
+            "641100",
+            "642100",
+            "642100"
+          ],
+          "type": "text"
+        },
+        {
+          "distinctCount": 2,
+          "distinctRatio": 0.065,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "0.065"
+            }
+          ],
+          "name": "Currency",
+          "nullRate": 0.0,
+          "role": "currency",
+          "roleStatus": "inferred",
+          "sample": [
+            "VND",
+            "VND",
+            "VND",
+            "VND",
+            "USD",
+            "USD",
+            "USD",
+            "VND",
+            "VND",
+            "USD",
+            "VND",
+            "VND",
+            "USD",
+            "USD",
+            "VND",
+            "USD",
+            "VND",
+            "VND",
+            "USD",
+            "USD"
+          ],
+          "type": "text"
+        },
+        {
+          "distinctCount": 2,
+          "distinctRatio": 0.065,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "0.065"
+            }
+          ],
+          "name": "DebitCredit",
+          "nullRate": 0.0,
+          "role": "text",
+          "roleStatus": "inferred",
+          "sample": [
+            "C",
+            "C",
+            "C",
+            "C",
+            "C",
+            "C",
+            "C",
+            "C",
+            "D",
+            "C",
+            "D",
+            "D",
+            "D",
+            "D",
+            "D",
+            "D",
+            "D",
+            "D",
+            "D",
+            "D"
+          ],
+          "type": "text"
+        },
+        {
+          "distinctCount": 29,
+          "distinctRatio": 0.935,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "0.935"
+            }
+          ],
+          "name": "Amount",
+          "nullRate": 0.0,
+          "role": "amount",
+          "roleStatus": "inferred",
+          "sample": [
+            "4200000000",
+            "2700000000",
+            "1250000000",
+            "450000000",
+            "900500.00",
+            "280000.00",
+            "269500.00",
+            "96000000",
+            "92000000",
+            "480000.00",
+            "4320000000",
+            "640000000",
+            "905250.00",
+            "118750.00",
+            "240000000",
+            "300000.00",
+            "1250000000",
+            "600000000",
+            "42000.00",
+            "18000.00"
+          ],
+          "type": "decimal"
+        },
+        {
+          "distinctCount": 2,
+          "distinctRatio": 0.065,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "0.065"
+            }
+          ],
+          "name": "PartnerEntity",
+          "nullRate": 0.935,
+          "role": "key",
+          "roleStatus": "inferred",
+          "sample": [
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "VN01",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "SG01",
+            "",
+            "",
+            "",
+            ""
+          ],
+          "type": "text"
+        },
+        {
+          "distinctCount": 2,
+          "distinctRatio": 0.065,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "0.065"
+            }
+          ],
+          "name": "Segment2",
+          "nullRate": 0.742,
+          "role": null,
+          "roleStatus": "unknown",
+          "sample": [
+            "A1",
+            "A1",
+            "B7",
+            "B7",
+            "A1",
+            "",
+            "B7",
+            "A1",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          "type": "text"
+        }
+      ],
+      "fingerprint": "sha256:a20459d0893602763d2e9b65cd68c674e7b6244096af04aa6af2505477d92ead",
+      "headerHash": "sha256:07e205b70ff812d4981711a59d1b2457a8b698dbd9e08be69dc0124c0d1ed1ed",
+      "id": "tbl_d77145e20992",
+      "locator": {
+        "fileCount": 1,
+        "kind": "file",
+        "path": "source/GL_Actuals_2026-09.csv",
+        "range": null,
+        "sheet": null
+      },
+      "name": "GL_Actuals_2026-09",
+      "rowCount": 31,
+      "sampleHash": "sha256:24500926cfaac87117997d3659018669ff11f33f9b4e7783e1b5836570d407d9",
+      "sourceId": "src_d77145e20992"
+    }
+  ],
+  "variantOf": "wl1_snapshot.json",
+  "variantReason": "Cùng mẫu synthetic có hai cách đọc delimiter; người dùng phải chọn lại profile."
+}

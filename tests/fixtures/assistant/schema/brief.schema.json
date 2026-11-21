@@ -1,0 +1,1073 @@
+{
+  "$defs": {
+    "assumption": {
+      "additionalProperties": false,
+      "properties": {
+        "confidence": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "evidence": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "formulaId": {
+                "anyOf": [
+                  {
+                    "pattern": "^fm_[A-Za-z0-9_]+$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "kind": {
+                "type": "string"
+              },
+              "ref": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "value": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "kind",
+              "value",
+              "ref",
+              "formulaId"
+            ],
+            "type": "object"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "id": {
+          "pattern": "^asm_[a-f0-9]{12}$",
+          "type": "string"
+        },
+        "risk": {
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ]
+        },
+        "source": {
+          "enum": [
+            "pack",
+            "data",
+            "history",
+            "llm",
+            "user"
+          ]
+        },
+        "statement": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "statement",
+        "source",
+        "confidence",
+        "risk",
+        "evidence"
+      ],
+      "type": "object"
+    },
+    "decisionsDocument": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "acknowledgements": {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "acknowledged": {
+                    "enum": [
+                      "out_of_scope"
+                    ]
+                  },
+                  "note": {
+                    "type": "string"
+                  },
+                  "subProblemId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "subProblemId",
+                  "acknowledged",
+                  "note"
+                ],
+                "type": "object"
+              },
+              "minItems": 0,
+              "type": "array"
+            },
+            "briefHash": {
+              "pattern": "^sha256:[a-f0-9]{64}$",
+              "type": "string"
+            },
+            "decisions": {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "decidedAt": {
+                    "type": "string"
+                  },
+                  "decidedBy": {
+                    "enum": [
+                      "user"
+                    ]
+                  },
+                  "optionId": {
+                    "enum": [
+                      "A",
+                      "B"
+                    ]
+                  },
+                  "rationale": {
+                    "type": "string"
+                  },
+                  "subProblemId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "subProblemId",
+                  "optionId",
+                  "decidedBy",
+                  "decidedAt",
+                  "rationale"
+                ],
+                "type": "object"
+              },
+              "minItems": 0,
+              "type": "array"
+            },
+            "decisionsHash": {
+              "pattern": "^sha256:[a-f0-9]{64}$",
+              "type": "string"
+            },
+            "freezeBlocked": {
+              "type": "boolean"
+            },
+            "hashBasis": {
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            "schemaVersion": {
+              "enum": [
+                "1.0"
+              ]
+            },
+            "snapshotHash": {
+              "pattern": "^sha256:[a-f0-9]{64}$",
+              "type": "string"
+            },
+            "understandHash": {
+              "pattern": "^sha256:[a-f0-9]{64}$",
+              "type": "string"
+            },
+            "variantOf": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "variantReason": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "schemaVersion",
+            "snapshotHash",
+            "understandHash",
+            "briefHash",
+            "decisions",
+            "acknowledgements",
+            "freezeBlocked",
+            "hashBasis",
+            "decisionsHash",
+            "variantOf",
+            "variantReason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "acknowledgements": {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "acknowledged": {
+                    "enum": [
+                      "out_of_scope"
+                    ]
+                  },
+                  "note": {
+                    "type": "string"
+                  },
+                  "subProblemId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "subProblemId",
+                  "acknowledged",
+                  "note"
+                ],
+                "type": "object"
+              },
+              "minItems": 0,
+              "type": "array"
+            },
+            "blockers": {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "code": {
+                    "enum": [
+                      "AF_INGEST_FAILED",
+                      "AF_SOURCE_LOST",
+                      "AF_FANOUT_RISK",
+                      "AF_MISSING_DATA",
+                      "AF_RECONCILE_FAILED",
+                      "AF_SPEC_STALE",
+                      "AF_WRITE_PARTIAL"
+                    ]
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "severity": {
+                    "enum": [
+                      "blocker",
+                      "warning"
+                    ]
+                  }
+                },
+                "required": [
+                  "code",
+                  "severity",
+                  "message"
+                ],
+                "type": "object"
+              },
+              "minItems": 0,
+              "type": "array"
+            },
+            "briefHash": {
+              "pattern": "^sha256:[a-f0-9]{64}$",
+              "type": "string"
+            },
+            "checklist": {
+              "items": {
+                "type": "string"
+              },
+              "minItems": 3,
+              "type": "array"
+            },
+            "decisions": {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "decidedAt": {
+                    "type": "string"
+                  },
+                  "decidedBy": {
+                    "enum": [
+                      "user"
+                    ]
+                  },
+                  "optionId": {
+                    "enum": [
+                      "A",
+                      "B"
+                    ]
+                  },
+                  "rationale": {
+                    "type": "string"
+                  },
+                  "subProblemId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "subProblemId",
+                  "optionId",
+                  "decidedBy",
+                  "decidedAt",
+                  "rationale"
+                ],
+                "type": "object"
+              },
+              "minItems": 0,
+              "type": "array"
+            },
+            "decisionsHash": {
+              "pattern": "^sha256:[a-f0-9]{64}$",
+              "type": "string"
+            },
+            "freezeBlocked": {
+              "type": "boolean"
+            },
+            "hashBasis": {
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            "schemaVersion": {
+              "enum": [
+                "1.0"
+              ]
+            },
+            "snapshotHash": {
+              "pattern": "^sha256:[a-f0-9]{64}$",
+              "type": "string"
+            },
+            "understandHash": {
+              "pattern": "^sha256:[a-f0-9]{64}$",
+              "type": "string"
+            },
+            "variantOf": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "variantReason": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "schemaVersion",
+            "snapshotHash",
+            "understandHash",
+            "briefHash",
+            "decisions",
+            "acknowledgements",
+            "freezeBlocked",
+            "hashBasis",
+            "decisionsHash",
+            "variantOf",
+            "variantReason",
+            "blockers",
+            "checklist"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "finding": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "formulaId": {
+                "anyOf": [
+                  {
+                    "pattern": "^fm_[A-Za-z0-9_]+$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "kind": {
+                "type": "string"
+              },
+              "ref": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "value": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "kind",
+              "value",
+              "ref",
+              "formulaId"
+            ],
+            "type": "object"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "id": {
+          "pattern": "^fd_[a-f0-9]{12}$",
+          "type": "string"
+        },
+        "provenance": {
+          "enum": [
+            "pack",
+            "data",
+            "history",
+            "llm",
+            "user"
+          ]
+        },
+        "statement": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "verified",
+            "inferred",
+            "assumed",
+            "unknown",
+            "missing_data",
+            "conflict"
+          ]
+        },
+        "value": {
+          "$ref": "#/$defs/formulaValue"
+        }
+      },
+      "required": [
+        "id",
+        "statement",
+        "value",
+        "evidence",
+        "status",
+        "provenance"
+      ],
+      "type": "object"
+    },
+    "formulaValue": {
+      "additionalProperties": false,
+      "properties": {
+        "formulaId": {
+          "pattern": "^fm_[A-Za-z0-9_]+$",
+          "type": "string"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "value": {
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "formulaId",
+        "value",
+        "unit"
+      ],
+      "type": "object"
+    },
+    "insightCase": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "formulaId": {
+                "anyOf": [
+                  {
+                    "pattern": "^fm_[A-Za-z0-9_]+$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "kind": {
+                "type": "string"
+              },
+              "ref": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "value": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "kind",
+              "value",
+              "ref",
+              "formulaId"
+            ],
+            "type": "object"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "id": {
+          "pattern": "^ic_[a-f0-9]{12}$",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "hypothesis",
+            "slice"
+          ]
+        },
+        "provenance": {
+          "enum": [
+            "pack",
+            "data",
+            "history",
+            "llm",
+            "user"
+          ]
+        },
+        "statement": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "verified",
+            "inferred",
+            "assumed",
+            "unknown",
+            "missing_data",
+            "conflict"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "statement",
+        "evidence",
+        "status",
+        "provenance"
+      ],
+      "type": "object"
+    },
+    "outputContract": {
+      "additionalProperties": false,
+      "properties": {
+        "currency": {
+          "type": "string"
+        },
+        "filters": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "field": {
+                "type": "string"
+              },
+              "operator": {
+                "type": "string"
+              },
+              "value": {
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 0,
+                "type": "array"
+              }
+            },
+            "required": [
+              "field",
+              "operator",
+              "value"
+            ],
+            "type": "object"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "grain": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "measures": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "formulaId": {
+                "pattern": "^fm_[A-Za-z0-9_]+$",
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "formulaId"
+            ],
+            "type": "object"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "period": {
+          "additionalProperties": false,
+          "properties": {
+            "from": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string"
+            },
+            "to": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "from",
+            "to",
+            "label"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "grain",
+        "measures",
+        "filters",
+        "period",
+        "currency"
+      ],
+      "type": "object"
+    },
+    "scenario": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "enum": [
+            "A",
+            "B"
+          ]
+        },
+        "label": {
+          "type": "string"
+        },
+        "values": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "formulaId": {
+                "pattern": "^fm_[A-Za-z0-9_]+$",
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "unit": {
+                "type": "string"
+              },
+              "value": {
+                "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "formulaId",
+              "value",
+              "unit"
+            ],
+            "type": "object"
+          },
+          "minItems": 1,
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "values"
+      ],
+      "type": "object"
+    },
+    "subProblem": {
+      "additionalProperties": false,
+      "properties": {
+        "blocker": {
+          "type": "boolean"
+        },
+        "chosenOptionId": {
+          "anyOf": [
+            {
+              "enum": [
+                "A",
+                "B"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "consequenceOfChoice": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "evidence": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "formulaId": {
+                "anyOf": [
+                  {
+                    "pattern": "^fm_[A-Za-z0-9_]+$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "kind": {
+                "type": "string"
+              },
+              "ref": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "value": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "kind",
+              "value",
+              "ref",
+              "formulaId"
+            ],
+            "type": "object"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "id": {
+          "pattern": "^SP-[1-9][0-9]*$",
+          "type": "string"
+        },
+        "labels": {
+          "items": {
+            "enum": [
+              "unverified",
+              "assumed",
+              "out_of_scope",
+              "stale"
+            ]
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "options": {
+          "items": {
+            "$ref": "#/$defs/subProblemOption"
+          },
+          "minItems": 2,
+          "type": "array"
+        },
+        "proposedOptionId": {
+          "anyOf": [
+            {
+              "enum": [
+                "A",
+                "B"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "provenance": {
+          "enum": [
+            "pack",
+            "data",
+            "history",
+            "llm",
+            "user"
+          ]
+        },
+        "question": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "verified",
+            "inferred",
+            "assumed",
+            "unknown",
+            "missing_data",
+            "conflict"
+          ]
+        },
+        "whyItMatters": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "question",
+        "whyItMatters",
+        "status",
+        "provenance",
+        "evidence",
+        "options",
+        "proposedOptionId",
+        "chosenOptionId",
+        "blocker",
+        "consequenceOfChoice",
+        "labels"
+      ],
+      "type": "object"
+    },
+    "subProblemOption": {
+      "additionalProperties": false,
+      "properties": {
+        "consequence": {
+          "additionalProperties": false,
+          "properties": {
+            "statement": {
+              "type": "string"
+            },
+            "value": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/formulaValue"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "statement",
+            "value"
+          ],
+          "type": "object"
+        },
+        "id": {
+          "enum": [
+            "A",
+            "B"
+          ]
+        },
+        "label": {
+          "type": "string"
+        },
+        "recommended": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "recommended",
+        "consequence"
+      ],
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "assumptions": {
+      "items": {
+        "$ref": "#/$defs/assumption"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "briefHash": {
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "type": "string"
+    },
+    "delta": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/formulaValue"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "findings": {
+      "items": {
+        "$ref": "#/$defs/finding"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "hashBasis": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "insightCases": {
+      "items": {
+        "$ref": "#/$defs/insightCase"
+      },
+      "minItems": 2,
+      "type": "array"
+    },
+    "labels": {
+      "items": {
+        "enum": [
+          "unverified",
+          "assumed",
+          "out_of_scope",
+          "stale"
+        ]
+      },
+      "minItems": 0,
+      "type": "array"
+    },
+    "outputContract": {
+      "$ref": "#/$defs/outputContract"
+    },
+    "prompt": {
+      "type": "string"
+    },
+    "scenarios": {
+      "items": {
+        "$ref": "#/$defs/scenario"
+      },
+      "minItems": 0,
+      "type": "array"
+    },
+    "schemaVersion": {
+      "enum": [
+        "1.0"
+      ]
+    },
+    "snapshotHash": {
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "type": "string"
+    },
+    "subProblems": {
+      "items": {
+        "$ref": "#/$defs/subProblem"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "understandHash": {
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "type": "string"
+    },
+    "variantOf": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "variantReason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "snapshotHash",
+    "understandHash",
+    "prompt",
+    "outputContract",
+    "findings",
+    "insightCases",
+    "subProblems",
+    "scenarios",
+    "delta",
+    "assumptions",
+    "labels",
+    "hashBasis",
+    "briefHash",
+    "variantOf",
+    "variantReason"
+  ],
+  "type": "object"
+}

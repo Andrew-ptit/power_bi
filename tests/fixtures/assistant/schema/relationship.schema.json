@@ -1,0 +1,146 @@
+{
+  "$defs": {
+    "fanOutEvidence": {
+      "additionalProperties": false,
+      "properties": {
+        "blockedBy": {
+          "enum": [
+            "AF_FANOUT_RISK"
+          ]
+        },
+        "inflationFactor": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "rowsAfter": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "rowsBefore": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "rowsBefore",
+        "rowsAfter",
+        "inflationFactor",
+        "blockedBy"
+      ],
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "cardinality": {
+      "enum": [
+        "1:1",
+        "1:N",
+        "N:1",
+        "N:N"
+      ]
+    },
+    "evidence": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "orphan": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "overlap": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "type": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "overlap",
+        "orphan"
+      ],
+      "type": "object"
+    },
+    "fanOutEvidence": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/fanOutEvidence"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "fanOutRisk": {
+      "enum": [
+        "none",
+        "low",
+        "high"
+      ]
+    },
+    "fromColumns": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "fromTable": {
+      "pattern": "^tbl_[a-f0-9]{12}$",
+      "type": "string"
+    },
+    "id": {
+      "pattern": "^rel_[a-f0-9]{12}$",
+      "type": "string"
+    },
+    "score": {
+      "maximum": 1,
+      "minimum": 0,
+      "type": "number"
+    },
+    "status": {
+      "enum": [
+        "auto",
+        "needs_confirm",
+        "confirmed",
+        "rejected"
+      ]
+    },
+    "toColumns": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "toTable": {
+      "pattern": "^tbl_[a-f0-9]{12}$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "fromTable",
+    "toTable",
+    "fromColumns",
+    "toColumns",
+    "cardinality",
+    "score",
+    "evidence",
+    "status",
+    "fanOutRisk",
+    "fanOutEvidence"
+  ],
+  "type": "object"
+}

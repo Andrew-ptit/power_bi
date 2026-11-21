@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "variantOf": {
+      "pattern": "^wl[1-7]_[a-z_]+\\.json$",
+      "type": "string"
+    },
+    "variantReason": {
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "variantOf",
+    "variantReason"
+  ],
+  "type": "object"
+}

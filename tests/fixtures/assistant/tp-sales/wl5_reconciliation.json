@@ -1,0 +1,81 @@
+{
+  "blockers": [],
+  "bridge": {
+    "applicable": false,
+    "fx": null,
+    "op": null,
+    "passed": null,
+    "scope": null,
+    "total": null,
+    "variance": null
+  },
+  "checks": [
+    {
+      "detail": "24 → 4",
+      "id": "row_count",
+      "passed": true
+    },
+    {
+      "detail": "133942500 = 133942500",
+      "id": "control_total",
+      "passed": true
+    },
+    {
+      "detail": "Không áp dụng: báo cáo doanh thu không tính FX.",
+      "id": "bridge_identity",
+      "passed": true
+    }
+  ],
+  "colsIn": 6,
+  "colsOut": 4,
+  "controlTotalPassed": true,
+  "controlTotalRawSource": "133942500",
+  "controlTotalResult": "133942500",
+  "controlTotalSource": "133942500",
+  "controlTotalTolerance": "0.01",
+  "droppedByDedupe": "0",
+  "hashBasis": [
+    "specFingerprint",
+    "previewHash",
+    "rowsIn",
+    "rowsInDeduped",
+    "rowsOut",
+    "colsIn",
+    "colsOut",
+    "controlTotalRawSource",
+    "droppedByDedupe",
+    "controlTotalSource",
+    "controlTotalResult",
+    "controlTotalTolerance",
+    "controlTotalPassed",
+    "bridge",
+    "checks",
+    "blockers",
+    "warnings",
+    "labels",
+    "passed",
+    "variantOf",
+    "variantReason"
+  ],
+  "labels": [
+    "assumed",
+    "unverified"
+  ],
+  "passed": true,
+  "previewHash": "sha256:cb4f1eadd700104eac0bbcc5cb80cad7811181b49de8a9018d05935de1c9b1ca",
+  "reconcileHash": "sha256:222b01afb03a8e494e383d8cef468218f27a79a907cafa2d4bc108a9c1b65610",
+  "rowsIn": 24,
+  "rowsInDeduped": 24,
+  "rowsOut": 4,
+  "schemaVersion": "1.0",
+  "specFingerprint": "sha256:db5c6c3d10a034850583b6641a0ea31f9c6b0bb06daf19d09049d93e7c20d5db",
+  "variantOf": null,
+  "variantReason": null,
+  "warnings": [
+    {
+      "code": "AF_MISSING_DATA",
+      "message": "Không có cờ khách rời bỏ hoặc nguồn cùng kỳ; không kết luận nguyên nhân thiếu khách.",
+      "severity": "warning"
+    }
+  ]
+}

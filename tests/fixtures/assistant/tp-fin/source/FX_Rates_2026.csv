@@ -1,0 +1,11 @@
+CurrencyCode,Month,RateType,Rate,Source
+USD,2026-07,average,24050,Group Treasury
+USD,2026-07,closing,24100,Group Treasury
+USD,2026-08,average,24120,Group Treasury
+USD,2026-09,average,24300,Group Treasury
+USD,2026-09,closing,24450,Group Treasury
+EUR,2026-07,average,26400,Group Treasury
+EUR,2026-07,closing,26480,Group Treasury
+EUR,2026-08,average,26510,Group Treasury
+EUR,2026-08,closing,26560,Group Treasury
+VND,2026-09,average,1,Reporting currency

@@ -1,0 +1,26 @@
+Repo: C:\Users\COLAIG\Downloads\power_bi
+
+Bạn là controller cho feature 003 (một tab Nguồn). Codex đang thi công trong worktree
+.artifacts\worktrees\source-import-003 (branch codex/source-import-003).
+
+Đọc trước, theo thứ tự:
+1. specs/003-source-import-redesign/STATUS_2026-11-20.md   ← trạng thái + 3 điểm chệch + 3 blocker T304
+2. specs/003-source-import-redesign/CODEX_MASTER_PROMPT.md  ← plan, task, luật, Definition of Done
+3. .artifacts/worktrees/source-import-003/specs/003-source-import-redesign/acceptance.md
+4. specs/003-source-import-redesign/tasks.md (mục T304, T305, T306)
+
+Việc của bạn trong lượt này:
+a) Kiểm trạng thái thật, đừng tin báo cáo:
+   cd .artifacts\worktrees\source-import-003
+   git log --oneline -5
+   py tools/review_003.py --task T304
+   py -m unittest tests.unit.test_csv_typing -v
+   py -m unittest tests.unit.test_preparation_packages tests.integration.test_preparation_api -v
+b) Xác định 3 blocker T304 còn hay đã xong: (1) fixture test cũ còn đòi "@" cho mọi ô CSV,
+   (2) journal undoCount, (3) approval bind nhầm dateSystem.
+c) Kết luận: T304 ĐẠT hay CHƯA; nếu chưa, viết hướng dẫn chính xác cho Codex (file nào, sửa gì,
+   test nào phải pass) — không viết chung chung.
+d) Nếu T304 đạt: chốt điều kiện mở T305 (UI browser) và nêu 3 rủi ro cần canh.
+
+Luật: không sửa code trong lượt này; mọi kết luận phải kèm lệnh + output thật;
+không ghi "Pass" cho fast gate khi môi trường thiếu .certs.

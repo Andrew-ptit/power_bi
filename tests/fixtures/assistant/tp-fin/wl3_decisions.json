@@ -1,0 +1,90 @@
+{
+  "acknowledgements": [
+    {
+      "acknowledged": "out_of_scope",
+      "note": "Chưa có nguồn, ngoài phạm vi; không bịa số.",
+      "subProblemId": "SP-7"
+    },
+    {
+      "acknowledged": "out_of_scope",
+      "note": "Chưa có nguồn, ngoài phạm vi; không bịa số.",
+      "subProblemId": "SP-10"
+    }
+  ],
+  "briefHash": "sha256:5fde1e29f4a7ba6324dc5e59a61bd864ba53e9d0e10ac8dc3906f8e7db4c9226",
+  "decisions": [
+    {
+      "decidedAt": "2026-10-26T09:30:00Z",
+      "decidedBy": "user",
+      "optionId": "A",
+      "rationale": "Chấp nhận lựa chọn đề xuất trong tình huống synthetic.",
+      "subProblemId": "SP-1"
+    },
+    {
+      "decidedAt": "2026-10-26T09:30:00Z",
+      "decidedBy": "user",
+      "optionId": "A",
+      "rationale": "Chấp nhận lựa chọn đề xuất trong tình huống synthetic.",
+      "subProblemId": "SP-2"
+    },
+    {
+      "decidedAt": "2026-10-26T09:30:00Z",
+      "decidedBy": "user",
+      "optionId": "A",
+      "rationale": "Chấp nhận lựa chọn đề xuất trong tình huống synthetic.",
+      "subProblemId": "SP-3"
+    },
+    {
+      "decidedAt": "2026-10-26T09:30:00Z",
+      "decidedBy": "user",
+      "optionId": "A",
+      "rationale": "Chấp nhận lựa chọn đề xuất trong tình huống synthetic.",
+      "subProblemId": "SP-4"
+    },
+    {
+      "decidedAt": "2026-10-26T09:30:00Z",
+      "decidedBy": "user",
+      "optionId": "A",
+      "rationale": "Chấp nhận lựa chọn đề xuất trong tình huống synthetic.",
+      "subProblemId": "SP-5"
+    },
+    {
+      "decidedAt": "2026-10-26T09:30:00Z",
+      "decidedBy": "user",
+      "optionId": "A",
+      "rationale": "Chấp nhận lựa chọn đề xuất trong tình huống synthetic.",
+      "subProblemId": "SP-6"
+    },
+    {
+      "decidedAt": "2026-10-26T09:30:00Z",
+      "decidedBy": "user",
+      "optionId": "A",
+      "rationale": "Chấp nhận lựa chọn đề xuất trong tình huống synthetic.",
+      "subProblemId": "SP-8"
+    },
+    {
+      "decidedAt": "2026-10-26T09:30:00Z",
+      "decidedBy": "user",
+      "optionId": "A",
+      "rationale": "Chấp nhận lựa chọn đề xuất trong tình huống synthetic.",
+      "subProblemId": "SP-9"
+    }
+  ],
+  "decisionsHash": "sha256:d2ff099c121f33e6843d9b971a2af60a27fa9add7df774feb96af3c5b1249075",
+  "freezeBlocked": false,
+  "hashBasis": [
+    "snapshotHash",
+    "understandHash",
+    "briefHash",
+    "decisions",
+    "acknowledgements",
+    "freezeBlocked",
+    "variantOf",
+    "variantReason"
+  ],
+  "schemaVersion": "1.0",
+  "snapshotHash": "sha256:38a8e560b0f821664e1cf7e117e9b8e0376bf84af629eb895eeb64655980fb99",
+  "understandHash": "sha256:339bd6586d18330bda4737697e6e6be53a86aa2552722811797dc52f56a0f845",
+  "variantOf": null,
+  "variantReason": null
+}

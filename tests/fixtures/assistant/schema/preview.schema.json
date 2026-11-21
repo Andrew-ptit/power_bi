@@ -1,0 +1,170 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "counts": {
+      "additionalProperties": false,
+      "properties": {
+        "connectionCount": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "formulaCount": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "queryCount": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "formulaCount",
+        "queryCount",
+        "connectionCount"
+      ],
+      "type": "object"
+    },
+    "hashBasis": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "previewHash": {
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "type": "string"
+    },
+    "schemaVersion": {
+      "enum": [
+        "1.0"
+      ]
+    },
+    "sheets": {
+      "additionalProperties": false,
+      "properties": {
+        "after": {
+          "additionalProperties": false,
+          "properties": {
+            "cols": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "rows": {
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "rows",
+            "cols"
+          ],
+          "type": "object"
+        },
+        "before": {
+          "additionalProperties": false,
+          "properties": {
+            "cols": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "rows": {
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "rows",
+            "cols"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "before",
+        "after"
+      ],
+      "type": "object"
+    },
+    "source": {
+      "additionalProperties": false,
+      "properties": {
+        "after": {
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "type": "string"
+        },
+        "before": {
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "type": "string"
+        },
+        "unchanged": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "before",
+        "after",
+        "unchanged"
+      ],
+      "type": "object"
+    },
+    "specFingerprint": {
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "type": "string"
+    },
+    "target": {
+      "additionalProperties": false,
+      "properties": {
+        "marker": {
+          "type": "string"
+        },
+        "mode": {
+          "enum": [
+            "values_only"
+          ]
+        },
+        "sheet": {
+          "type": "string"
+        },
+        "workbook": {
+          "enum": [
+            "temp_copy"
+          ]
+        }
+      },
+      "required": [
+        "workbook",
+        "sheet",
+        "mode",
+        "marker"
+      ],
+      "type": "object"
+    },
+    "variantOf": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "variantReason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "specFingerprint",
+    "target",
+    "counts",
+    "source",
+    "sheets",
+    "hashBasis",
+    "previewHash",
+    "variantOf",
+    "variantReason"
+  ],
+  "type": "object"
+}

@@ -1,0 +1,10 @@
+Đọc specs/003-source-import-redesign/CODEX_MASTER_PROMPT.md và thi công feature 003 theo đúng file đó.
+
+Quy tắc bắt buộc:
+- Làm theo §7 (sóng A→G), mỗi task giao cho một subagent, không gộp.
+- Sau mỗi sóng: tự chạy `py tools/review_003.py --task <T3xx>` và đúng lệnh cổng trong §6,
+  KHÔNG tin báo cáo của subagent. Đọc `git diff` thật.
+- Sau mỗi task: cập nhật một dòng evidence vào specs/003-source-import-redesign/acceptance.md.
+- Gặp điều kiện §10 thì DỪNG và báo, không tự chọn.
+
+Bắt đầu: Wave A — T301. Báo lại khi qua cổng.

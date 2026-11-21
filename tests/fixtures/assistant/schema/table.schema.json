@@ -1,0 +1,240 @@
+{
+  "$defs": {
+    "column": {
+      "additionalProperties": false,
+      "properties": {
+        "distinctCount": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "distinctRatio": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/columnEvidence"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "name": {
+          "type": "string"
+        },
+        "nullRate": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "role": {
+          "enum": [
+            "date",
+            "amount",
+            "key",
+            "text",
+            "percent",
+            "currency",
+            null
+          ]
+        },
+        "roleStatus": {
+          "enum": [
+            "verified",
+            "inferred",
+            "assumed",
+            "unknown",
+            "missing_data",
+            "conflict"
+          ]
+        },
+        "sample": {
+          "items": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "maxItems": 20,
+          "type": "array"
+        },
+        "type": {
+          "enum": [
+            "text",
+            "integer",
+            "decimal",
+            "date",
+            "boolean"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "nullRate",
+        "distinctCount",
+        "distinctRatio",
+        "sample",
+        "role",
+        "roleStatus",
+        "evidence"
+      ],
+      "type": "object"
+    },
+    "columnEvidence": {
+      "additionalProperties": false,
+      "properties": {
+        "formulaId": {
+          "anyOf": [
+            {
+              "pattern": "^fm_[A-Za-z0-9_]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "kind": {
+          "type": "string"
+        },
+        "ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "value",
+        "ref",
+        "formulaId"
+      ],
+      "type": "object"
+    },
+    "locator": {
+      "additionalProperties": false,
+      "properties": {
+        "fileCount": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "kind": {
+          "enum": [
+            "file",
+            "sheet",
+            "table",
+            "range",
+            "folder"
+          ]
+        },
+        "path": {
+          "type": "string"
+        },
+        "range": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sheet": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "sheet",
+        "range",
+        "path",
+        "fileCount"
+      ],
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "columnCount": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "columns": {
+      "items": {
+        "$ref": "#/$defs/column"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "fingerprint": {
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "type": "string"
+    },
+    "headerHash": {
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "type": "string"
+    },
+    "id": {
+      "pattern": "^tbl_[a-f0-9]{12}$",
+      "type": "string"
+    },
+    "locator": {
+      "$ref": "#/$defs/locator"
+    },
+    "name": {
+      "type": "string"
+    },
+    "rowCount": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "sampleHash": {
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "type": "string"
+    },
+    "sourceId": {
+      "pattern": "^src_[a-f0-9]{12}$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "sourceId",
+    "name",
+    "locator",
+    "rowCount",
+    "columnCount",
+    "headerHash",
+    "sampleHash",
+    "fingerprint",
+    "columns"
+  ],
+  "type": "object"
+}

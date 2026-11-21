@@ -1,0 +1,36 @@
+{
+  "acknowledgements": [],
+  "blockers": [
+    {
+      "code": "AF_MISSING_DATA",
+      "message": "Người dùng chưa chốt 3 policy; hệ thống không chọn hộ.",
+      "severity": "warning"
+    }
+  ],
+  "briefHash": "sha256:0f7964678ec95df67dac6b7757c5b22a5929e1e9a6bad0b6532e89aa9e1a7795",
+  "checklist": [
+    "Tài khoản rebate có được trừ khỏi doanh thu thuần trong policy đã duyệt?",
+    "Báo cáo kỳ này dùng tỷ giá bình quân hay tỷ giá ngân sách?",
+    "Hai vế nội bộ có được loại đồng thời khỏi P&L? Rà soát cờ PartnerEntity."
+  ],
+  "decisions": [],
+  "decisionsHash": "sha256:5842d29fc2068e4052c67f0355accd563e126cb25eea49ab6926926e93c9ed41",
+  "freezeBlocked": true,
+  "hashBasis": [
+    "snapshotHash",
+    "understandHash",
+    "briefHash",
+    "decisions",
+    "acknowledgements",
+    "freezeBlocked",
+    "blockers",
+    "checklist",
+    "variantOf",
+    "variantReason"
+  ],
+  "schemaVersion": "1.0",
+  "snapshotHash": "sha256:38a8e560b0f821664e1cf7e117e9b8e0376bf84af629eb895eeb64655980fb99",
+  "understandHash": "sha256:339bd6586d18330bda4737697e6e6be53a86aa2552722811797dc52f56a0f845",
+  "variantOf": null,
+  "variantReason": null
+}

@@ -1,0 +1,616 @@
+{
+  "$defs": {
+    "assumption": {
+      "additionalProperties": false,
+      "properties": {
+        "confidence": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "evidence": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "formulaId": {
+                "anyOf": [
+                  {
+                    "pattern": "^fm_[A-Za-z0-9_]+$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "kind": {
+                "type": "string"
+              },
+              "ref": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "value": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "kind",
+              "value",
+              "ref",
+              "formulaId"
+            ],
+            "type": "object"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "id": {
+          "pattern": "^asm_[a-f0-9]{12}$",
+          "type": "string"
+        },
+        "risk": {
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ]
+        },
+        "source": {
+          "enum": [
+            "pack",
+            "data",
+            "history",
+            "llm",
+            "user"
+          ]
+        },
+        "statement": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "statement",
+        "source",
+        "confidence",
+        "risk",
+        "evidence"
+      ],
+      "type": "object"
+    },
+    "fanOutEvidence": {
+      "additionalProperties": false,
+      "properties": {
+        "blockedBy": {
+          "enum": [
+            "AF_FANOUT_RISK"
+          ]
+        },
+        "inflationFactor": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "rowsAfter": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "rowsBefore": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "rowsBefore",
+        "rowsAfter",
+        "inflationFactor",
+        "blockedBy"
+      ],
+      "type": "object"
+    },
+    "relationship": {
+      "additionalProperties": false,
+      "properties": {
+        "cardinality": {
+          "enum": [
+            "1:1",
+            "1:N",
+            "N:1",
+            "N:N"
+          ]
+        },
+        "evidence": {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            "orphan": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "overlap": {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            "type": {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            }
+          },
+          "required": [
+            "name",
+            "type",
+            "overlap",
+            "orphan"
+          ],
+          "type": "object"
+        },
+        "fanOutEvidence": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/fanOutEvidence"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "fanOutRisk": {
+          "enum": [
+            "none",
+            "low",
+            "high"
+          ]
+        },
+        "fromColumns": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "fromTable": {
+          "pattern": "^tbl_[a-f0-9]{12}$",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^rel_[a-f0-9]{12}$",
+          "type": "string"
+        },
+        "score": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "status": {
+          "enum": [
+            "auto",
+            "needs_confirm",
+            "confirmed",
+            "rejected"
+          ]
+        },
+        "toColumns": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "toTable": {
+          "pattern": "^tbl_[a-f0-9]{12}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "fromTable",
+        "toTable",
+        "fromColumns",
+        "toColumns",
+        "cardinality",
+        "score",
+        "evidence",
+        "status",
+        "fanOutRisk",
+        "fanOutEvidence"
+      ],
+      "type": "object"
+    },
+    "role": {
+      "additionalProperties": false,
+      "properties": {
+        "confidence": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "domainLabel": {
+          "type": "string"
+        },
+        "evidence": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "formulaId": {
+                "anyOf": [
+                  {
+                    "pattern": "^fm_[A-Za-z0-9_]+$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "kind": {
+                "type": "string"
+              },
+              "ref": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "value": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "kind",
+              "value",
+              "ref",
+              "formulaId"
+            ],
+            "type": "object"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "structural": {
+          "enum": [
+            "fact",
+            "dim",
+            "bridge",
+            "lookup"
+          ]
+        },
+        "tableId": {
+          "pattern": "^tbl_[a-f0-9]{12}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "tableId",
+        "structural",
+        "domainLabel",
+        "confidence",
+        "evidence"
+      ],
+      "type": "object"
+    },
+    "warning": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "enum": [
+            "AF_INGEST_FAILED",
+            "AF_SOURCE_LOST",
+            "AF_FANOUT_RISK",
+            "AF_MISSING_DATA",
+            "AF_RECONCILE_FAILED",
+            "AF_SPEC_STALE",
+            "AF_WRITE_PARTIAL"
+          ]
+        },
+        "message": {
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "blocker",
+            "warning"
+          ]
+        }
+      },
+      "required": [
+        "code",
+        "severity",
+        "message"
+      ],
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "oneOf": [
+    {
+      "additionalProperties": false,
+      "properties": {
+        "assumptions": {
+          "items": {
+            "$ref": "#/$defs/assumption"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "hashBasis": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "pack": {
+          "additionalProperties": false,
+          "properties": {
+            "genericMode": {
+              "type": "boolean"
+            },
+            "id": {
+              "type": "string"
+            },
+            "notice": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "version": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "version",
+            "genericMode",
+            "notice"
+          ],
+          "type": "object"
+        },
+        "relationships": {
+          "items": {
+            "$ref": "#/$defs/relationship"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "roles": {
+          "items": {
+            "$ref": "#/$defs/role"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "schemaVersion": {
+          "enum": [
+            "1.0"
+          ]
+        },
+        "snapshotHash": {
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "type": "string"
+        },
+        "understandHash": {
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "type": "string"
+        },
+        "variantOf": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "variantReason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "warnings": {
+          "items": {
+            "$ref": "#/$defs/warning"
+          },
+          "minItems": 0,
+          "type": "array"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "snapshotHash",
+        "pack",
+        "roles",
+        "relationships",
+        "assumptions",
+        "warnings",
+        "hashBasis",
+        "understandHash",
+        "variantOf",
+        "variantReason"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "assumptions": {
+          "items": {
+            "$ref": "#/$defs/assumption"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "blockers": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "code": {
+                "enum": [
+                  "AF_INGEST_FAILED",
+                  "AF_SOURCE_LOST",
+                  "AF_FANOUT_RISK",
+                  "AF_MISSING_DATA",
+                  "AF_RECONCILE_FAILED",
+                  "AF_SPEC_STALE",
+                  "AF_WRITE_PARTIAL"
+                ]
+              },
+              "message": {
+                "type": "string"
+              },
+              "severity": {
+                "enum": [
+                  "blocker",
+                  "warning"
+                ]
+              }
+            },
+            "required": [
+              "code",
+              "severity",
+              "message"
+            ],
+            "type": "object"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "hashBasis": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "pack": {
+          "additionalProperties": false,
+          "properties": {
+            "genericMode": {
+              "type": "boolean"
+            },
+            "id": {
+              "type": "string"
+            },
+            "notice": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "version": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "version",
+            "genericMode",
+            "notice"
+          ],
+          "type": "object"
+        },
+        "passed": {
+          "type": "boolean"
+        },
+        "relationships": {
+          "items": {
+            "$ref": "#/$defs/relationship"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "roles": {
+          "items": {
+            "$ref": "#/$defs/role"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "schemaVersion": {
+          "enum": [
+            "1.0"
+          ]
+        },
+        "snapshotHash": {
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "type": "string"
+        },
+        "understandHash": {
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "type": "string"
+        },
+        "variantOf": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "variantReason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "warnings": {
+          "items": {
+            "$ref": "#/$defs/warning"
+          },
+          "minItems": 0,
+          "type": "array"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "snapshotHash",
+        "pack",
+        "roles",
+        "relationships",
+        "assumptions",
+        "warnings",
+        "hashBasis",
+        "understandHash",
+        "variantOf",
+        "variantReason",
+        "passed",
+        "blockers"
+      ],
+      "type": "object"
+    }
+  ]
+}

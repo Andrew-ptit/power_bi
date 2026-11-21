@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "addedAt": {
+      "type": "string"
+    },
+    "hash": {
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "type": "string"
+    },
+    "id": {
+      "pattern": "^src_[a-f0-9]{12}$",
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "origin": {
+      "type": "string"
+    },
+    "type": {
+      "enum": [
+        "workbook",
+        "xlsx",
+        "csv",
+        "folder"
+      ]
+    }
+  },
+  "required": [
+    "id",
+    "name",
+    "type",
+    "origin",
+    "hash",
+    "addedAt"
+  ],
+  "type": "object"
+}

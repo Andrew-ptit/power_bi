@@ -1,0 +1,836 @@
+{
+  "hashBasis": [
+    "snapshot",
+    "sources",
+    "tables",
+    "variantOf",
+    "variantReason"
+  ],
+  "schemaVersion": "1.0",
+  "snapshot": {
+    "createdAt": "2026-10-26T09:00:00Z",
+    "sessionId": "sess_43c9ba255284",
+    "snapshotId": "snap_93a314b2390606f10bd2f823",
+    "sourceCount": 5,
+    "tableCount": 5
+  },
+  "snapshotHash": "sha256:195f3c8d0331cb2a30e177a23155e3ad954521d9a533aee3e75983bf5250a232",
+  "sources": [
+    {
+      "addedAt": "2026-10-26T09:00:00Z",
+      "hash": "sha256:d7f19e5b968a94439801e920d39920f8586aea97deee042596f8448c97b492ca",
+      "id": "src_927be5138635",
+      "name": "Customers.csv",
+      "origin": "source/Customers.csv",
+      "type": "csv"
+    },
+    {
+      "addedAt": "2026-10-26T09:00:00Z",
+      "hash": "sha256:f00a3d5487e1707ec539b3645c7ad898d13094fd7d79f499588fbb4574b8cb4a",
+      "id": "src_d6afd61bbfb4",
+      "name": "OrderItems.csv",
+      "origin": "source/OrderItems.csv",
+      "type": "csv"
+    },
+    {
+      "addedAt": "2026-10-26T09:00:00Z",
+      "hash": "sha256:55b464cd976a4a1cf490f89a5a781c4b8071304870f0472762bf054e4235218d",
+      "id": "src_d5aba462b52b",
+      "name": "Orders",
+      "origin": "source/orders",
+      "type": "folder"
+    },
+    {
+      "addedAt": "2026-10-26T09:00:00Z",
+      "hash": "sha256:3c0f2722cb8bae3450f72ba82f2c97978e0bd24b778f805eabbccee69aafe831",
+      "id": "src_92bce187ac66",
+      "name": "Products.csv",
+      "origin": "source/Products.csv",
+      "type": "csv"
+    },
+    {
+      "addedAt": "2026-10-26T09:00:00Z",
+      "hash": "sha256:a166f17c82ea084a5fc4bd49e58841c10dddec6b3d4f3fb836e36dd56885b382",
+      "id": "src_490821274e8d",
+      "name": "Territory.csv",
+      "origin": "source/Territory.csv",
+      "type": "csv"
+    }
+  ],
+  "tables": [
+    {
+      "columnCount": 4,
+      "columns": [
+        {
+          "distinctCount": 5,
+          "distinctRatio": 1.0,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "1"
+            }
+          ],
+          "name": "CustomerID",
+          "nullRate": 0.0,
+          "role": "key",
+          "roleStatus": "inferred",
+          "sample": [
+            "C-001",
+            "C-002",
+            "C-003",
+            "C-004",
+            "C-005"
+          ],
+          "type": "text"
+        },
+        {
+          "distinctCount": 5,
+          "distinctRatio": 1.0,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "1"
+            }
+          ],
+          "name": "CustomerName",
+          "nullRate": 0.0,
+          "role": "text",
+          "roleStatus": "inferred",
+          "sample": [
+            "An Phu Retail",
+            "Bac Ha Foods",
+            "Da Nang Mart",
+            "Mekong Trading",
+            "Sai Gon Digital"
+          ],
+          "type": "text"
+        },
+        {
+          "distinctCount": 3,
+          "distinctRatio": 0.6,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "0.6"
+            }
+          ],
+          "name": "Segment",
+          "nullRate": 0.0,
+          "role": "text",
+          "roleStatus": "inferred",
+          "sample": [
+            "Retail",
+            "Wholesale",
+            "Retail",
+            "Wholesale",
+            "Online"
+          ],
+          "type": "text"
+        },
+        {
+          "distinctCount": 4,
+          "distinctRatio": 0.8,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "0.8"
+            }
+          ],
+          "name": "TerritoryID",
+          "nullRate": 0.0,
+          "role": "key",
+          "roleStatus": "inferred",
+          "sample": [
+            "T-SOUTH",
+            "T-NORTH",
+            "T-CENTRAL",
+            "T-MEKONG",
+            "T-SOUTH"
+          ],
+          "type": "text"
+        }
+      ],
+      "fingerprint": "sha256:4d52d29fd606f7178d1ed6a830acee86ff18351ba44877875930e9fb3cd36ec7",
+      "headerHash": "sha256:1fdf246a7275c09d7ed75049474da057c6d7bc310ae889c5828cab529ff031ee",
+      "id": "tbl_cc40a8039530",
+      "locator": {
+        "fileCount": 1,
+        "kind": "file",
+        "path": "source/Customers.csv",
+        "range": null,
+        "sheet": null
+      },
+      "name": "Customers",
+      "rowCount": 5,
+      "sampleHash": "sha256:2734c8b13775452a0275d68e71f222f865c2ba6b296514593321b536786ce574",
+      "sourceId": "src_927be5138635"
+    },
+    {
+      "columnCount": 6,
+      "columns": [
+        {
+          "distinctCount": 12,
+          "distinctRatio": 0.5,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "0.5"
+            }
+          ],
+          "name": "OrderID",
+          "nullRate": 0.0,
+          "role": "key",
+          "roleStatus": "inferred",
+          "sample": [
+            "O-2607-01",
+            "O-2607-01",
+            "O-2607-02",
+            "O-2607-02",
+            "O-2607-03",
+            "O-2607-03",
+            "O-2607-04",
+            "O-2607-04",
+            "O-2608-01",
+            "O-2608-01",
+            "O-2608-02",
+            "O-2608-02",
+            "O-2608-03",
+            "O-2608-03",
+            "O-2608-04",
+            "O-2608-04",
+            "O-2609-01",
+            "O-2609-01",
+            "O-2609-02",
+            "O-2609-02"
+          ],
+          "type": "text"
+        },
+        {
+          "distinctCount": 2,
+          "distinctRatio": 0.083,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "0.083"
+            }
+          ],
+          "name": "LineNo",
+          "nullRate": 0.0,
+          "role": "key",
+          "roleStatus": "inferred",
+          "sample": [
+            "1",
+            "2",
+            "1",
+            "2",
+            "1",
+            "2",
+            "1",
+            "2",
+            "1",
+            "2",
+            "1",
+            "2",
+            "1",
+            "2",
+            "1",
+            "2",
+            "1",
+            "2",
+            "1",
+            "2"
+          ],
+          "type": "integer"
+        },
+        {
+          "distinctCount": 4,
+          "distinctRatio": 0.167,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "0.167"
+            }
+          ],
+          "name": "ProductID",
+          "nullRate": 0.0,
+          "role": "key",
+          "roleStatus": "inferred",
+          "sample": [
+            "P-001",
+            "P-002",
+            "P-003",
+            "P-004",
+            "P-002",
+            "P-003",
+            "P-001",
+            "P-004",
+            "P-001",
+            "P-002",
+            "P-004",
+            "P-003",
+            "P-002",
+            "P-003",
+            "P-001",
+            "P-004",
+            "P-002",
+            "P-003",
+            "P-001",
+            "P-004"
+          ],
+          "type": "text"
+        },
+        {
+          "distinctCount": 14,
+          "distinctRatio": 0.583,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "0.583"
+            }
+          ],
+          "name": "Quantity",
+          "nullRate": 0.0,
+          "role": "amount",
+          "roleStatus": "inferred",
+          "sample": [
+            "3",
+            "5",
+            "20",
+            "4",
+            "6",
+            "10",
+            "2",
+            "1",
+            "4",
+            "2",
+            "3",
+            "15",
+            "-2",
+            "-5",
+            "5",
+            "2",
+            "8",
+            "30",
+            "3",
+            "1"
+          ],
+          "type": "integer"
+        },
+        {
+          "distinctCount": 4,
+          "distinctRatio": 0.167,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "0.167"
+            }
+          ],
+          "name": "UnitPrice",
+          "nullRate": 0.0,
+          "role": "amount",
+          "roleStatus": "inferred",
+          "sample": [
+            "2400000",
+            "1450000",
+            "320000",
+            "3800000",
+            "1450000",
+            "320000",
+            "2400000",
+            "3800000",
+            "2400000",
+            "1450000",
+            "3800000",
+            "320000",
+            "1450000",
+            "320000",
+            "2400000",
+            "3800000",
+            "1450000",
+            "320000",
+            "2400000",
+            "3800000"
+          ],
+          "type": "integer"
+        },
+        {
+          "distinctCount": 3,
+          "distinctRatio": 0.125,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "0.125"
+            }
+          ],
+          "name": "DiscountPct",
+          "nullRate": 0.0,
+          "role": "percent",
+          "roleStatus": "inferred",
+          "sample": [
+            "0",
+            "0",
+            "5",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "5",
+            "0",
+            "0",
+            "10",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "5",
+            "0",
+            "10"
+          ],
+          "type": "integer"
+        }
+      ],
+      "fingerprint": "sha256:1c4dfc5486555439e5fb65b7dc244c64ccbe1211e3a29d01e348c97149fbac2a",
+      "headerHash": "sha256:1da9f0900a18a015f835609ab60afb54039ad42c1cc9516bf64ada180a24fef5",
+      "id": "tbl_1e1da47c03b2",
+      "locator": {
+        "fileCount": 1,
+        "kind": "file",
+        "path": "source/OrderItems.csv",
+        "range": null,
+        "sheet": null
+      },
+      "name": "OrderItems",
+      "rowCount": 24,
+      "sampleHash": "sha256:bdcd2ef2b14dc51e3d97dae2f8bffe068ca1d87f5f3b6d050aa3228831f45e62",
+      "sourceId": "src_d6afd61bbfb4"
+    },
+    {
+      "columnCount": 6,
+      "columns": [
+        {
+          "distinctCount": 12,
+          "distinctRatio": 1.0,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "1"
+            }
+          ],
+          "name": "OrderID",
+          "nullRate": 0.0,
+          "role": "key",
+          "roleStatus": "inferred",
+          "sample": [
+            "O-2607-01",
+            "O-2607-02",
+            "O-2607-03",
+            "O-2607-04",
+            "O-2608-01",
+            "O-2608-02",
+            "O-2608-03",
+            "O-2608-04",
+            "O-2609-01",
+            "O-2609-02",
+            "O-2609-03",
+            "O-2609-04"
+          ],
+          "type": "text"
+        },
+        {
+          "distinctCount": 12,
+          "distinctRatio": 1.0,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "1"
+            }
+          ],
+          "name": "OrderDate",
+          "nullRate": 0.0,
+          "role": "date",
+          "roleStatus": "inferred",
+          "sample": [
+            "2026-07-06",
+            "2026-07-14",
+            "2026-07-21",
+            "2026-07-28",
+            "2026-08-04",
+            "2026-08-11",
+            "2026-08-18",
+            "2026-08-26",
+            "2026-09-02",
+            "2026-09-09",
+            "2026-09-16",
+            "2026-09-23"
+          ],
+          "type": "date"
+        },
+        {
+          "distinctCount": 6,
+          "distinctRatio": 0.5,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "0.5"
+            }
+          ],
+          "name": "CustomerID",
+          "nullRate": 0.0,
+          "role": "key",
+          "roleStatus": "inferred",
+          "sample": [
+            "C-001",
+            "C-002",
+            "C-999",
+            "C-003",
+            "C-001",
+            "C-004",
+            "C-005",
+            "C-002",
+            "C-001",
+            "C-003",
+            "C-004",
+            "C-005"
+          ],
+          "type": "text"
+        },
+        {
+          "distinctCount": 4,
+          "distinctRatio": 0.333,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "0.333"
+            }
+          ],
+          "name": "TerritoryID",
+          "nullRate": 0.25,
+          "role": "key",
+          "roleStatus": "inferred",
+          "sample": [
+            "T-SOUTH",
+            "T-NORTH",
+            "",
+            "T-CENTRAL",
+            "",
+            "T-MEKONG",
+            "T-SOUTH",
+            "T-NORTH",
+            "T-SOUTH",
+            "T-CENTRAL",
+            "T-MEKONG",
+            ""
+          ],
+          "type": "text"
+        },
+        {
+          "distinctCount": 3,
+          "distinctRatio": 0.25,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "0.25"
+            }
+          ],
+          "name": "Status",
+          "nullRate": 0.0,
+          "role": "text",
+          "roleStatus": "inferred",
+          "sample": [
+            "Completed",
+            "Completed",
+            "Completed",
+            "Cancelled",
+            "Completed",
+            "Completed",
+            "Returned",
+            "Completed",
+            "Completed",
+            "Completed",
+            "Cancelled",
+            "Completed"
+          ],
+          "type": "text"
+        },
+        {
+          "distinctCount": 3,
+          "distinctRatio": 0.25,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "0.25"
+            }
+          ],
+          "name": "Channel",
+          "nullRate": 0.0,
+          "role": "text",
+          "roleStatus": "inferred",
+          "sample": [
+            "Retail",
+            "Wholesale",
+            "Online",
+            "Retail",
+            "Retail",
+            "Wholesale",
+            "Online",
+            "Wholesale",
+            "Retail",
+            "Retail",
+            "Wholesale",
+            "Online"
+          ],
+          "type": "text"
+        }
+      ],
+      "fingerprint": "sha256:a0bfdd49db5cbaa972245f8daaced89008384ada5e2997e32846d7503e397f7c",
+      "headerHash": "sha256:19f74725c50244e8f5b74d6b76285424de57bb078f430181d2e7e738df9dd4ef",
+      "id": "tbl_d16dc4358638",
+      "locator": {
+        "fileCount": 3,
+        "kind": "folder",
+        "path": "source/orders",
+        "range": null,
+        "sheet": null
+      },
+      "name": "Orders",
+      "rowCount": 12,
+      "sampleHash": "sha256:25a42bd54ee62f55fe9a5652f5316cefc16f2f34890adc2e048effdcbe39e9d2",
+      "sourceId": "src_d5aba462b52b"
+    },
+    {
+      "columnCount": 4,
+      "columns": [
+        {
+          "distinctCount": 4,
+          "distinctRatio": 1.0,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "1"
+            }
+          ],
+          "name": "ProductID",
+          "nullRate": 0.0,
+          "role": "key",
+          "roleStatus": "inferred",
+          "sample": [
+            "P-001",
+            "P-002",
+            "P-003",
+            "P-004"
+          ],
+          "type": "text"
+        },
+        {
+          "distinctCount": 4,
+          "distinctRatio": 1.0,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "1"
+            }
+          ],
+          "name": "ProductName",
+          "nullRate": 0.0,
+          "role": "text",
+          "roleStatus": "inferred",
+          "sample": [
+            "Office Desk",
+            "Office Chair",
+            "LED Panel",
+            "File Cabinet"
+          ],
+          "type": "text"
+        },
+        {
+          "distinctCount": 2,
+          "distinctRatio": 0.5,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "0.5"
+            }
+          ],
+          "name": "Category",
+          "nullRate": 0.0,
+          "role": "text",
+          "roleStatus": "inferred",
+          "sample": [
+            "Furniture",
+            "Furniture",
+            "Lighting",
+            "Furniture"
+          ],
+          "type": "text"
+        },
+        {
+          "distinctCount": 4,
+          "distinctRatio": 1.0,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "1"
+            }
+          ],
+          "name": "ListPrice",
+          "nullRate": 0.0,
+          "role": "amount",
+          "roleStatus": "inferred",
+          "sample": [
+            "2400000",
+            "1450000",
+            "320000",
+            "3800000"
+          ],
+          "type": "integer"
+        }
+      ],
+      "fingerprint": "sha256:5e6124d02437f055b4ae44b85794cb687c20a7ec4dd62977809ac7a2624f4b3a",
+      "headerHash": "sha256:542e46c3af915ce53b8a49d46e474d3d9916d13470a6f52e91618d1204acc19e",
+      "id": "tbl_16c570d6cf83",
+      "locator": {
+        "fileCount": 1,
+        "kind": "file",
+        "path": "source/Products.csv",
+        "range": null,
+        "sheet": null
+      },
+      "name": "Products",
+      "rowCount": 4,
+      "sampleHash": "sha256:2115e8c9b50f15b9002aa3f8116d702135a6bc39fbaa0ddc429882225ab5b87e",
+      "sourceId": "src_92bce187ac66"
+    },
+    {
+      "columnCount": 3,
+      "columns": [
+        {
+          "distinctCount": 4,
+          "distinctRatio": 1.0,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "1"
+            }
+          ],
+          "name": "TerritoryID",
+          "nullRate": 0.0,
+          "role": "key",
+          "roleStatus": "inferred",
+          "sample": [
+            "T-NORTH",
+            "T-CENTRAL",
+            "T-SOUTH",
+            "T-MEKONG"
+          ],
+          "type": "text"
+        },
+        {
+          "distinctCount": 4,
+          "distinctRatio": 1.0,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "1"
+            }
+          ],
+          "name": "TerritoryName",
+          "nullRate": 0.0,
+          "role": "text",
+          "roleStatus": "inferred",
+          "sample": [
+            "North Vietnam",
+            "Central Vietnam",
+            "South Vietnam",
+            "Mekong Delta"
+          ],
+          "type": "text"
+        },
+        {
+          "distinctCount": 3,
+          "distinctRatio": 0.75,
+          "evidence": [
+            {
+              "formulaId": "fm_profile_distinct_ratio",
+              "kind": "distinct_ratio",
+              "ref": null,
+              "value": "0.75"
+            }
+          ],
+          "name": "Region",
+          "nullRate": 0.0,
+          "role": "text",
+          "roleStatus": "inferred",
+          "sample": [
+            "NORTH",
+            "CENTRAL",
+            "SOUTH",
+            "SOUTH"
+          ],
+          "type": "text"
+        }
+      ],
+      "fingerprint": "sha256:00c9da7ba22f78bf237c25a88f2372e97cece00b945d2e49edc43ff340e7ce44",
+      "headerHash": "sha256:511b7beba17dfca919a0d2c80d956173a21cf8e89f0fc2241ada34ab1f346b1f",
+      "id": "tbl_f1e89e400a53",
+      "locator": {
+        "fileCount": 1,
+        "kind": "file",
+        "path": "source/Territory.csv",
+        "range": null,
+        "sheet": null
+      },
+      "name": "Territory",
+      "rowCount": 4,
+      "sampleHash": "sha256:c24e9774d5dc2f4d77c86a0467a01fa55ef1bd5ca97216a32991fa70f795dd9b",
+      "sourceId": "src_490821274e8d"
+    }
+  ],
+  "variantOf": null,
+  "variantReason": null
+}

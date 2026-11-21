@@ -1,0 +1,132 @@
+{
+  "$defs": {
+    "columnEvidence": {
+      "additionalProperties": false,
+      "properties": {
+        "formulaId": {
+          "anyOf": [
+            {
+              "pattern": "^fm_[A-Za-z0-9_]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "kind": {
+          "type": "string"
+        },
+        "ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "value",
+        "ref",
+        "formulaId"
+      ],
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "distinctCount": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "distinctRatio": {
+      "maximum": 1,
+      "minimum": 0,
+      "type": "number"
+    },
+    "evidence": {
+      "items": {
+        "$ref": "#/$defs/columnEvidence"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "name": {
+      "type": "string"
+    },
+    "nullRate": {
+      "maximum": 1,
+      "minimum": 0,
+      "type": "number"
+    },
+    "role": {
+      "enum": [
+        "date",
+        "amount",
+        "key",
+        "text",
+        "percent",
+        "currency",
+        null
+      ]
+    },
+    "roleStatus": {
+      "enum": [
+        "verified",
+        "inferred",
+        "assumed",
+        "unknown",
+        "missing_data",
+        "conflict"
+      ]
+    },
+    "sample": {
+      "items": {
+        "type": [
+          "string",
+          "number",
+          "boolean",
+          "null"
+        ]
+      },
+      "maxItems": 20,
+      "type": "array"
+    },
+    "type": {
+      "enum": [
+        "text",
+        "integer",
+        "decimal",
+        "date",
+        "boolean"
+      ]
+    }
+  },
+  "required": [
+    "name",
+    "type",
+    "nullRate",
+    "distinctCount",
+    "distinctRatio",
+    "sample",
+    "role",
+    "roleStatus",
+    "evidence"
+  ],
+  "type": "object"
+}

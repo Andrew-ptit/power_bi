@@ -1,0 +1,55 @@
+{
+  "appliedAt": "2026-10-26T10:01:00Z",
+  "approval": {
+    "approvalId": "apr_35b199001009",
+    "approvedAt": "2026-10-26T10:00:00Z",
+    "approvedBy": "user",
+    "boundTo": {
+      "previewHash": "sha256:a2d35f21a11b8fc9d7b175aac29185682c404bd5231fd6450b5c83b6f40ae93f",
+      "specFingerprint": "sha256:97e6b63a53d427d2c15a943bb1193771d16e2803a2c88b420ff57a2af038ab4c"
+    },
+    "consumed": true,
+    "singleUse": true
+  },
+  "hash": "sha256:c889fffa56dc5c6a64f4571806a7832e4a8e106ac6dc9679def66e8eaa238435",
+  "hashBasis": [
+    "specFingerprint",
+    "previewHash",
+    "approval",
+    "target",
+    "written",
+    "source",
+    "workbookSaved",
+    "labels",
+    "appliedAt",
+    "variantOf",
+    "variantReason"
+  ],
+  "labels": [
+    "assumed",
+    "unverified"
+  ],
+  "previewHash": "sha256:a2d35f21a11b8fc9d7b175aac29185682c404bd5231fd6450b5c83b6f40ae93f",
+  "schemaVersion": "1.0",
+  "source": {
+    "after": "sha256:d42a253f300b34680652b64bd47b12a5cbe163af411ca3be8ad2c4e1d017b5f8",
+    "before": "sha256:d42a253f300b34680652b64bd47b12a5cbe163af411ca3be8ad2c4e1d017b5f8",
+    "sheetsWritten": [],
+    "unchanged": true
+  },
+  "specFingerprint": "sha256:97e6b63a53d427d2c15a943bb1193771d16e2803a2c88b420ff57a2af038ab4c",
+  "target": {
+    "marker": "LOCAL_DATA_COPILOT|PnL_Result|spec=sha256:97e6b63a53d427d2c15a943bb1193771d16e2803a2c88b420ff57a2af038ab4c|preview=sha256:a2d35f21a11b8fc9d7b175aac29185682c404bd5231fd6450b5c83b6f40ae93f|labels=assumed,unverified",
+    "mode": "values_only",
+    "sheet": "PnL_Result",
+    "workbook": "current",
+    "writeMode": "new_sheet_only"
+  },
+  "variantOf": null,
+  "variantReason": null,
+  "workbookSaved": false,
+  "written": {
+    "columnCount": 9,
+    "rowCount": 23
+  }
+}

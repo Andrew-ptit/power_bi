@@ -1,0 +1,447 @@
+{
+  "assumptions": [
+    {
+      "confidence": 0.5,
+      "evidence": [
+        {
+          "formulaId": "fm_cancelled_orders",
+          "kind": "engine",
+          "ref": null,
+          "value": "2"
+        }
+      ],
+      "id": "asm_06234c1cf33d",
+      "risk": "medium",
+      "source": "data",
+      "statement": "Đề xuất loại đơn huỷ khỏi doanh thu; người dùng chốt trước khi ghi."
+    },
+    {
+      "confidence": 0.5,
+      "evidence": [
+        {
+          "formulaId": "fm_returned_orders",
+          "kind": "engine",
+          "ref": null,
+          "value": "1"
+        }
+      ],
+      "id": "asm_e1ffc2efea11",
+      "risk": "medium",
+      "source": "data",
+      "statement": "Đề xuất giữ số lượng âm để tính doanh thu thuần; người dùng chốt trước khi ghi."
+    },
+    {
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "formulaId": "fm_orders_missing_territory",
+          "kind": "engine",
+          "ref": null,
+          "value": "3"
+        }
+      ],
+      "id": "asm_4c27ad510dca",
+      "risk": "medium",
+      "source": "data",
+      "statement": "Đề xuất dùng khu vực khách hàng khi khu vực trên đơn trống."
+    }
+  ],
+  "brief": {
+    "briefHash": "sha256:c53bcdf55cc1647d4b4d11b6b2ecda75d46e904c3bdda1d49d0e1de7f4f541a8",
+    "prompt": "Doanh thu theo khu vực quý 3 giảm vì đơn huỷ hay thiếu khách?"
+  },
+  "createdAt": "2026-10-26T10:05:00Z",
+  "decisions": [
+    {
+      "decidedAt": "2026-10-26T09:30:00Z",
+      "decidedBy": "user",
+      "optionId": "A",
+      "rationale": "Chấp nhận phương án đã đọc và hệ quả trong brief synthetic.",
+      "subProblemId": "SP-1"
+    },
+    {
+      "decidedAt": "2026-10-26T09:30:00Z",
+      "decidedBy": "user",
+      "optionId": "A",
+      "rationale": "Chấp nhận phương án đã đọc và hệ quả trong brief synthetic.",
+      "subProblemId": "SP-2"
+    },
+    {
+      "decidedAt": "2026-10-26T09:30:00Z",
+      "decidedBy": "user",
+      "optionId": "A",
+      "rationale": "Chấp nhận phương án đã đọc và hệ quả trong brief synthetic.",
+      "subProblemId": "SP-3"
+    },
+    {
+      "decidedAt": "2026-10-26T09:30:00Z",
+      "decidedBy": "user",
+      "optionId": "A",
+      "rationale": "Chấp nhận phương án đã đọc và hệ quả trong brief synthetic.",
+      "subProblemId": "SP-4"
+    }
+  ],
+  "delta": {
+    "changedColumns": [
+      "Quantity×UnitPrice×DiscountPct→revenue",
+      "TerritoryID→region",
+      "CustomerID→customerBucket"
+    ],
+    "duplicatesAfter": 0,
+    "duplicatesBefore": 0,
+    "nullsAfter": {
+      "CustomerID": 0,
+      "TerritoryID": 0
+    },
+    "nullsBefore": {
+      "CustomerID": 0,
+      "TerritoryID": 3
+    },
+    "rowsIn": 24,
+    "rowsOut": 4
+  },
+  "hash": "sha256:a8568ba981ec53c29a1e0d071a3efe9c5c3e8982e0ad2233516fb252d30459fc",
+  "hashBasis": [
+    "snapshot",
+    "brief",
+    "decisions",
+    "assumptions",
+    "steps",
+    "reconciliations",
+    "delta",
+    "labels",
+    "stale",
+    "variantOf",
+    "variantReason"
+  ],
+  "id": "rec_052a21d09b3ddd18733d1290",
+  "labels": [
+    "assumed",
+    "unverified"
+  ],
+  "reconciliations": [
+    {
+      "blockers": [],
+      "bridge": {
+        "applicable": false,
+        "fx": null,
+        "op": null,
+        "passed": null,
+        "scope": null,
+        "total": null,
+        "variance": null
+      },
+      "checks": [
+        {
+          "detail": "24 → 4",
+          "id": "row_count",
+          "passed": true
+        },
+        {
+          "detail": "133942500 = 133942500",
+          "id": "control_total",
+          "passed": true
+        },
+        {
+          "detail": "Không áp dụng: báo cáo doanh thu không tính FX.",
+          "id": "bridge_identity",
+          "passed": true
+        }
+      ],
+      "colsIn": 6,
+      "colsOut": 4,
+      "controlTotalPassed": true,
+      "controlTotalRawSource": "133942500",
+      "controlTotalResult": "133942500",
+      "controlTotalSource": "133942500",
+      "controlTotalTolerance": "0.01",
+      "droppedByDedupe": "0",
+      "hashBasis": [
+        "specFingerprint",
+        "previewHash",
+        "rowsIn",
+        "rowsInDeduped",
+        "rowsOut",
+        "colsIn",
+        "colsOut",
+        "controlTotalRawSource",
+        "droppedByDedupe",
+        "controlTotalSource",
+        "controlTotalResult",
+        "controlTotalTolerance",
+        "controlTotalPassed",
+        "bridge",
+        "checks",
+        "blockers",
+        "warnings",
+        "labels",
+        "passed",
+        "variantOf",
+        "variantReason"
+      ],
+      "labels": [
+        "assumed",
+        "unverified"
+      ],
+      "passed": true,
+      "previewHash": "sha256:cb4f1eadd700104eac0bbcc5cb80cad7811181b49de8a9018d05935de1c9b1ca",
+      "reconcileHash": "sha256:222b01afb03a8e494e383d8cef468218f27a79a907cafa2d4bc108a9c1b65610",
+      "rowsIn": 24,
+      "rowsInDeduped": 24,
+      "rowsOut": 4,
+      "schemaVersion": "1.0",
+      "specFingerprint": "sha256:db5c6c3d10a034850583b6641a0ea31f9c6b0bb06daf19d09049d93e7c20d5db",
+      "variantOf": null,
+      "variantReason": null,
+      "warnings": [
+        {
+          "code": "AF_MISSING_DATA",
+          "message": "Không có cờ khách rời bỏ hoặc nguồn cùng kỳ; không kết luận nguyên nhân thiếu khách.",
+          "severity": "warning"
+        }
+      ]
+    }
+  ],
+  "schemaVersion": "1.0",
+  "snapshot": {
+    "snapshotHash": "sha256:195f3c8d0331cb2a30e177a23155e3ad954521d9a533aee3e75983bf5250a232",
+    "sourceFingerprint": "sha256:d053d3702d2145c0f0337e6c8c0e247e9e4558f98cc46434233e80a1e510f33c"
+  },
+  "stale": false,
+  "steps": [
+    {
+      "decisionRefs": [],
+      "dependsOn": [],
+      "guard": null,
+      "id": "st_01",
+      "inputs": [
+        "tbl_d16dc4358638"
+      ],
+      "kind": "recipe",
+      "label": "Nạp đơn hàng theo thứ tự tên file tháng",
+      "output": "q_sales_01",
+      "params": {
+        "columns": null,
+        "formulaId": null,
+        "operation": "folder_append",
+        "tableId": "tbl_d16dc4358638"
+      },
+      "status": "ok"
+    },
+    {
+      "decisionRefs": [],
+      "dependsOn": [
+        "st_01"
+      ],
+      "guard": null,
+      "id": "st_02",
+      "inputs": [
+        "q_sales_01",
+        "tbl_1e1da47c03b2"
+      ],
+      "kind": "join",
+      "label": "Nối đơn hàng với dòng chi tiết",
+      "output": "q_sales_02",
+      "params": {
+        "columns": [
+          "OrderID"
+        ],
+        "formulaId": null,
+        "operation": "join_order_items",
+        "tableId": "tbl_1e1da47c03b2"
+      },
+      "status": "ok"
+    },
+    {
+      "decisionRefs": [
+        "SP-3"
+      ],
+      "dependsOn": [
+        "st_02"
+      ],
+      "guard": null,
+      "id": "st_03",
+      "inputs": [
+        "q_sales_02",
+        "tbl_cc40a8039530"
+      ],
+      "kind": "join",
+      "label": "Nối khách hàng, giữ khách ngoài danh mục trong nhóm riêng",
+      "output": "q_sales_03",
+      "params": {
+        "columns": [
+          "CustomerID"
+        ],
+        "formulaId": null,
+        "operation": "join_customers",
+        "tableId": "tbl_cc40a8039530"
+      },
+      "status": "ok"
+    },
+    {
+      "decisionRefs": [],
+      "dependsOn": [
+        "st_03"
+      ],
+      "guard": null,
+      "id": "st_04",
+      "inputs": [
+        "q_sales_03",
+        "tbl_16c570d6cf83"
+      ],
+      "kind": "join",
+      "label": "Nối danh mục sản phẩm",
+      "output": "q_sales_04",
+      "params": {
+        "columns": [
+          "ProductID"
+        ],
+        "formulaId": null,
+        "operation": "join_products",
+        "tableId": "tbl_16c570d6cf83"
+      },
+      "status": "ok"
+    },
+    {
+      "decisionRefs": [
+        "SP-4"
+      ],
+      "dependsOn": [
+        "st_04"
+      ],
+      "guard": null,
+      "id": "st_05",
+      "inputs": [
+        "q_sales_04",
+        "tbl_f1e89e400a53"
+      ],
+      "kind": "lookup",
+      "label": "Lấy khu vực trên đơn hoặc từ danh mục khách hàng",
+      "output": "q_sales_05",
+      "params": {
+        "columns": [
+          "TerritoryID"
+        ],
+        "formulaId": null,
+        "operation": "resolve_territory",
+        "tableId": "tbl_f1e89e400a53"
+      },
+      "status": "ok"
+    },
+    {
+      "decisionRefs": [
+        "SP-1"
+      ],
+      "dependsOn": [
+        "st_05"
+      ],
+      "guard": null,
+      "id": "st_06",
+      "inputs": [
+        "q_sales_05"
+      ],
+      "kind": "filter",
+      "label": "Loại đơn huỷ theo quyết định đã chốt",
+      "output": "q_sales_06",
+      "params": {
+        "columns": null,
+        "formulaId": null,
+        "operation": "exclude_cancelled",
+        "tableId": null
+      },
+      "status": "ok"
+    },
+    {
+      "decisionRefs": [
+        "SP-2"
+      ],
+      "dependsOn": [
+        "st_06"
+      ],
+      "guard": null,
+      "id": "st_07",
+      "inputs": [
+        "q_sales_06"
+      ],
+      "kind": "calc",
+      "label": "Tính doanh thu sau chiết khấu, giữ dòng trả hàng âm",
+      "output": "q_sales_07",
+      "params": {
+        "columns": null,
+        "formulaId": "fm_revenue_excluding_cancelled",
+        "operation": "line_revenue_net_returns",
+        "tableId": null
+      },
+      "status": "ok"
+    },
+    {
+      "decisionRefs": [],
+      "dependsOn": [
+        "st_07"
+      ],
+      "guard": null,
+      "id": "st_08",
+      "inputs": [
+        "q_sales_07"
+      ],
+      "kind": "group",
+      "label": "Gộp doanh thu theo khu vực",
+      "output": "q_sales_08",
+      "params": {
+        "columns": [
+          "region"
+        ],
+        "formulaId": null,
+        "operation": "group_region",
+        "tableId": null
+      },
+      "status": "ok"
+    },
+    {
+      "decisionRefs": [],
+      "dependsOn": [
+        "st_08"
+      ],
+      "guard": null,
+      "id": "st_09",
+      "inputs": [
+        "q_sales_08"
+      ],
+      "kind": "sort",
+      "label": "Sắp xếp khu vực để kết quả tái lập",
+      "output": "q_sales_09",
+      "params": {
+        "columns": [
+          "region"
+        ],
+        "formulaId": null,
+        "operation": "sort_region",
+        "tableId": null
+      },
+      "status": "ok"
+    },
+    {
+      "decisionRefs": [],
+      "dependsOn": [
+        "st_09"
+      ],
+      "guard": null,
+      "id": "st_10",
+      "inputs": [
+        "q_sales_09"
+      ],
+      "kind": "output",
+      "label": "Xuất kết quả chỉ giá trị có nhãn",
+      "output": "q_sales_10",
+      "params": {
+        "columns": null,
+        "formulaId": null,
+        "operation": "values_only",
+        "tableId": null
+      },
+      "status": "ok"
+    }
+  ],
+  "variantOf": null,
+  "variantReason": null
+}

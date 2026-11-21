@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "formulas": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "basis": {
+            "enum": [
+              "engine-decimal"
+            ]
+          },
+          "expression": {
+            "type": "string"
+          },
+          "formulaId": {
+            "pattern": "^fm_[A-Za-z0-9_]+$",
+            "type": "string"
+          },
+          "inputs": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 0,
+            "type": "array"
+          },
+          "unit": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "formulaId",
+          "expression",
+          "basis",
+          "unit",
+          "inputs"
+        ],
+        "type": "object"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "hash": {
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "type": "string"
+    },
+    "hashBasis": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "schemaVersion": {
+      "enum": [
+        "1.0"
+      ]
+    },
+    "variantOf": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "variantReason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "formulas",
+    "hashBasis",
+    "hash",
+    "variantOf",
+    "variantReason"
+  ],
+  "type": "object"
+}

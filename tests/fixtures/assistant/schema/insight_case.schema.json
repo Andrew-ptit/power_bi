@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "evidence": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "formulaId": {
+            "anyOf": [
+              {
+                "pattern": "^fm_[A-Za-z0-9_]+$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "kind": {
+            "type": "string"
+          },
+          "ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "kind",
+          "value",
+          "ref",
+          "formulaId"
+        ],
+        "type": "object"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "id": {
+      "pattern": "^ic_[a-f0-9]{12}$",
+      "type": "string"
+    },
+    "kind": {
+      "enum": [
+        "hypothesis",
+        "slice"
+      ]
+    },
+    "provenance": {
+      "enum": [
+        "pack",
+        "data",
+        "history",
+        "llm",
+        "user"
+      ]
+    },
+    "statement": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "verified",
+        "inferred",
+        "assumed",
+        "unknown",
+        "missing_data",
+        "conflict"
+      ]
+    }
+  },
+  "required": [
+    "id",
+    "kind",
+    "statement",
+    "evidence",
+    "status",
+    "provenance"
+  ],
+  "type": "object"
+}

@@ -1,0 +1,57 @@
+{
+  "acknowledgements": [
+    {
+      "acknowledged": "out_of_scope",
+      "note": "Chưa có nguồn để giải thích khách rời bỏ hoặc so cùng kỳ; không bịa số.",
+      "subProblemId": "SP-5"
+    }
+  ],
+  "briefHash": "sha256:c53bcdf55cc1647d4b4d11b6b2ecda75d46e904c3bdda1d49d0e1de7f4f541a8",
+  "decisions": [
+    {
+      "decidedAt": "2026-10-26T09:30:00Z",
+      "decidedBy": "user",
+      "optionId": "A",
+      "rationale": "Chấp nhận phương án đã đọc và hệ quả trong brief synthetic.",
+      "subProblemId": "SP-1"
+    },
+    {
+      "decidedAt": "2026-10-26T09:30:00Z",
+      "decidedBy": "user",
+      "optionId": "A",
+      "rationale": "Chấp nhận phương án đã đọc và hệ quả trong brief synthetic.",
+      "subProblemId": "SP-2"
+    },
+    {
+      "decidedAt": "2026-10-26T09:30:00Z",
+      "decidedBy": "user",
+      "optionId": "A",
+      "rationale": "Chấp nhận phương án đã đọc và hệ quả trong brief synthetic.",
+      "subProblemId": "SP-3"
+    },
+    {
+      "decidedAt": "2026-10-26T09:30:00Z",
+      "decidedBy": "user",
+      "optionId": "A",
+      "rationale": "Chấp nhận phương án đã đọc và hệ quả trong brief synthetic.",
+      "subProblemId": "SP-4"
+    }
+  ],
+  "decisionsHash": "sha256:bedc1644a98b6bf910ddd0f9d69671585d70701df66d92774fb196b7de703f96",
+  "freezeBlocked": false,
+  "hashBasis": [
+    "snapshotHash",
+    "understandHash",
+    "briefHash",
+    "decisions",
+    "acknowledgements",
+    "freezeBlocked",
+    "variantOf",
+    "variantReason"
+  ],
+  "schemaVersion": "1.0",
+  "snapshotHash": "sha256:195f3c8d0331cb2a30e177a23155e3ad954521d9a533aee3e75983bf5250a232",
+  "understandHash": "sha256:b0c70bc5aa8ccb9e8cb99e35842e0d82336e50b4d54529d2cb19111a493a4dd7",
+  "variantOf": null,
+  "variantReason": null
+}

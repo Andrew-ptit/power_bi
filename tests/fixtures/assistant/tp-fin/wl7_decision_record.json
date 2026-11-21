@@ -1,0 +1,647 @@
+{
+  "assumptions": [
+    {
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "asm_00c67e108f4c",
+      "risk": "low",
+      "source": "data",
+      "statement": "Kỳ báo cáo lấy từ ngày hạch toán của nguồn."
+    },
+    {
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "asm_03faf841a49f",
+      "risk": "high",
+      "source": "pack",
+      "statement": "Doanh thu thuần bao gồm tài khoản giảm trừ."
+    },
+    {
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "asm_9c71fc499138",
+      "risk": "high",
+      "source": "pack",
+      "statement": "Báo cáo P&L sử dụng tỷ giá bình quân theo tiền tệ từng dòng."
+    },
+    {
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "asm_427ee0e0904c",
+      "risk": "high",
+      "source": "pack",
+      "statement": "Loại cả hai vế nội bộ khỏi P&L; giữ bucket đối soát."
+    },
+    {
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "asm_bb36ccaec71d",
+      "risk": "medium",
+      "source": "history",
+      "statement": "Policy trước đó chỉ là ngữ cảnh synthetic, cần người dùng chốt lại."
+    },
+    {
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "asm_3190d261d186",
+      "risk": "low",
+      "source": "user",
+      "statement": "Người dùng xác nhận chỉ ghi giá trị vào sheet mới."
+    },
+    {
+      "confidence": 0.5,
+      "evidence": [
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "asm_c6e760a00a7f",
+      "risk": "high",
+      "source": "llm",
+      "statement": "Tỷ giá có thể giải thích phần lớn chênh lệch doanh thu; đây là suy luận."
+    },
+    {
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "asm_97ca23454227",
+      "risk": "medium",
+      "source": "data",
+      "statement": "Ánh xạ prefix tài khoản là đề xuất, chưa phải policy đã kiểm toán."
+    }
+  ],
+  "brief": {
+    "briefHash": "sha256:5fde1e29f4a7ba6324dc5e59a61bd864ba53e9d0e10ac8dc3906f8e7db4c9226",
+    "prompt": "Doanh thu thuần & lợi nhuận gộp T9 giảm do giá/chủng loại hay tỷ giá? Làm P&L theo cost center, quy VND, tách FX."
+  },
+  "createdAt": "2026-10-26T10:05:00Z",
+  "decisions": [
+    {
+      "decidedAt": "2026-10-26T09:30:00Z",
+      "decidedBy": "user",
+      "optionId": "A",
+      "rationale": "Chấp nhận lựa chọn đề xuất trong tình huống synthetic.",
+      "subProblemId": "SP-1"
+    },
+    {
+      "decidedAt": "2026-10-26T09:30:00Z",
+      "decidedBy": "user",
+      "optionId": "A",
+      "rationale": "Chấp nhận lựa chọn đề xuất trong tình huống synthetic.",
+      "subProblemId": "SP-2"
+    },
+    {
+      "decidedAt": "2026-10-26T09:30:00Z",
+      "decidedBy": "user",
+      "optionId": "A",
+      "rationale": "Chấp nhận lựa chọn đề xuất trong tình huống synthetic.",
+      "subProblemId": "SP-3"
+    },
+    {
+      "decidedAt": "2026-10-26T09:30:00Z",
+      "decidedBy": "user",
+      "optionId": "A",
+      "rationale": "Chấp nhận lựa chọn đề xuất trong tình huống synthetic.",
+      "subProblemId": "SP-4"
+    },
+    {
+      "decidedAt": "2026-10-26T09:30:00Z",
+      "decidedBy": "user",
+      "optionId": "A",
+      "rationale": "Chấp nhận lựa chọn đề xuất trong tình huống synthetic.",
+      "subProblemId": "SP-5"
+    },
+    {
+      "decidedAt": "2026-10-26T09:30:00Z",
+      "decidedBy": "user",
+      "optionId": "A",
+      "rationale": "Chấp nhận lựa chọn đề xuất trong tình huống synthetic.",
+      "subProblemId": "SP-6"
+    },
+    {
+      "decidedAt": "2026-10-26T09:30:00Z",
+      "decidedBy": "user",
+      "optionId": "A",
+      "rationale": "Chấp nhận lựa chọn đề xuất trong tình huống synthetic.",
+      "subProblemId": "SP-8"
+    },
+    {
+      "decidedAt": "2026-10-26T09:30:00Z",
+      "decidedBy": "user",
+      "optionId": "A",
+      "rationale": "Chấp nhận lựa chọn đề xuất trong tình huống synthetic.",
+      "subProblemId": "SP-9"
+    }
+  ],
+  "delta": {
+    "changedColumns": [
+      "DebitCredit→amountSigned",
+      "AccountCode→accountMapped",
+      "Amount→amountVnd"
+    ],
+    "duplicatesAfter": 0,
+    "duplicatesBefore": 1,
+    "nullsAfter": {
+      "PartnerEntity": 0
+    },
+    "nullsBefore": {
+      "PartnerEntity": 29
+    },
+    "rowsIn": 31,
+    "rowsOut": 23
+  },
+  "hash": "sha256:0b0a01d53ad3aa830eea660b38c3b61b66e1ce7ceaa249f77b9c5876b6ba8919",
+  "hashBasis": [
+    "id",
+    "createdAt",
+    "snapshot",
+    "brief",
+    "decisions",
+    "assumptions",
+    "steps",
+    "reconciliations",
+    "delta",
+    "labels",
+    "stale",
+    "variantOf",
+    "variantReason"
+  ],
+  "id": "rec_d8eba9d65b3750723314ee67",
+  "labels": [
+    "assumed",
+    "unverified"
+  ],
+  "reconciliations": [
+    {
+      "blockers": [],
+      "bridge": {
+        "actualUsd": "1450000",
+        "actualVnd": "8604000000",
+        "applicable": true,
+        "budgetUsd": "1470000",
+        "budgetVnd": "8565000000",
+        "fx": "-1276000000",
+        "op": "-464600000",
+        "passed": true,
+        "rateActual": "24300",
+        "rateBudget": "25180",
+        "scope": "NetRevenue",
+        "total": "-1740600000",
+        "variance": "-1740600000"
+      },
+      "checks": [
+        {
+          "detail": "31 → 30 → 23",
+          "id": "row_count",
+          "passed": true
+        },
+        {
+          "detail": "Tổng nguồn sau dedupe bằng tổng kết quả gồm bucket nội bộ.",
+          "id": "control_total",
+          "passed": true
+        },
+        {
+          "detail": "op + fx = total = variance",
+          "id": "bridge_identity",
+          "passed": true
+        }
+      ],
+      "colsIn": 12,
+      "colsOut": 9,
+      "controlTotalPassed": true,
+      "controlTotalRawSource": "16906900000",
+      "controlTotalResult": "14206900000",
+      "controlTotalSource": "14206900000",
+      "controlTotalTolerance": "0.01",
+      "droppedByDedupe": "2700000000",
+      "hashBasis": [
+        "specFingerprint",
+        "previewHash",
+        "rowsIn",
+        "rowsInDeduped",
+        "rowsOut",
+        "colsIn",
+        "colsOut",
+        "controlTotalRawSource",
+        "droppedByDedupe",
+        "controlTotalSource",
+        "controlTotalResult",
+        "controlTotalTolerance",
+        "controlTotalPassed",
+        "bridge",
+        "checks",
+        "blockers",
+        "warnings",
+        "labels",
+        "passed",
+        "variantOf",
+        "variantReason"
+      ],
+      "labels": [
+        "assumed",
+        "unverified"
+      ],
+      "passed": true,
+      "previewHash": "sha256:a2d35f21a11b8fc9d7b175aac29185682c404bd5231fd6450b5c83b6f40ae93f",
+      "reconcileHash": "sha256:89b4607daa3ffc676007944fafd446ad35f4a26271cfe2ce3fde36d2a35a7b8f",
+      "rowsIn": 31,
+      "rowsInDeduped": 30,
+      "rowsOut": 23,
+      "schemaVersion": "1.0",
+      "specFingerprint": "sha256:97e6b63a53d427d2c15a943bb1193771d16e2803a2c88b420ff57a2af038ab4c",
+      "variantOf": null,
+      "variantReason": null,
+      "warnings": [
+        {
+          "code": "AF_MISSING_DATA",
+          "message": "Thiếu EUR average T9 nhưng không có phát sinh EUR nên không ảnh hưởng.",
+          "severity": "warning"
+        },
+        {
+          "code": "AF_MISSING_DATA",
+          "message": "Thiếu USD closing T8; P&L chỉ dùng average nên không ảnh hưởng.",
+          "severity": "warning"
+        }
+      ]
+    }
+  ],
+  "schemaVersion": "1.0",
+  "snapshot": {
+    "snapshotHash": "sha256:38a8e560b0f821664e1cf7e117e9b8e0376bf84af629eb895eeb64655980fb99",
+    "sourceFingerprint": "sha256:d42a253f300b34680652b64bd47b12a5cbe163af411ca3be8ad2c4e1d017b5f8"
+  },
+  "stale": false,
+  "steps": [
+    {
+      "decisionRefs": [],
+      "dependsOn": [],
+      "guard": null,
+      "id": "st_01",
+      "inputs": [],
+      "kind": "recipe",
+      "label": "Nạp GL từ nguồn chỉ đọc",
+      "output": "q_01",
+      "params": {
+        "columns": null,
+        "formulaId": null,
+        "operation": "load",
+        "tableId": "tbl_d77145e20992"
+      },
+      "status": "ok"
+    },
+    {
+      "decisionRefs": [
+        "SP-4"
+      ],
+      "dependsOn": [
+        "st_01"
+      ],
+      "guard": null,
+      "id": "st_02",
+      "inputs": [
+        "q_01"
+      ],
+      "kind": "recipe",
+      "label": "Loại dòng trùng tuyệt đối",
+      "output": "q_02",
+      "params": {
+        "columns": null,
+        "formulaId": null,
+        "operation": "dedupe",
+        "tableId": null
+      },
+      "status": "ok"
+    },
+    {
+      "decisionRefs": [
+        "SP-4"
+      ],
+      "dependsOn": [
+        "st_02"
+      ],
+      "guard": null,
+      "id": "st_03",
+      "inputs": [
+        "q_02"
+      ],
+      "kind": "calc",
+      "label": "Chuẩn hoá dấu theo DebitCredit",
+      "output": "q_03",
+      "params": {
+        "columns": null,
+        "formulaId": "fm_signed_amount",
+        "operation": "normalize_sign",
+        "tableId": null
+      },
+      "status": "ok"
+    },
+    {
+      "decisionRefs": [
+        "SP-5"
+      ],
+      "dependsOn": [
+        "st_03"
+      ],
+      "guard": null,
+      "id": "st_04",
+      "inputs": [
+        "q_03",
+        "tbl_eee82d73e347"
+      ],
+      "kind": "lookup",
+      "label": "Ánh xạ tài khoản theo prefix",
+      "output": "q_04",
+      "params": {
+        "columns": null,
+        "formulaId": null,
+        "operation": "map_account",
+        "tableId": "tbl_eee82d73e347"
+      },
+      "status": "ok"
+    },
+    {
+      "decisionRefs": [],
+      "dependsOn": [
+        "st_04"
+      ],
+      "guard": null,
+      "id": "st_05",
+      "inputs": [
+        "q_04",
+        "tbl_eee82d73e347"
+      ],
+      "kind": "join",
+      "label": "Nối danh mục tài khoản",
+      "output": "q_05",
+      "params": {
+        "columns": null,
+        "formulaId": null,
+        "operation": "join_coa",
+        "tableId": "tbl_eee82d73e347"
+      },
+      "status": "ok"
+    },
+    {
+      "decisionRefs": [
+        "SP-6"
+      ],
+      "dependsOn": [
+        "st_05"
+      ],
+      "guard": null,
+      "id": "st_06",
+      "inputs": [
+        "q_05",
+        "tbl_622b0ca12e33"
+      ],
+      "kind": "join",
+      "label": "Nối cost center và giữ cờ lạc",
+      "output": "q_06",
+      "params": {
+        "columns": null,
+        "formulaId": null,
+        "operation": "join_cost_center",
+        "tableId": "tbl_622b0ca12e33"
+      },
+      "status": "ok"
+    },
+    {
+      "decisionRefs": [],
+      "dependsOn": [
+        "st_06"
+      ],
+      "guard": null,
+      "id": "st_07",
+      "inputs": [
+        "q_06",
+        "tbl_c58fa00f407f"
+      ],
+      "kind": "join",
+      "label": "Nối pháp nhân",
+      "output": "q_07",
+      "params": {
+        "columns": null,
+        "formulaId": null,
+        "operation": "join_entity",
+        "tableId": "tbl_c58fa00f407f"
+      },
+      "status": "ok"
+    },
+    {
+      "decisionRefs": [
+        "SP-2",
+        "SP-8"
+      ],
+      "dependsOn": [
+        "st_07"
+      ],
+      "guard": null,
+      "id": "st_08",
+      "inputs": [
+        "q_07",
+        "tbl_d934591b174e"
+      ],
+      "kind": "lookup",
+      "label": "Tra average rate theo tiền tệ từng dòng và tháng",
+      "output": "q_08",
+      "params": {
+        "columns": null,
+        "formulaId": "fm_amount_vnd",
+        "operation": "lookup_fx",
+        "tableId": "tbl_d934591b174e"
+      },
+      "status": "ok"
+    },
+    {
+      "decisionRefs": [
+        "SP-9"
+      ],
+      "dependsOn": [
+        "st_08"
+      ],
+      "guard": null,
+      "id": "st_09",
+      "inputs": [
+        "q_08"
+      ],
+      "kind": "recipe",
+      "label": "Giữ cặp xung đột và gắn cờ",
+      "output": "q_09",
+      "params": {
+        "columns": null,
+        "formulaId": null,
+        "operation": "retain_key_collision",
+        "tableId": null
+      },
+      "status": "ok"
+    },
+    {
+      "decisionRefs": [
+        "SP-3"
+      ],
+      "dependsOn": [
+        "st_09"
+      ],
+      "guard": null,
+      "id": "st_10",
+      "inputs": [
+        "q_09"
+      ],
+      "kind": "recipe",
+      "label": "Tách cả hai vế nội bộ vào bucket đối soát",
+      "output": "q_10",
+      "params": {
+        "columns": null,
+        "formulaId": null,
+        "operation": "separate_intercompany",
+        "tableId": null
+      },
+      "status": "ok"
+    },
+    {
+      "decisionRefs": [],
+      "dependsOn": [
+        "st_10"
+      ],
+      "guard": null,
+      "id": "st_11",
+      "inputs": [
+        "q_10"
+      ],
+      "kind": "group",
+      "label": "Tổng hợp trước khi nối ngân sách",
+      "output": "q_11",
+      "params": {
+        "columns": [
+          "pnlLine",
+          "accountCode",
+          "costCenter",
+          "entityCode"
+        ],
+        "formulaId": null,
+        "operation": "group",
+        "tableId": null
+      },
+      "status": "ok"
+    },
+    {
+      "decisionRefs": [],
+      "dependsOn": [
+        "st_11"
+      ],
+      "guard": null,
+      "id": "st_12",
+      "inputs": [
+        "q_11",
+        "tbl_a90b2dbd61c5"
+      ],
+      "kind": "join",
+      "label": "Nối Budget đã tổng hợp cùng grain",
+      "output": "q_12",
+      "params": {
+        "columns": null,
+        "formulaId": null,
+        "operation": "join_budget",
+        "tableId": "tbl_a90b2dbd61c5"
+      },
+      "status": "ok"
+    },
+    {
+      "decisionRefs": [
+        "SP-1"
+      ],
+      "dependsOn": [
+        "st_12"
+      ],
+      "guard": null,
+      "id": "st_13",
+      "inputs": [
+        "q_12"
+      ],
+      "kind": "calc",
+      "label": "Tính net revenue, variance và cầu nối",
+      "output": "q_13",
+      "params": {
+        "columns": null,
+        "formulaId": "fm_bridge_total",
+        "operation": "variance_bridge",
+        "tableId": null
+      },
+      "status": "ok"
+    },
+    {
+      "decisionRefs": [],
+      "dependsOn": [
+        "st_13"
+      ],
+      "guard": null,
+      "id": "st_14",
+      "inputs": [
+        "q_13"
+      ],
+      "kind": "output",
+      "label": "Xuất giá trị kèm nhãn độ tin cậy",
+      "output": "q_14",
+      "params": {
+        "columns": null,
+        "formulaId": null,
+        "operation": "output",
+        "tableId": null
+      },
+      "status": "ok"
+    }
+  ],
+  "variantOf": null,
+  "variantReason": null
+}

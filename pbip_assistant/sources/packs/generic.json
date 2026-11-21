@@ -1,0 +1,292 @@
+{
+  "assumptions": [
+    {
+      "risk": "medium",
+      "source": "data",
+      "statement": "Đề xuất loại đơn huỷ khỏi doanh thu; người dùng chốt trước khi ghi."
+    },
+    {
+      "risk": "medium",
+      "source": "data",
+      "statement": "Đề xuất giữ số lượng âm để tính doanh thu thuần; người dùng chốt trước khi ghi."
+    },
+    {
+      "risk": "medium",
+      "source": "data",
+      "statement": "Đề xuất dùng khu vực khách hàng khi khu vực trên đơn trống."
+    }
+  ],
+  "id": "generic",
+  "industry": "generic",
+  "insights": [
+    {
+      "formulaId": "fm_revenue_cancelled_excluded",
+      "kind": "hypothesis",
+      "statement": "Giả thuyết: loại đơn huỷ giải thích một phần chênh lệch tổng doanh thu; chưa đủ nguồn để kết luận khách rời bỏ."
+    },
+    {
+      "formulaId": "fm_region_unknown",
+      "kind": "slice",
+      "statement": "Cắt doanh thu theo khu vực, giữ riêng khu vực chưa xác định."
+    }
+  ],
+  "metrics": [
+    {
+      "expression": "count(orders where Status == Cancelled)",
+      "formulaId": "fm_cancelled_orders",
+      "statement": "Số đơn mang trạng thái huỷ.",
+      "unit": "count"
+    },
+    {
+      "expression": "len(order_items)",
+      "formulaId": "fm_order_lines",
+      "statement": "Số dòng chi tiết đơn hàng.",
+      "unit": "count"
+    },
+    {
+      "expression": "len(orders)",
+      "formulaId": "fm_orders",
+      "statement": "Số đơn trong các file tháng đã nối.",
+      "unit": "count"
+    },
+    {
+      "expression": "count(orders where TerritoryID empty)",
+      "formulaId": "fm_orders_missing_territory",
+      "statement": "Số đơn thiếu khu vực trên đơn.",
+      "unit": "count"
+    },
+    {
+      "expression": "count(orders anti_join customers)",
+      "formulaId": "fm_orphan_customer_orders",
+      "statement": "Số đơn có khách ngoài danh mục.",
+      "unit": "count"
+    },
+    {
+      "expression": "sum(non_cancelled_revenue where customer missing)",
+      "formulaId": "fm_orphan_customer_revenue",
+      "statement": "Doanh thu được giữ trong nhóm khách ngoài danh mục.",
+      "unit": "VND"
+    },
+    {
+      "expression": "sum(non_cancelled_line_revenue where resolved_region == CENTRAL)",
+      "formulaId": "fm_region_central",
+      "statement": "Doanh thu theo khu vực CENTRAL.",
+      "unit": "VND"
+    },
+    {
+      "expression": "sum(non_cancelled_line_revenue where resolved_region == NORTH)",
+      "formulaId": "fm_region_north",
+      "statement": "Doanh thu theo khu vực NORTH.",
+      "unit": "VND"
+    },
+    {
+      "expression": "sum(non_cancelled_line_revenue where resolved_region == SOUTH)",
+      "formulaId": "fm_region_south",
+      "statement": "Doanh thu theo khu vực SOUTH.",
+      "unit": "VND"
+    },
+    {
+      "expression": "sum(non_cancelled_line_revenue where resolved_region == UNKNOWN)",
+      "formulaId": "fm_region_unknown",
+      "statement": "Doanh thu theo khu vực UNKNOWN.",
+      "unit": "VND"
+    },
+    {
+      "expression": "sum(line_revenue where order.Status == Returned)",
+      "formulaId": "fm_return_lines_effect",
+      "statement": "Ảnh hưởng của dòng trả hàng trong doanh thu thuần.",
+      "unit": "VND"
+    },
+    {
+      "expression": "count(orders where Status == Returned)",
+      "formulaId": "fm_returned_orders",
+      "statement": "Số đơn mang trạng thái trả hàng.",
+      "unit": "count"
+    },
+    {
+      "expression": "sum(Quantity * UnitPrice * (1 - DiscountPct/100))",
+      "formulaId": "fm_revenue_all_orders",
+      "statement": "Doanh thu nguồn khi tính cả đơn huỷ.",
+      "unit": "VND"
+    },
+    {
+      "expression": "sum(line_revenue where order.Status == Cancelled)",
+      "formulaId": "fm_revenue_cancelled_excluded",
+      "statement": "Doanh thu đơn huỷ bị loại theo chính sách đề xuất.",
+      "unit": "VND"
+    },
+    {
+      "expression": "sum(line_revenue where order.Status != Cancelled)",
+      "formulaId": "fm_revenue_excluding_cancelled",
+      "statement": "Doanh thu thuần theo chính sách đề xuất loại đơn huỷ.",
+      "unit": "VND"
+    },
+    {
+      "expression": "sum(non_cancelled_revenue where order territory empty and customer territory present)",
+      "formulaId": "fm_territory_fallback_revenue",
+      "statement": "Doanh thu được phân bổ bằng khu vực từ danh mục khách.",
+      "unit": "VND"
+    }
+  ],
+  "outputContract": {
+    "currency": "VND",
+    "grain": [
+      "region"
+    ],
+    "measures": [
+      {
+        "formulaId": "fm_revenue_excluding_cancelled",
+        "name": "NetRevenue"
+      }
+    ]
+  },
+  "policies": [
+    {
+      "blocker": false,
+      "consequenceMetric": "fm_revenue_cancelled_excluded",
+      "evaluationRule": null,
+      "labels": [],
+      "options": [
+        {
+          "consequenceStatement": "Chênh lệch theo công thức engine; dấu của giá trị được giữ nguyên.",
+          "id": "A",
+          "label": "Loại đơn huỷ khỏi doanh thu",
+          "recommended": true
+        },
+        {
+          "consequenceStatement": "Chênh lệch theo công thức engine; dấu của giá trị được giữ nguyên.",
+          "id": "B",
+          "label": "Giữ đơn huỷ và gắn cờ",
+          "recommended": false
+        }
+      ],
+      "proposedOptionId": "A",
+      "provenance": "data",
+      "question": "Đơn huỷ có được tính doanh thu không?",
+      "status": "assumed",
+      "subProblemId": "SP-1",
+      "whyItMatters": "Policy này thay đổi tổng doanh thu."
+    },
+    {
+      "blocker": false,
+      "consequenceMetric": "fm_return_lines_effect",
+      "evaluationRule": null,
+      "labels": [],
+      "options": [
+        {
+          "consequenceStatement": "Chênh lệch theo công thức engine; dấu của giá trị được giữ nguyên.",
+          "id": "A",
+          "label": "Tính thuần, giữ số lượng âm",
+          "recommended": true
+        },
+        {
+          "consequenceStatement": "Chênh lệch theo công thức engine; dấu của giá trị được giữ nguyên.",
+          "id": "B",
+          "label": "Không trừ dòng trả hàng, trình bày riêng",
+          "recommended": false
+        }
+      ],
+      "proposedOptionId": "A",
+      "provenance": "data",
+      "question": "Trả hàng với số lượng âm tính thuần hay gộp?",
+      "status": "assumed",
+      "subProblemId": "SP-2",
+      "whyItMatters": "Policy này thay đổi ảnh hưởng trả hàng."
+    },
+    {
+      "blocker": true,
+      "consequenceMetric": "fm_orphan_customer_revenue",
+      "evaluationRule": null,
+      "labels": [],
+      "options": [
+        {
+          "consequenceStatement": "Chênh lệch theo công thức engine; dấu của giá trị được giữ nguyên.",
+          "id": "A",
+          "label": "Giữ khách trong nhóm UNKNOWN_CUSTOMER",
+          "recommended": true
+        },
+        {
+          "consequenceStatement": "Chênh lệch theo công thức engine; dấu của giá trị được giữ nguyên.",
+          "id": "B",
+          "label": "Bỏ dòng có khách ngoài danh mục",
+          "recommended": false
+        }
+      ],
+      "proposedOptionId": "A",
+      "provenance": "data",
+      "question": "Khách không có trong danh mục được xử lý thế nào?",
+      "status": "conflict",
+      "subProblemId": "SP-3",
+      "whyItMatters": "Bỏ khách ngoài danh mục làm mất doanh thu có trong nguồn."
+    },
+    {
+      "blocker": false,
+      "consequenceMetric": "fm_territory_fallback_revenue",
+      "evaluationRule": null,
+      "labels": [],
+      "options": [
+        {
+          "consequenceStatement": "Chênh lệch theo công thức engine; dấu của giá trị được giữ nguyên.",
+          "id": "A",
+          "label": "Lấy khu vực từ danh mục khách, còn thiếu dùng UNKNOWN",
+          "recommended": true
+        },
+        {
+          "consequenceStatement": "Chênh lệch theo công thức engine; dấu của giá trị được giữ nguyên.",
+          "id": "B",
+          "label": "Giữ nhóm UNKNOWN cho khu vực trống",
+          "recommended": false
+        }
+      ],
+      "proposedOptionId": "A",
+      "provenance": "data",
+      "question": "Đơn thiếu khu vực được gán khu vực thế nào?",
+      "status": "inferred",
+      "subProblemId": "SP-4",
+      "whyItMatters": "Policy này thay đổi phân bổ khu vực, không thay đổi tổng."
+    },
+    {
+      "blocker": false,
+      "consequenceMetric": null,
+      "evaluationRule": null,
+      "labels": [
+        "out_of_scope"
+      ],
+      "options": [
+        {
+          "consequenceStatement": "Chưa có nguồn; không kết luận khách rời bỏ hoặc so cùng kỳ.",
+          "id": "A",
+          "label": "Báo cáo doanh thu, phần thiếu khách ngoài phạm vi",
+          "recommended": true
+        },
+        {
+          "consequenceStatement": "Chưa có nguồn; không kết luận khách rời bỏ hoặc so cùng kỳ.",
+          "id": "B",
+          "label": "Chờ nguồn khách rời bỏ hoặc cùng kỳ",
+          "recommended": false
+        }
+      ],
+      "proposedOptionId": "A",
+      "provenance": "data",
+      "question": "Có cờ khách rời bỏ hoặc nguồn cùng kỳ để giải thích thiếu khách không?",
+      "status": "missing_data",
+      "subProblemId": "SP-5",
+      "whyItMatters": "Chưa có nguồn; không kết luận khách rời bỏ hoặc so cùng kỳ."
+    }
+  ],
+  "signature": {
+    "columns": [
+      "OrderID",
+      "CustomerID",
+      "ProductID"
+    ],
+    "tables": [
+      "Orders",
+      "OrderItems",
+      "Customers",
+      "Products",
+      "Territory"
+    ]
+  },
+  "version": "1.0"
+}

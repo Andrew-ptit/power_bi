@@ -1,0 +1,774 @@
+{
+  "assumptions": [
+    {
+      "confidence": 0.5,
+      "evidence": [
+        {
+          "formulaId": "fm_cancelled_orders",
+          "kind": "engine",
+          "ref": null,
+          "value": "2"
+        }
+      ],
+      "id": "asm_06234c1cf33d",
+      "risk": "medium",
+      "source": "data",
+      "statement": "Đề xuất loại đơn huỷ khỏi doanh thu; người dùng chốt trước khi ghi."
+    },
+    {
+      "confidence": 0.5,
+      "evidence": [
+        {
+          "formulaId": "fm_returned_orders",
+          "kind": "engine",
+          "ref": null,
+          "value": "1"
+        }
+      ],
+      "id": "asm_e1ffc2efea11",
+      "risk": "medium",
+      "source": "data",
+      "statement": "Đề xuất giữ số lượng âm để tính doanh thu thuần; người dùng chốt trước khi ghi."
+    },
+    {
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "formulaId": "fm_orders_missing_territory",
+          "kind": "engine",
+          "ref": null,
+          "value": "3"
+        }
+      ],
+      "id": "asm_4c27ad510dca",
+      "risk": "medium",
+      "source": "data",
+      "statement": "Đề xuất dùng khu vực khách hàng khi khu vực trên đơn trống."
+    }
+  ],
+  "briefHash": "sha256:c53bcdf55cc1647d4b4d11b6b2ecda75d46e904c3bdda1d49d0e1de7f4f541a8",
+  "delta": null,
+  "findings": [
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_orders",
+          "kind": "engine",
+          "ref": null,
+          "value": "12"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_1e1da47c03b2",
+          "value": null
+        }
+      ],
+      "id": "fd_6b93dcf0ea82",
+      "provenance": "data",
+      "statement": "Số đơn trong các file tháng đã nối.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_orders",
+        "unit": "count",
+        "value": "12"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_order_lines",
+          "kind": "engine",
+          "ref": null,
+          "value": "24"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_1e1da47c03b2",
+          "value": null
+        }
+      ],
+      "id": "fd_84ea65d70626",
+      "provenance": "data",
+      "statement": "Số dòng chi tiết đơn hàng.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_order_lines",
+        "unit": "count",
+        "value": "24"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_cancelled_orders",
+          "kind": "engine",
+          "ref": null,
+          "value": "2"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_1e1da47c03b2",
+          "value": null
+        }
+      ],
+      "id": "fd_b3961c3e8dbe",
+      "provenance": "data",
+      "statement": "Số đơn mang trạng thái huỷ.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_cancelled_orders",
+        "unit": "count",
+        "value": "2"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_returned_orders",
+          "kind": "engine",
+          "ref": null,
+          "value": "1"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_1e1da47c03b2",
+          "value": null
+        }
+      ],
+      "id": "fd_c3694dba4264",
+      "provenance": "data",
+      "statement": "Số đơn mang trạng thái trả hàng.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_returned_orders",
+        "unit": "count",
+        "value": "1"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_orphan_customer_orders",
+          "kind": "engine",
+          "ref": null,
+          "value": "1"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_1e1da47c03b2",
+          "value": null
+        }
+      ],
+      "id": "fd_e58dc25188df",
+      "provenance": "data",
+      "statement": "Số đơn có khách ngoài danh mục.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_orphan_customer_orders",
+        "unit": "count",
+        "value": "1"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_orders_missing_territory",
+          "kind": "engine",
+          "ref": null,
+          "value": "3"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_1e1da47c03b2",
+          "value": null
+        }
+      ],
+      "id": "fd_57ae1d86fedb",
+      "provenance": "data",
+      "statement": "Số đơn thiếu khu vực trên đơn.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_orders_missing_territory",
+        "unit": "count",
+        "value": "3"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_revenue_all_orders",
+          "kind": "engine",
+          "ref": null,
+          "value": "162742500"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_1e1da47c03b2",
+          "value": null
+        }
+      ],
+      "id": "fd_b3798bac7f1f",
+      "provenance": "data",
+      "statement": "Doanh thu nguồn khi tính cả đơn huỷ.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_revenue_all_orders",
+        "unit": "VND",
+        "value": "162742500"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_revenue_excluding_cancelled",
+          "kind": "engine",
+          "ref": null,
+          "value": "133942500"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_1e1da47c03b2",
+          "value": null
+        }
+      ],
+      "id": "fd_322626d8ed03",
+      "provenance": "data",
+      "statement": "Doanh thu thuần theo chính sách đề xuất loại đơn huỷ.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_revenue_excluding_cancelled",
+        "unit": "VND",
+        "value": "133942500"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_revenue_cancelled_excluded",
+          "kind": "engine",
+          "ref": null,
+          "value": "28800000"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_1e1da47c03b2",
+          "value": null
+        }
+      ],
+      "id": "fd_b125d19636a5",
+      "provenance": "data",
+      "statement": "Doanh thu đơn huỷ bị loại theo chính sách đề xuất.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_revenue_cancelled_excluded",
+        "unit": "VND",
+        "value": "28800000"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_return_lines_effect",
+          "kind": "engine",
+          "ref": null,
+          "value": "-4500000"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_1e1da47c03b2",
+          "value": null
+        }
+      ],
+      "id": "fd_563e23030d8e",
+      "provenance": "data",
+      "statement": "Ảnh hưởng của dòng trả hàng trong doanh thu thuần.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_return_lines_effect",
+        "unit": "VND",
+        "value": "-4500000"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_region_central",
+          "kind": "engine",
+          "ref": null,
+          "value": "10620000"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_1e1da47c03b2",
+          "value": null
+        }
+      ],
+      "id": "fd_8e0f4cf291cf",
+      "provenance": "data",
+      "statement": "Doanh thu theo khu vực CENTRAL.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_region_central",
+        "unit": "VND",
+        "value": "10620000"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_region_north",
+          "kind": "engine",
+          "ref": null,
+          "value": "40880000"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_1e1da47c03b2",
+          "value": null
+        }
+      ],
+      "id": "fd_6a46e9729ff0",
+      "provenance": "data",
+      "statement": "Doanh thu theo khu vực NORTH.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_region_north",
+        "unit": "VND",
+        "value": "40880000"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_region_south",
+          "kind": "engine",
+          "ref": null,
+          "value": "70542500"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_1e1da47c03b2",
+          "value": null
+        }
+      ],
+      "id": "fd_5e1d062e42a6",
+      "provenance": "data",
+      "statement": "Doanh thu theo khu vực SOUTH.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_region_south",
+        "unit": "VND",
+        "value": "70542500"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_region_unknown",
+          "kind": "engine",
+          "ref": null,
+          "value": "11900000"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_1e1da47c03b2",
+          "value": null
+        }
+      ],
+      "id": "fd_fa6016dd1061",
+      "provenance": "data",
+      "statement": "Doanh thu theo khu vực UNKNOWN.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_region_unknown",
+        "unit": "VND",
+        "value": "11900000"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_orphan_customer_revenue",
+          "kind": "engine",
+          "ref": null,
+          "value": "11900000"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_1e1da47c03b2",
+          "value": null
+        }
+      ],
+      "id": "fd_74096bb41153",
+      "provenance": "data",
+      "statement": "Doanh thu được giữ trong nhóm khách ngoài danh mục.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_orphan_customer_revenue",
+        "unit": "VND",
+        "value": "11900000"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_territory_fallback_revenue",
+          "kind": "engine",
+          "ref": null,
+          "value": "24152500"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_1e1da47c03b2",
+          "value": null
+        }
+      ],
+      "id": "fd_4ebb7ea41f3c",
+      "provenance": "data",
+      "statement": "Doanh thu được phân bổ bằng khu vực từ danh mục khách.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_territory_fallback_revenue",
+        "unit": "VND",
+        "value": "24152500"
+      }
+    }
+  ],
+  "hashBasis": [
+    "snapshotHash",
+    "understandHash",
+    "prompt",
+    "outputContract",
+    "findings",
+    "insightCases",
+    "subProblems",
+    "scenarios",
+    "delta",
+    "assumptions",
+    "labels",
+    "variantOf",
+    "variantReason"
+  ],
+  "insightCases": [
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_revenue_cancelled_excluded",
+          "kind": "engine",
+          "ref": null,
+          "value": "28800000"
+        }
+      ],
+      "id": "ic_06234c1cf33d",
+      "kind": "hypothesis",
+      "provenance": "data",
+      "statement": "Giả thuyết: loại đơn huỷ giải thích một phần chênh lệch tổng doanh thu; chưa đủ nguồn để kết luận khách rời bỏ.",
+      "status": "inferred"
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_region_unknown",
+          "kind": "engine",
+          "ref": null,
+          "value": "11900000"
+        }
+      ],
+      "id": "ic_87640fc13281",
+      "kind": "slice",
+      "provenance": "data",
+      "statement": "Cắt doanh thu theo khu vực, giữ riêng khu vực chưa xác định.",
+      "status": "inferred"
+    }
+  ],
+  "labels": [
+    "assumed",
+    "unverified"
+  ],
+  "outputContract": {
+    "currency": "VND",
+    "filters": [
+      {
+        "field": "OrderDate",
+        "operator": "between",
+        "value": [
+          "2026-07-01",
+          "2026-09-30"
+        ]
+      }
+    ],
+    "grain": [
+      "region"
+    ],
+    "measures": [
+      {
+        "formulaId": "fm_revenue_excluding_cancelled",
+        "name": "NetRevenue"
+      }
+    ],
+    "period": {
+      "from": "2026-07-01",
+      "label": "Quý 3/2026",
+      "to": "2026-09-30"
+    }
+  },
+  "prompt": "Doanh thu theo khu vực quý 3 giảm vì đơn huỷ hay thiếu khách?",
+  "scenarios": [],
+  "schemaVersion": "1.0",
+  "snapshotHash": "sha256:195f3c8d0331cb2a30e177a23155e3ad954521d9a533aee3e75983bf5250a232",
+  "subProblems": [
+    {
+      "blocker": false,
+      "chosenOptionId": null,
+      "consequenceOfChoice": null,
+      "evidence": [
+        {
+          "formulaId": "fm_revenue_cancelled_excluded",
+          "kind": "engine",
+          "ref": null,
+          "value": "28800000"
+        }
+      ],
+      "id": "SP-1",
+      "labels": [],
+      "options": [
+        {
+          "consequence": {
+            "statement": "Policy này thay đổi tổng doanh thu.",
+            "value": {
+              "formulaId": "fm_revenue_cancelled_excluded",
+              "unit": "VND",
+              "value": "28800000"
+            }
+          },
+          "id": "A",
+          "label": "Loại đơn huỷ khỏi doanh thu",
+          "recommended": true
+        },
+        {
+          "consequence": {
+            "statement": "Policy này thay đổi tổng doanh thu.",
+            "value": {
+              "formulaId": "fm_revenue_cancelled_excluded",
+              "unit": "VND",
+              "value": "28800000"
+            }
+          },
+          "id": "B",
+          "label": "Giữ đơn huỷ và gắn cờ",
+          "recommended": false
+        }
+      ],
+      "proposedOptionId": "A",
+      "provenance": "data",
+      "question": "Đơn huỷ có được tính doanh thu không?",
+      "status": "assumed",
+      "whyItMatters": "Policy này thay đổi tổng doanh thu."
+    },
+    {
+      "blocker": false,
+      "chosenOptionId": null,
+      "consequenceOfChoice": null,
+      "evidence": [
+        {
+          "formulaId": "fm_return_lines_effect",
+          "kind": "engine",
+          "ref": null,
+          "value": "-4500000"
+        }
+      ],
+      "id": "SP-2",
+      "labels": [],
+      "options": [
+        {
+          "consequence": {
+            "statement": "Policy này thay đổi ảnh hưởng trả hàng.",
+            "value": {
+              "formulaId": "fm_return_lines_effect",
+              "unit": "VND",
+              "value": "-4500000"
+            }
+          },
+          "id": "A",
+          "label": "Tính thuần, giữ số lượng âm",
+          "recommended": true
+        },
+        {
+          "consequence": {
+            "statement": "Policy này thay đổi ảnh hưởng trả hàng.",
+            "value": {
+              "formulaId": "fm_return_lines_effect",
+              "unit": "VND",
+              "value": "-4500000"
+            }
+          },
+          "id": "B",
+          "label": "Không trừ dòng trả hàng, trình bày riêng",
+          "recommended": false
+        }
+      ],
+      "proposedOptionId": "A",
+      "provenance": "data",
+      "question": "Trả hàng với số lượng âm tính thuần hay gộp?",
+      "status": "assumed",
+      "whyItMatters": "Policy này thay đổi ảnh hưởng trả hàng."
+    },
+    {
+      "blocker": true,
+      "chosenOptionId": null,
+      "consequenceOfChoice": null,
+      "evidence": [
+        {
+          "formulaId": "fm_orphan_customer_revenue",
+          "kind": "engine",
+          "ref": null,
+          "value": "11900000"
+        }
+      ],
+      "id": "SP-3",
+      "labels": [],
+      "options": [
+        {
+          "consequence": {
+            "statement": "Bỏ khách ngoài danh mục làm mất doanh thu có trong nguồn.",
+            "value": {
+              "formulaId": "fm_orphan_customer_revenue",
+              "unit": "VND",
+              "value": "11900000"
+            }
+          },
+          "id": "A",
+          "label": "Giữ khách trong nhóm UNKNOWN_CUSTOMER",
+          "recommended": true
+        },
+        {
+          "consequence": {
+            "statement": "Bỏ khách ngoài danh mục làm mất doanh thu có trong nguồn.",
+            "value": {
+              "formulaId": "fm_orphan_customer_revenue",
+              "unit": "VND",
+              "value": "11900000"
+            }
+          },
+          "id": "B",
+          "label": "Bỏ dòng có khách ngoài danh mục",
+          "recommended": false
+        }
+      ],
+      "proposedOptionId": "A",
+      "provenance": "data",
+      "question": "Khách không có trong danh mục được xử lý thế nào?",
+      "status": "conflict",
+      "whyItMatters": "Bỏ khách ngoài danh mục làm mất doanh thu có trong nguồn."
+    },
+    {
+      "blocker": false,
+      "chosenOptionId": null,
+      "consequenceOfChoice": null,
+      "evidence": [
+        {
+          "formulaId": "fm_territory_fallback_revenue",
+          "kind": "engine",
+          "ref": null,
+          "value": "24152500"
+        }
+      ],
+      "id": "SP-4",
+      "labels": [],
+      "options": [
+        {
+          "consequence": {
+            "statement": "Policy này thay đổi phân bổ khu vực, không thay đổi tổng.",
+            "value": {
+              "formulaId": "fm_territory_fallback_revenue",
+              "unit": "VND",
+              "value": "24152500"
+            }
+          },
+          "id": "A",
+          "label": "Lấy khu vực từ danh mục khách, còn thiếu dùng UNKNOWN",
+          "recommended": true
+        },
+        {
+          "consequence": {
+            "statement": "Policy này thay đổi phân bổ khu vực, không thay đổi tổng.",
+            "value": {
+              "formulaId": "fm_territory_fallback_revenue",
+              "unit": "VND",
+              "value": "24152500"
+            }
+          },
+          "id": "B",
+          "label": "Giữ nhóm UNKNOWN cho khu vực trống",
+          "recommended": false
+        }
+      ],
+      "proposedOptionId": "A",
+      "provenance": "data",
+      "question": "Đơn thiếu khu vực được gán khu vực thế nào?",
+      "status": "inferred",
+      "whyItMatters": "Policy này thay đổi phân bổ khu vực, không thay đổi tổng."
+    },
+    {
+      "blocker": false,
+      "chosenOptionId": null,
+      "consequenceOfChoice": null,
+      "evidence": [
+        {
+          "formulaId": null,
+          "kind": "source_scope",
+          "ref": null,
+          "value": "Không có cờ khách rời bỏ hoặc nguồn cùng kỳ."
+        }
+      ],
+      "id": "SP-5",
+      "labels": [
+        "out_of_scope"
+      ],
+      "options": [
+        {
+          "consequence": {
+            "statement": "Chưa có nguồn; không kết luận khách rời bỏ hoặc so cùng kỳ.",
+            "value": null
+          },
+          "id": "A",
+          "label": "Báo cáo doanh thu, phần thiếu khách ngoài phạm vi",
+          "recommended": true
+        },
+        {
+          "consequence": {
+            "statement": "Chưa có nguồn; không kết luận khách rời bỏ hoặc so cùng kỳ.",
+            "value": null
+          },
+          "id": "B",
+          "label": "Chờ nguồn khách rời bỏ hoặc cùng kỳ",
+          "recommended": false
+        }
+      ],
+      "proposedOptionId": "A",
+      "provenance": "data",
+      "question": "Có cờ khách rời bỏ hoặc nguồn cùng kỳ để giải thích thiếu khách không?",
+      "status": "missing_data",
+      "whyItMatters": "Chưa có nguồn; không kết luận khách rời bỏ hoặc so cùng kỳ."
+    }
+  ],
+  "understandHash": "sha256:b0c70bc5aa8ccb9e8cb99e35842e0d82336e50b4d54529d2cb19111a493a4dd7",
+  "variantOf": null,
+  "variantReason": null
+}

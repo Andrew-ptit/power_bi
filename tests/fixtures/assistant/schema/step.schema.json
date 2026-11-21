@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "decisionRefs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 0,
+      "type": "array"
+    },
+    "dependsOn": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 0,
+      "type": "array"
+    },
+    "guard": {
+      "anyOf": [
+        {
+          "enum": [
+            "AF_INGEST_FAILED",
+            "AF_SOURCE_LOST",
+            "AF_FANOUT_RISK",
+            "AF_MISSING_DATA",
+            "AF_RECONCILE_FAILED",
+            "AF_SPEC_STALE",
+            "AF_WRITE_PARTIAL"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "id": {
+      "pattern": "^st_[0-9]{2}$",
+      "type": "string"
+    },
+    "inputs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 0,
+      "type": "array"
+    },
+    "kind": {
+      "enum": [
+        "recipe",
+        "lookup",
+        "join",
+        "group",
+        "calc",
+        "filter",
+        "sort",
+        "output"
+      ]
+    },
+    "label": {
+      "type": "string"
+    },
+    "output": {
+      "type": "string"
+    },
+    "params": {
+      "additionalProperties": false,
+      "properties": {
+        "columns": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "minItems": 0,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "formulaId": {
+          "anyOf": [
+            {
+              "pattern": "^fm_[A-Za-z0-9_]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "operation": {
+          "type": "string"
+        },
+        "tableId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "operation",
+        "tableId",
+        "columns",
+        "formulaId"
+      ],
+      "type": "object"
+    },
+    "status": {
+      "enum": [
+        "ok",
+        "pending",
+        "blocked"
+      ]
+    }
+  },
+  "required": [
+    "id",
+    "kind",
+    "label",
+    "decisionRefs",
+    "inputs",
+    "params",
+    "output",
+    "dependsOn",
+    "status",
+    "guard"
+  ],
+  "type": "object"
+}

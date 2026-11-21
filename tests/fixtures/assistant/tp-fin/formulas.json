@@ -1,0 +1,637 @@
+{
+  "formulas": [
+    {
+      "basis": "engine-decimal",
+      "expression": "sum(signed_amount where Currency == USD and PnlGroup == NetRevenue and not intercompany)",
+      "formulaId": "fm_actual_usd",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "USD"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "sum(signed_amount where Currency == VND and PnlGroup == NetRevenue and not intercompany)",
+      "formulaId": "fm_actual_vnd",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "VND"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "signed_amount * FX[Currency, Month, average]",
+      "formulaId": "fm_amount_vnd",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "VND"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "op + fx",
+      "formulaId": "fm_bridge_total",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "VND"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "sum(budget_signed_amount where Currency == USD and PnlGroup == NetRevenue)",
+      "formulaId": "fm_budget_usd",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "USD"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "sum(budget_signed_amount where Currency == VND and PnlGroup == NetRevenue)",
+      "formulaId": "fm_budget_vnd",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "VND"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "sum(amount_vnd where PnlGroup == COGS and not intercompany)",
+      "formulaId": "fm_cogs_actual",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "VND"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "sum(budget_signed_amount * budget_rate where PnlGroup == COGS)",
+      "formulaId": "fm_cogs_budget",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "VND"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "sum(signed_amount * average_rate for exact_deduped_GL_rows)",
+      "formulaId": "fm_control_total_deduped",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "VND"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "sum(signed_amount * average_rate for raw_GL_rows)",
+      "formulaId": "fm_control_total_raw",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "VND"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "exact_duplicates",
+      "formulaId": "fm_exact_duplicates",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "rows"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "sum(actual_signed_currency * (average_rate - budget_rate))",
+      "formulaId": "fm_fx",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "VND"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "round_half_up(fx / bridge_total * 100, 2)",
+      "formulaId": "fm_fx_share_pct",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "percent"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "fx - fx",
+      "formulaId": "fm_fx_zero",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "VND"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "sum(amount_vnd where PnlGroup == NetRevenue and AccountType != ContraRevenue and not intercompany)",
+      "formulaId": "fm_gross_actual",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "VND"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "round_half_up(gross_profit_actual / net_revenue_actual * 100, 2)",
+      "formulaId": "fm_gross_margin_actual_pct",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "percent"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "round_half_up(gross_profit_budget / net_revenue_budget * 100, 2)",
+      "formulaId": "fm_gross_margin_budget_pct",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "percent"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "round_half_up(gross_profit_actual / net_revenue_actual * 100, 2) - round_half_up(gross_profit_budget / net_revenue_budget * 100, 2)",
+      "formulaId": "fm_gross_margin_delta_pp",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "percentage_points"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "net_revenue + cogs",
+      "formulaId": "fm_gross_profit",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "VND"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "net_revenue_actual + cogs_actual",
+      "formulaId": "fm_gross_profit_actual",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "VND"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "net_revenue_budget + cogs_budget",
+      "formulaId": "fm_gross_profit_budget",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "VND"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "-sum(amount_vnd where PartnerEntity is not empty)",
+      "formulaId": "fm_ic_excluded_effect_gross_profit",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "VND"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "sum(amount_vnd where PartnerEntity is not empty)",
+      "formulaId": "fm_intercompany_net_vnd",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "VND"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "count(deduped_GL where PartnerEntity is not empty)",
+      "formulaId": "fm_intercompany_rows",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "rows"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "sum(multiplicity for document_keys where multiplicity > 1)",
+      "formulaId": "fm_key_collision_rows",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "rows"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "key_collisions",
+      "formulaId": "fm_key_collisions",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "groups"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "sum(signed_amount_vnd where PnlGroup == NetRevenue and not intercompany)",
+      "formulaId": "fm_net_revenue",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "VND"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "sum(amount_vnd where mapped_account.PnlGroup == NetRevenue and PartnerEntity is empty)",
+      "formulaId": "fm_net_revenue_actual",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "VND"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "sum(budget_signed_amount * budget_rate where PnlGroup == NetRevenue)",
+      "formulaId": "fm_net_revenue_budget",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "VND"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "sum((actual_signed_currency - budget_signed_currency) * budget_rate)",
+      "formulaId": "fm_op",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "VND"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "net_revenue_actual - net_revenue_budget",
+      "formulaId": "fm_op_policy_b",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "VND"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "sum(amount_vnd where PnlGroup == Opex and not intercompany)",
+      "formulaId": "fm_opex_actual",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "VND"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "sum(budget_signed_amount * budget_rate where PnlGroup == Opex)",
+      "formulaId": "fm_opex_budget",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "VND"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "distinct_count(column) / row_count(table)",
+      "formulaId": "fm_profile_distinct_ratio",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "ratio"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "FX_Rates[USD, period, average].Rate",
+      "formulaId": "fm_rate_actual_usd_average",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "VND_per_USD"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "frozen_pack_policy.budget_rate.USD",
+      "formulaId": "fm_rate_budget_usd",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "VND_per_USD"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "sum(amount_vnd where AccountType == ContraRevenue and not intercompany)",
+      "formulaId": "fm_rebate_actual",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "VND"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "len(source_rows)",
+      "formulaId": "fm_row_count",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "rows"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "len(unique(full_row_tuple for GL_source_rows))",
+      "formulaId": "fm_rows_deduped",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "rows"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "len(GL_source_rows)",
+      "formulaId": "fm_rows_raw",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "rows"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "abs(scenario_A.FX - scenario_B.FX)",
+      "formulaId": "fm_scenario_ab_delta",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "VND"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "Decimal(Amount) * (1 if DebitCredit == C else -1)",
+      "formulaId": "fm_signed_amount",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "VND"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "abs(sum(amount_vnd where AccountType == ContraRevenue and not intercompany))",
+      "formulaId": "fm_sp1_option_b_delta",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "VND"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "abs(sum(actual_signed_currency * (average_rate - budget_rate)))",
+      "formulaId": "fm_sp2_option_b_delta",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "VND"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "abs(sum(amount_vnd where PartnerEntity is not empty))",
+      "formulaId": "fm_sp3_option_b_delta",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "VND"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "sum(raw_signed_vnd) - sum(exact_deduped_signed_vnd)",
+      "formulaId": "fm_sp4_option_b_delta",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "VND"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "abs(sum(amount_vnd where raw AccountCode not in CoA))",
+      "formulaId": "fm_sp5_option_b_delta",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "VND"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "sum(amount_vnd with unresolved flag) - sum(amount_vnd with CC-UNALLOC label)",
+      "formulaId": "fm_sp6_option_b_delta",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "VND"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "sum(amount_vnd) - sum(amount_vnd where required average rate exists)",
+      "formulaId": "fm_sp8_option_b_delta",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "VND"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "abs(sum(min(signed_vnd) for collision key groups))",
+      "formulaId": "fm_sp9_option_b_delta",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "VND"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "net_revenue_actual - net_revenue_budget",
+      "formulaId": "fm_variance",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "VND"
+    },
+    {
+      "basis": "engine-decimal",
+      "expression": "round_half_up((net_revenue_actual - net_revenue_budget) / net_revenue_budget * 100, 2)",
+      "formulaId": "fm_variance_pct",
+      "inputs": [
+        "tbl_d77145e20992",
+        "tbl_eee82d73e347",
+        "tbl_d934591b174e",
+        "tbl_a90b2dbd61c5"
+      ],
+      "unit": "percent"
+    }
+  ],
+  "hash": "sha256:99410089ae3d9d9ecbb3e6fe76fd557e215fea1cb1723082f511ce802e056104",
+  "hashBasis": [
+    "formulas",
+    "variantOf",
+    "variantReason"
+  ],
+  "schemaVersion": "1.0",
+  "variantOf": null,
+  "variantReason": null
+}

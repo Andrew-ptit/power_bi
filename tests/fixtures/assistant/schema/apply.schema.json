@@ -1,0 +1,209 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "appliedAt": {
+      "type": "string"
+    },
+    "approval": {
+      "additionalProperties": false,
+      "properties": {
+        "approvalId": {
+          "pattern": "^apr_[a-f0-9]{12}$",
+          "type": "string"
+        },
+        "approvedAt": {
+          "type": "string"
+        },
+        "approvedBy": {
+          "enum": [
+            "user"
+          ]
+        },
+        "boundTo": {
+          "additionalProperties": false,
+          "properties": {
+            "previewHash": {
+              "pattern": "^sha256:[a-f0-9]{64}$",
+              "type": "string"
+            },
+            "specFingerprint": {
+              "pattern": "^sha256:[a-f0-9]{64}$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "specFingerprint",
+            "previewHash"
+          ],
+          "type": "object"
+        },
+        "consumed": {
+          "type": "boolean"
+        },
+        "singleUse": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "approvalId",
+        "approvedBy",
+        "approvedAt",
+        "boundTo",
+        "consumed",
+        "singleUse"
+      ],
+      "type": "object"
+    },
+    "hash": {
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "type": "string"
+    },
+    "hashBasis": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "labels": {
+      "items": {
+        "enum": [
+          "unverified",
+          "assumed",
+          "out_of_scope",
+          "stale"
+        ]
+      },
+      "minItems": 0,
+      "type": "array"
+    },
+    "previewHash": {
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "type": "string"
+    },
+    "schemaVersion": {
+      "enum": [
+        "1.0"
+      ]
+    },
+    "source": {
+      "additionalProperties": false,
+      "properties": {
+        "after": {
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "type": "string"
+        },
+        "before": {
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "type": "string"
+        },
+        "sheetsWritten": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "unchanged": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "before",
+        "after",
+        "unchanged",
+        "sheetsWritten"
+      ],
+      "type": "object"
+    },
+    "specFingerprint": {
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "type": "string"
+    },
+    "target": {
+      "additionalProperties": false,
+      "properties": {
+        "marker": {
+          "type": "string"
+        },
+        "mode": {
+          "enum": [
+            "values_only"
+          ]
+        },
+        "sheet": {
+          "type": "string"
+        },
+        "workbook": {
+          "enum": [
+            "current"
+          ]
+        },
+        "writeMode": {
+          "enum": [
+            "new_sheet_only"
+          ]
+        }
+      },
+      "required": [
+        "workbook",
+        "sheet",
+        "mode",
+        "marker",
+        "writeMode"
+      ],
+      "type": "object"
+    },
+    "variantOf": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "variantReason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "workbookSaved": {
+      "type": "boolean"
+    },
+    "written": {
+      "additionalProperties": false,
+      "properties": {
+        "columnCount": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "rowCount": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "rowCount",
+        "columnCount"
+      ],
+      "type": "object"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "specFingerprint",
+    "previewHash",
+    "approval",
+    "target",
+    "written",
+    "source",
+    "workbookSaved",
+    "labels",
+    "appliedAt",
+    "hashBasis",
+    "hash",
+    "variantOf",
+    "variantReason"
+  ],
+  "type": "object"
+}

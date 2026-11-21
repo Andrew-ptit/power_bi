@@ -1,0 +1,92 @@
+{
+  "blockers": [],
+  "bridge": {
+    "actualUsd": "1450000",
+    "actualVnd": "8604000000",
+    "applicable": true,
+    "budgetUsd": "1470000",
+    "budgetVnd": "8565000000",
+    "fx": "-1276000000",
+    "op": "-464600000",
+    "passed": true,
+    "rateActual": "24300",
+    "rateBudget": "25180",
+    "scope": "NetRevenue",
+    "total": "-1740600000",
+    "variance": "-1740600000"
+  },
+  "checks": [
+    {
+      "detail": "31 → 30 → 23",
+      "id": "row_count",
+      "passed": true
+    },
+    {
+      "detail": "Tổng nguồn sau dedupe bằng tổng kết quả gồm bucket nội bộ.",
+      "id": "control_total",
+      "passed": true
+    },
+    {
+      "detail": "op + fx = total = variance",
+      "id": "bridge_identity",
+      "passed": true
+    }
+  ],
+  "colsIn": 12,
+  "colsOut": 9,
+  "controlTotalPassed": true,
+  "controlTotalRawSource": "16906900000",
+  "controlTotalResult": "14206900000",
+  "controlTotalSource": "14206900000",
+  "controlTotalTolerance": "0.01",
+  "droppedByDedupe": "2700000000",
+  "hashBasis": [
+    "specFingerprint",
+    "previewHash",
+    "rowsIn",
+    "rowsInDeduped",
+    "rowsOut",
+    "colsIn",
+    "colsOut",
+    "controlTotalRawSource",
+    "droppedByDedupe",
+    "controlTotalSource",
+    "controlTotalResult",
+    "controlTotalTolerance",
+    "controlTotalPassed",
+    "bridge",
+    "checks",
+    "blockers",
+    "warnings",
+    "labels",
+    "passed",
+    "variantOf",
+    "variantReason"
+  ],
+  "labels": [
+    "assumed",
+    "unverified"
+  ],
+  "passed": true,
+  "previewHash": "sha256:a2d35f21a11b8fc9d7b175aac29185682c404bd5231fd6450b5c83b6f40ae93f",
+  "reconcileHash": "sha256:89b4607daa3ffc676007944fafd446ad35f4a26271cfe2ce3fde36d2a35a7b8f",
+  "rowsIn": 31,
+  "rowsInDeduped": 30,
+  "rowsOut": 23,
+  "schemaVersion": "1.0",
+  "specFingerprint": "sha256:97e6b63a53d427d2c15a943bb1193771d16e2803a2c88b420ff57a2af038ab4c",
+  "variantOf": null,
+  "variantReason": null,
+  "warnings": [
+    {
+      "code": "AF_MISSING_DATA",
+      "message": "Thiếu EUR average T9 nhưng không có phát sinh EUR nên không ảnh hưởng.",
+      "severity": "warning"
+    },
+    {
+      "code": "AF_MISSING_DATA",
+      "message": "Thiếu USD closing T8; P&L chỉ dùng average nên không ảnh hưởng.",
+      "severity": "warning"
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+CurrencyCode,CurrencyName,DecimalPlaces,IsReportingCurrency
+VND,Vietnamese Dong,0,Y
+USD,US Dollar,2,N
+EUR,Euro,2,N

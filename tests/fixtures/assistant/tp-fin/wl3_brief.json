@@ -1,0 +1,1618 @@
+{
+  "assumptions": [
+    {
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "asm_00c67e108f4c",
+      "risk": "low",
+      "source": "data",
+      "statement": "Kỳ báo cáo lấy từ ngày hạch toán của nguồn."
+    },
+    {
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "asm_03faf841a49f",
+      "risk": "high",
+      "source": "pack",
+      "statement": "Doanh thu thuần bao gồm tài khoản giảm trừ."
+    },
+    {
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "asm_9c71fc499138",
+      "risk": "high",
+      "source": "pack",
+      "statement": "Báo cáo P&L sử dụng tỷ giá bình quân theo tiền tệ từng dòng."
+    },
+    {
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "asm_427ee0e0904c",
+      "risk": "high",
+      "source": "pack",
+      "statement": "Loại cả hai vế nội bộ khỏi P&L; giữ bucket đối soát."
+    },
+    {
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "asm_bb36ccaec71d",
+      "risk": "medium",
+      "source": "history",
+      "statement": "Policy trước đó chỉ là ngữ cảnh synthetic, cần người dùng chốt lại."
+    },
+    {
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "asm_3190d261d186",
+      "risk": "low",
+      "source": "user",
+      "statement": "Người dùng xác nhận chỉ ghi giá trị vào sheet mới."
+    },
+    {
+      "confidence": 0.5,
+      "evidence": [
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "asm_c6e760a00a7f",
+      "risk": "high",
+      "source": "llm",
+      "statement": "Tỷ giá có thể giải thích phần lớn chênh lệch doanh thu; đây là suy luận."
+    },
+    {
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "asm_97ca23454227",
+      "risk": "medium",
+      "source": "data",
+      "statement": "Ánh xạ prefix tài khoản là đề xuất, chưa phải policy đã kiểm toán."
+    }
+  ],
+  "briefHash": "sha256:5fde1e29f4a7ba6324dc5e59a61bd864ba53e9d0e10ac8dc3906f8e7db4c9226",
+  "delta": {
+    "formulaId": "fm_scenario_ab_delta",
+    "unit": "VND",
+    "value": "1276000000"
+  },
+  "findings": [
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_net_revenue_actual",
+          "kind": "engine",
+          "ref": null,
+          "value": "43839000000"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "fd_628f4787a9f7",
+      "provenance": "data",
+      "statement": "Doanh thu thuần thực tế theo các policy đề xuất.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_net_revenue_actual",
+        "unit": "VND",
+        "value": "43839000000"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_variance_pct",
+          "kind": "engine",
+          "ref": null,
+          "value": "-3.82"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "fd_95f034af3061",
+      "provenance": "data",
+      "statement": "Chênh lệch doanh thu thuần so với ngân sách.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_variance_pct",
+        "unit": "percent",
+        "value": "-3.82"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_gross_profit_actual",
+          "kind": "engine",
+          "ref": null,
+          "value": "13755800000"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "fd_efef5035d40f",
+      "provenance": "data",
+      "statement": "Lợi nhuận gộp thực tế theo policy đề xuất.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_gross_profit_actual",
+        "unit": "VND",
+        "value": "13755800000"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_gross_margin_delta_pp",
+          "kind": "engine",
+          "ref": null,
+          "value": "-2.01"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "fd_9f3cf366a14a",
+      "provenance": "data",
+      "statement": "Chênh lệch tỷ suất lợi nhuận gộp.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_gross_margin_delta_pp",
+        "unit": "percentage_points",
+        "value": "-2.01"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_fx",
+          "kind": "engine",
+          "ref": null,
+          "value": "-1276000000"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "fd_2314a9db72a8",
+      "provenance": "data",
+      "statement": "Ảnh hưởng tỷ giá trong cầu nối doanh thu thuần.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_fx",
+        "unit": "VND",
+        "value": "-1276000000"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_rows_raw",
+          "kind": "engine",
+          "ref": null,
+          "value": "31"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "fd_bcb850ab94d4",
+      "provenance": "data",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_rows_raw",
+        "unit": "rows",
+        "value": "31"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_exact_duplicates",
+          "kind": "engine",
+          "ref": null,
+          "value": "1"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "fd_195892493d18",
+      "provenance": "data",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_exact_duplicates",
+        "unit": "rows",
+        "value": "1"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_rows_deduped",
+          "kind": "engine",
+          "ref": null,
+          "value": "30"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "fd_9071c76d6a19",
+      "provenance": "data",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_rows_deduped",
+        "unit": "rows",
+        "value": "30"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_key_collisions",
+          "kind": "engine",
+          "ref": null,
+          "value": "1"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "fd_5c899232a31d",
+      "provenance": "data",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_key_collisions",
+        "unit": "groups",
+        "value": "1"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_key_collision_rows",
+          "kind": "engine",
+          "ref": null,
+          "value": "2"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "fd_47557102b4ec",
+      "provenance": "data",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_key_collision_rows",
+        "unit": "rows",
+        "value": "2"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_intercompany_rows",
+          "kind": "engine",
+          "ref": null,
+          "value": "2"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "fd_b076b56ae8e4",
+      "provenance": "data",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_intercompany_rows",
+        "unit": "rows",
+        "value": "2"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_intercompany_net_vnd",
+          "kind": "engine",
+          "ref": null,
+          "value": "4374000000"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "fd_4a1a74de6d18",
+      "provenance": "data",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_intercompany_net_vnd",
+        "unit": "VND",
+        "value": "4374000000"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_control_total_raw",
+          "kind": "engine",
+          "ref": null,
+          "value": "16906900000"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "fd_5500493ec7e9",
+      "provenance": "data",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_control_total_raw",
+        "unit": "VND",
+        "value": "16906900000"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_control_total_deduped",
+          "kind": "engine",
+          "ref": null,
+          "value": "14206900000"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "fd_694938c331ed",
+      "provenance": "data",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_control_total_deduped",
+        "unit": "VND",
+        "value": "14206900000"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_gross_actual",
+          "kind": "engine",
+          "ref": null,
+          "value": "43931000000"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "fd_feeebb2cfa9d",
+      "provenance": "data",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_gross_actual",
+        "unit": "VND",
+        "value": "43931000000"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_rebate_actual",
+          "kind": "engine",
+          "ref": null,
+          "value": "-92000000"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "fd_783030480c24",
+      "provenance": "data",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_rebate_actual",
+        "unit": "VND",
+        "value": "-92000000"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_net_revenue_budget",
+          "kind": "engine",
+          "ref": null,
+          "value": "45579600000"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "fd_e1dccee045dd",
+      "provenance": "data",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_net_revenue_budget",
+        "unit": "VND",
+        "value": "45579600000"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_variance",
+          "kind": "engine",
+          "ref": null,
+          "value": "-1740600000"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "fd_2bda9b000dfc",
+      "provenance": "data",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_variance",
+        "unit": "VND",
+        "value": "-1740600000"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_cogs_actual",
+          "kind": "engine",
+          "ref": null,
+          "value": "-30083200000"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "fd_39d5d975d756",
+      "provenance": "data",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_cogs_actual",
+        "unit": "VND",
+        "value": "-30083200000"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_cogs_budget",
+          "kind": "engine",
+          "ref": null,
+          "value": "-30361800000"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "fd_db9fd92989af",
+      "provenance": "data",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_cogs_budget",
+        "unit": "VND",
+        "value": "-30361800000"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_opex_actual",
+          "kind": "engine",
+          "ref": null,
+          "value": "-3922900000"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "fd_8730d34f137d",
+      "provenance": "data",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_opex_actual",
+        "unit": "VND",
+        "value": "-3922900000"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_opex_budget",
+          "kind": "engine",
+          "ref": null,
+          "value": "-3556700000"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "fd_61d96933399a",
+      "provenance": "data",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_opex_budget",
+        "unit": "VND",
+        "value": "-3556700000"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_gross_profit_budget",
+          "kind": "engine",
+          "ref": null,
+          "value": "15217800000"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "fd_863f23234463",
+      "provenance": "data",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_gross_profit_budget",
+        "unit": "VND",
+        "value": "15217800000"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_gross_margin_actual_pct",
+          "kind": "engine",
+          "ref": null,
+          "value": "31.38"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "fd_ea6557069c22",
+      "provenance": "data",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_gross_margin_actual_pct",
+        "unit": "percent",
+        "value": "31.38"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_gross_margin_budget_pct",
+          "kind": "engine",
+          "ref": null,
+          "value": "33.39"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "fd_b143fa877273",
+      "provenance": "data",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_gross_margin_budget_pct",
+        "unit": "percent",
+        "value": "33.39"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_actual_usd",
+          "kind": "engine",
+          "ref": null,
+          "value": "1450000"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "fd_08af62064d34",
+      "provenance": "data",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_actual_usd",
+        "unit": "USD",
+        "value": "1450000"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_actual_vnd",
+          "kind": "engine",
+          "ref": null,
+          "value": "8604000000"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "fd_e6c306d58e41",
+      "provenance": "data",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_actual_vnd",
+        "unit": "VND",
+        "value": "8604000000"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_budget_usd",
+          "kind": "engine",
+          "ref": null,
+          "value": "1470000"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "fd_3b083e357416",
+      "provenance": "data",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_budget_usd",
+        "unit": "USD",
+        "value": "1470000"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_budget_vnd",
+          "kind": "engine",
+          "ref": null,
+          "value": "8565000000"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "fd_ccbba24fe0fb",
+      "provenance": "data",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_budget_vnd",
+        "unit": "VND",
+        "value": "8565000000"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_rate_actual_usd_average",
+          "kind": "engine",
+          "ref": null,
+          "value": "24300"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "fd_0baade55c653",
+      "provenance": "data",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_rate_actual_usd_average",
+        "unit": "VND_per_USD",
+        "value": "24300"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_rate_budget_usd",
+          "kind": "engine",
+          "ref": null,
+          "value": "25180"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "fd_036b95f3ce96",
+      "provenance": "data",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_rate_budget_usd",
+        "unit": "VND_per_USD",
+        "value": "25180"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_op",
+          "kind": "engine",
+          "ref": null,
+          "value": "-464600000"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "fd_0cacf69ab63c",
+      "provenance": "data",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_op",
+        "unit": "VND",
+        "value": "-464600000"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_bridge_total",
+          "kind": "engine",
+          "ref": null,
+          "value": "-1740600000"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "fd_67b2454cc84e",
+      "provenance": "data",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_bridge_total",
+        "unit": "VND",
+        "value": "-1740600000"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_fx_share_pct",
+          "kind": "engine",
+          "ref": null,
+          "value": "73.31"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "fd_094817628d40",
+      "provenance": "data",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_fx_share_pct",
+        "unit": "percent",
+        "value": "73.31"
+      }
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_ic_excluded_effect_gross_profit",
+          "kind": "engine",
+          "ref": null,
+          "value": "-4374000000"
+        },
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "fd_829bc0129f93",
+      "provenance": "data",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "status": "inferred",
+      "value": {
+        "formulaId": "fm_ic_excluded_effect_gross_profit",
+        "unit": "VND",
+        "value": "-4374000000"
+      }
+    }
+  ],
+  "hashBasis": [
+    "snapshotHash",
+    "understandHash",
+    "prompt",
+    "outputContract",
+    "findings",
+    "insightCases",
+    "subProblems",
+    "scenarios",
+    "delta",
+    "assumptions",
+    "labels",
+    "variantOf",
+    "variantReason"
+  ],
+  "insightCases": [
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_fx",
+          "kind": "measure",
+          "ref": "fm_fx",
+          "value": null
+        }
+      ],
+      "id": "ic_143e7810ed78",
+      "kind": "hypothesis",
+      "provenance": "data",
+      "statement": "Giả thuyết: tỷ giá giải thích phần lớn chênh lệch doanh thu; chưa chứng minh nguyên nhân giá bán.",
+      "status": "inferred"
+    },
+    {
+      "evidence": [
+        {
+          "formulaId": "fm_fx",
+          "kind": "measure",
+          "ref": "fm_fx",
+          "value": null
+        }
+      ],
+      "id": "ic_76d65c66ecee",
+      "kind": "slice",
+      "provenance": "data",
+      "statement": "Xem lát cắt các dòng USD theo cost center để kiểm tra phần ảnh hưởng tỷ giá.",
+      "status": "inferred"
+    }
+  ],
+  "labels": [
+    "assumed",
+    "unverified"
+  ],
+  "outputContract": {
+    "currency": "VND",
+    "filters": [
+      {
+        "field": "period",
+        "operator": "between",
+        "value": [
+          "2026-09-01",
+          "2026-09-30"
+        ]
+      }
+    ],
+    "grain": [
+      "pnlLine",
+      "accountCode",
+      "costCenter",
+      "entityCode"
+    ],
+    "measures": [
+      {
+        "formulaId": "fm_net_revenue",
+        "name": "NetRevenue"
+      },
+      {
+        "formulaId": "fm_gross_profit",
+        "name": "GrossProfit"
+      }
+    ],
+    "period": {
+      "from": "2026-09-01",
+      "label": "T9/2026",
+      "to": "2026-09-30"
+    }
+  },
+  "prompt": "Doanh thu thuần & lợi nhuận gộp T9 giảm do giá/chủng loại hay tỷ giá? Làm P&L theo cost center, quy VND, tách FX.",
+  "scenarios": [
+    {
+      "id": "A",
+      "label": "Tỷ giá bình quân",
+      "values": [
+        {
+          "formulaId": "fm_fx",
+          "name": "FX",
+          "unit": "VND",
+          "value": "-1276000000"
+        },
+        {
+          "formulaId": "fm_op",
+          "name": "Op",
+          "unit": "VND",
+          "value": "-464600000"
+        }
+      ]
+    },
+    {
+      "id": "B",
+      "label": "Tỷ giá ngân sách cố định",
+      "values": [
+        {
+          "formulaId": "fm_fx_zero",
+          "name": "FX",
+          "unit": "VND",
+          "value": "0"
+        },
+        {
+          "formulaId": "fm_op_policy_b",
+          "name": "Op",
+          "unit": "VND",
+          "value": "-1740600000"
+        }
+      ]
+    }
+  ],
+  "schemaVersion": "1.0",
+  "snapshotHash": "sha256:38a8e560b0f821664e1cf7e117e9b8e0376bf84af629eb895eeb64655980fb99",
+  "subProblems": [
+    {
+      "blocker": true,
+      "chosenOptionId": null,
+      "consequenceOfChoice": null,
+      "evidence": [
+        {
+          "formulaId": "fm_sp1_option_b_delta",
+          "kind": "engine",
+          "ref": null,
+          "value": "92000000"
+        }
+      ],
+      "id": "SP-1",
+      "labels": [],
+      "options": [
+        {
+          "consequence": {
+            "statement": "Chênh lệch tuyệt đối giữa hai lựa chọn theo oracle; giữ nguyên tổng nguồn để đối soát.",
+            "value": {
+              "formulaId": "fm_sp1_option_b_delta",
+              "unit": "VND",
+              "value": "92000000"
+            }
+          },
+          "id": "A",
+          "label": "Trừ rebate",
+          "recommended": true
+        },
+        {
+          "consequence": {
+            "statement": "Chênh lệch tuyệt đối giữa hai lựa chọn theo oracle; giữ nguyên tổng nguồn để đối soát.",
+            "value": {
+              "formulaId": "fm_sp1_option_b_delta",
+              "unit": "VND",
+              "value": "92000000"
+            }
+          },
+          "id": "B",
+          "label": "Không trừ rebate",
+          "recommended": false
+        }
+      ],
+      "proposedOptionId": "A",
+      "provenance": "pack",
+      "question": "Net revenue có trừ rebate?",
+      "status": "assumed",
+      "whyItMatters": "Lựa chọn quyết định cách trình bày và phạm vi kết quả."
+    },
+    {
+      "blocker": true,
+      "chosenOptionId": null,
+      "consequenceOfChoice": null,
+      "evidence": [
+        {
+          "formulaId": "fm_sp2_option_b_delta",
+          "kind": "engine",
+          "ref": null,
+          "value": "1276000000"
+        }
+      ],
+      "id": "SP-2",
+      "labels": [],
+      "options": [
+        {
+          "consequence": {
+            "statement": "Chênh lệch tuyệt đối giữa hai lựa chọn theo oracle; giữ nguyên tổng nguồn để đối soát.",
+            "value": {
+              "formulaId": "fm_sp2_option_b_delta",
+              "unit": "VND",
+              "value": "1276000000"
+            }
+          },
+          "id": "A",
+          "label": "Dùng average",
+          "recommended": true
+        },
+        {
+          "consequence": {
+            "statement": "Chênh lệch tuyệt đối giữa hai lựa chọn theo oracle; giữ nguyên tổng nguồn để đối soát.",
+            "value": {
+              "formulaId": "fm_sp2_option_b_delta",
+              "unit": "VND",
+              "value": "1276000000"
+            }
+          },
+          "id": "B",
+          "label": "Dùng budget rate",
+          "recommended": false
+        }
+      ],
+      "proposedOptionId": "A",
+      "provenance": "pack",
+      "question": "FX dùng average hay budget rate?",
+      "status": "assumed",
+      "whyItMatters": "Lựa chọn quyết định cách trình bày và phạm vi kết quả."
+    },
+    {
+      "blocker": true,
+      "chosenOptionId": null,
+      "consequenceOfChoice": null,
+      "evidence": [
+        {
+          "formulaId": "fm_sp3_option_b_delta",
+          "kind": "engine",
+          "ref": null,
+          "value": "4374000000"
+        }
+      ],
+      "id": "SP-3",
+      "labels": [],
+      "options": [
+        {
+          "consequence": {
+            "statement": "Chênh lệch tuyệt đối giữa hai lựa chọn theo oracle; giữ nguyên tổng nguồn để đối soát.",
+            "value": {
+              "formulaId": "fm_sp3_option_b_delta",
+              "unit": "VND",
+              "value": "4374000000"
+            }
+          },
+          "id": "A",
+          "label": "Loại cả hai vế, giữ bucket đối soát",
+          "recommended": true
+        },
+        {
+          "consequence": {
+            "statement": "Chênh lệch tuyệt đối giữa hai lựa chọn theo oracle; giữ nguyên tổng nguồn để đối soát.",
+            "value": {
+              "formulaId": "fm_sp3_option_b_delta",
+              "unit": "VND",
+              "value": "4374000000"
+            }
+          },
+          "id": "B",
+          "label": "Giữ cả hai vế và gắn cờ",
+          "recommended": false
+        }
+      ],
+      "proposedOptionId": "A",
+      "provenance": "pack",
+      "question": "Intercompany: loại hay giữ?",
+      "status": "assumed",
+      "whyItMatters": "Lựa chọn quyết định cách trình bày và phạm vi kết quả."
+    },
+    {
+      "blocker": false,
+      "chosenOptionId": null,
+      "consequenceOfChoice": null,
+      "evidence": [
+        {
+          "formulaId": "fm_sp4_option_b_delta",
+          "kind": "engine",
+          "ref": null,
+          "value": "2700000000"
+        },
+        {
+          "formulaId": "fm_exact_duplicates",
+          "kind": "exact_duplicates",
+          "ref": null,
+          "value": "1"
+        },
+        {
+          "formulaId": "fm_key_collisions",
+          "kind": "key_collisions",
+          "ref": null,
+          "value": "1"
+        }
+      ],
+      "id": "SP-4",
+      "labels": [],
+      "options": [
+        {
+          "consequence": {
+            "statement": "Chênh lệch tuyệt đối giữa hai lựa chọn theo oracle; giữ nguyên tổng nguồn để đối soát.",
+            "value": {
+              "formulaId": "fm_sp4_option_b_delta",
+              "unit": "VND",
+              "value": "2700000000"
+            }
+          },
+          "id": "A",
+          "label": "Dedupe exact và chuẩn hoá dấu",
+          "recommended": true
+        },
+        {
+          "consequence": {
+            "statement": "Chênh lệch tuyệt đối giữa hai lựa chọn theo oracle; giữ nguyên tổng nguồn để đối soát.",
+            "value": {
+              "formulaId": "fm_sp4_option_b_delta",
+              "unit": "VND",
+              "value": "2700000000"
+            }
+          },
+          "id": "B",
+          "label": "Không dedupe",
+          "recommended": false
+        }
+      ],
+      "proposedOptionId": "A",
+      "provenance": "data",
+      "question": "Dedupe và chuẩn hoá dấu theo luật dữ liệu?",
+      "status": "verified",
+      "whyItMatters": "Lựa chọn quyết định cách trình bày và phạm vi kết quả."
+    },
+    {
+      "blocker": false,
+      "chosenOptionId": null,
+      "consequenceOfChoice": null,
+      "evidence": [
+        {
+          "formulaId": "fm_sp5_option_b_delta",
+          "kind": "engine",
+          "ref": null,
+          "value": "324000000"
+        }
+      ],
+      "id": "SP-5",
+      "labels": [],
+      "options": [
+        {
+          "consequence": {
+            "statement": "Chênh lệch tuyệt đối giữa hai lựa chọn theo oracle; giữ nguyên tổng nguồn để đối soát.",
+            "value": {
+              "formulaId": "fm_sp5_option_b_delta",
+              "unit": "VND",
+              "value": "324000000"
+            }
+          },
+          "id": "A",
+          "label": "Ánh xạ theo prefix",
+          "recommended": true
+        },
+        {
+          "consequence": {
+            "statement": "Chênh lệch tuyệt đối giữa hai lựa chọn theo oracle; giữ nguyên tổng nguồn để đối soát.",
+            "value": {
+              "formulaId": "fm_sp5_option_b_delta",
+              "unit": "VND",
+              "value": "324000000"
+            }
+          },
+          "id": "B",
+          "label": "Giữ bucket Unmapped",
+          "recommended": false
+        }
+      ],
+      "proposedOptionId": "A",
+      "provenance": "data",
+      "question": "Tài khoản chưa map xử lý sao?",
+      "status": "inferred",
+      "whyItMatters": "Lựa chọn quyết định cách trình bày và phạm vi kết quả."
+    },
+    {
+      "blocker": false,
+      "chosenOptionId": null,
+      "consequenceOfChoice": null,
+      "evidence": [
+        {
+          "formulaId": "fm_sp6_option_b_delta",
+          "kind": "engine",
+          "ref": null,
+          "value": "0"
+        }
+      ],
+      "id": "SP-6",
+      "labels": [],
+      "options": [
+        {
+          "consequence": {
+            "statement": "Chênh lệch tuyệt đối giữa hai lựa chọn theo oracle; giữ nguyên tổng nguồn để đối soát.",
+            "value": {
+              "formulaId": "fm_sp6_option_b_delta",
+              "unit": "VND",
+              "value": "0"
+            }
+          },
+          "id": "A",
+          "label": "Giữ và gắn cờ cc_unresolved",
+          "recommended": true
+        },
+        {
+          "consequence": {
+            "statement": "Chênh lệch tuyệt đối giữa hai lựa chọn theo oracle; giữ nguyên tổng nguồn để đối soát.",
+            "value": {
+              "formulaId": "fm_sp6_option_b_delta",
+              "unit": "VND",
+              "value": "0"
+            }
+          },
+          "id": "B",
+          "label": "Gán CC-UNALLOC",
+          "recommended": false
+        }
+      ],
+      "proposedOptionId": "A",
+      "provenance": "data",
+      "question": "Cost center lạc xử lý sao?",
+      "status": "inferred",
+      "whyItMatters": "Lựa chọn quyết định cách trình bày và phạm vi kết quả."
+    },
+    {
+      "blocker": false,
+      "chosenOptionId": null,
+      "consequenceOfChoice": null,
+      "evidence": [
+        {
+          "formulaId": null,
+          "kind": "missing_source",
+          "ref": "LY",
+          "value": null
+        }
+      ],
+      "id": "SP-7",
+      "labels": [
+        "out_of_scope"
+      ],
+      "options": [
+        {
+          "consequence": {
+            "statement": "Ngoài phạm vi vì chưa có nguồn; không suy đoán số.",
+            "value": null
+          },
+          "id": "A",
+          "label": "Báo cáo không LY, ngoài phạm vi",
+          "recommended": true
+        },
+        {
+          "consequence": {
+            "statement": "Ngoài phạm vi vì chưa có nguồn; không suy đoán số.",
+            "value": null
+          },
+          "id": "B",
+          "label": "Chặn tới khi có nguồn",
+          "recommended": false
+        }
+      ],
+      "proposedOptionId": "A",
+      "provenance": "data",
+      "question": "So cùng kỳ năm trước (LY)?",
+      "status": "missing_data",
+      "whyItMatters": "Lựa chọn quyết định cách trình bày và phạm vi kết quả."
+    },
+    {
+      "blocker": false,
+      "chosenOptionId": null,
+      "consequenceOfChoice": null,
+      "evidence": [
+        {
+          "formulaId": "fm_sp8_option_b_delta",
+          "kind": "engine",
+          "ref": null,
+          "value": "0"
+        }
+      ],
+      "id": "SP-8",
+      "labels": [],
+      "options": [
+        {
+          "consequence": {
+            "statement": "Chênh lệch tuyệt đối giữa hai lựa chọn theo oracle; giữ nguyên tổng nguồn để đối soát.",
+            "value": {
+              "formulaId": "fm_sp8_option_b_delta",
+              "unit": "VND",
+              "value": "0"
+            }
+          },
+          "id": "A",
+          "label": "Tiếp tục với warning cho rate không dùng",
+          "recommended": true
+        },
+        {
+          "consequence": {
+            "statement": "Chênh lệch tuyệt đối giữa hai lựa chọn theo oracle; giữ nguyên tổng nguồn để đối soát.",
+            "value": {
+              "formulaId": "fm_sp8_option_b_delta",
+              "unit": "VND",
+              "value": "0"
+            }
+          },
+          "id": "B",
+          "label": "Chặn tới khi bổ sung",
+          "recommended": false
+        }
+      ],
+      "proposedOptionId": "A",
+      "provenance": "data",
+      "question": "Rate thiếu có ảnh hưởng kỳ báo cáo?",
+      "status": "inferred",
+      "whyItMatters": "Lựa chọn quyết định cách trình bày và phạm vi kết quả."
+    },
+    {
+      "blocker": true,
+      "chosenOptionId": null,
+      "consequenceOfChoice": null,
+      "evidence": [
+        {
+          "formulaId": "fm_sp9_option_b_delta",
+          "kind": "engine",
+          "ref": null,
+          "value": "154000000"
+        }
+      ],
+      "id": "SP-9",
+      "labels": [],
+      "options": [
+        {
+          "consequence": {
+            "statement": "Chênh lệch tuyệt đối giữa hai lựa chọn theo oracle; giữ nguyên tổng nguồn để đối soát.",
+            "value": {
+              "formulaId": "fm_sp9_option_b_delta",
+              "unit": "VND",
+              "value": "154000000"
+            }
+          },
+          "id": "A",
+          "label": "Giữ cả hai và gắn cờ",
+          "recommended": true
+        },
+        {
+          "consequence": {
+            "statement": "Chênh lệch tuyệt đối giữa hai lựa chọn theo oracle; giữ nguyên tổng nguồn để đối soát.",
+            "value": {
+              "formulaId": "fm_sp9_option_b_delta",
+              "unit": "VND",
+              "value": "154000000"
+            }
+          },
+          "id": "B",
+          "label": "Bỏ dòng nhỏ hơn",
+          "recommended": false
+        }
+      ],
+      "proposedOptionId": "A",
+      "provenance": "data",
+      "question": "Cặp trùng khoá khác số tiền xử lý sao?",
+      "status": "conflict",
+      "whyItMatters": "Lựa chọn quyết định cách trình bày và phạm vi kết quả."
+    },
+    {
+      "blocker": false,
+      "chosenOptionId": null,
+      "consequenceOfChoice": null,
+      "evidence": [
+        {
+          "formulaId": null,
+          "kind": "missing_source",
+          "ref": "Sales_Detail",
+          "value": null
+        }
+      ],
+      "id": "SP-10",
+      "labels": [
+        "out_of_scope"
+      ],
+      "options": [
+        {
+          "consequence": {
+            "statement": "Ngoài phạm vi vì chưa có nguồn; không suy đoán số.",
+            "value": null
+          },
+          "id": "A",
+          "label": "Chỉ báo GM, ngoài phạm vi",
+          "recommended": true
+        },
+        {
+          "consequence": {
+            "statement": "Ngoài phạm vi vì chưa có nguồn; không suy đoán số.",
+            "value": null
+          },
+          "id": "B",
+          "label": "Yêu cầu file Sales_Detail",
+          "recommended": false
+        }
+      ],
+      "proposedOptionId": "A",
+      "provenance": "data",
+      "question": "Tách price/volume/mix cho gross margin?",
+      "status": "missing_data",
+      "whyItMatters": "Lựa chọn quyết định cách trình bày và phạm vi kết quả."
+    }
+  ],
+  "understandHash": "sha256:339bd6586d18330bda4737697e6e6be53a86aa2552722811797dc52f56a0f845",
+  "variantOf": null,
+  "variantReason": null
+}

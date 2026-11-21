@@ -1,0 +1,424 @@
+{
+  "assumptions": [
+    {
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "asm_00c67e108f4c",
+      "risk": "low",
+      "source": "data",
+      "statement": "Kỳ báo cáo lấy từ ngày hạch toán của nguồn."
+    },
+    {
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "asm_03faf841a49f",
+      "risk": "high",
+      "source": "pack",
+      "statement": "Doanh thu thuần bao gồm tài khoản giảm trừ."
+    },
+    {
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "asm_9c71fc499138",
+      "risk": "high",
+      "source": "pack",
+      "statement": "Báo cáo P&L sử dụng tỷ giá bình quân theo tiền tệ từng dòng."
+    },
+    {
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "asm_427ee0e0904c",
+      "risk": "high",
+      "source": "pack",
+      "statement": "Loại cả hai vế nội bộ khỏi P&L; giữ bucket đối soát."
+    },
+    {
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "asm_bb36ccaec71d",
+      "risk": "medium",
+      "source": "history",
+      "statement": "Policy trước đó chỉ là ngữ cảnh synthetic, cần người dùng chốt lại."
+    },
+    {
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "asm_3190d261d186",
+      "risk": "low",
+      "source": "user",
+      "statement": "Người dùng xác nhận chỉ ghi giá trị vào sheet mới."
+    },
+    {
+      "confidence": 0.5,
+      "evidence": [
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "asm_c6e760a00a7f",
+      "risk": "high",
+      "source": "llm",
+      "statement": "Tỷ giá có thể giải thích phần lớn chênh lệch doanh thu; đây là suy luận."
+    },
+    {
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "formulaId": null,
+          "kind": "source",
+          "ref": "tbl_d77145e20992",
+          "value": null
+        }
+      ],
+      "id": "asm_97ca23454227",
+      "risk": "medium",
+      "source": "data",
+      "statement": "Ánh xạ prefix tài khoản là đề xuất, chưa phải policy đã kiểm toán."
+    }
+  ],
+  "hashBasis": [
+    "snapshotHash",
+    "pack",
+    "roles",
+    "relationships",
+    "assumptions",
+    "warnings",
+    "variantOf",
+    "variantReason"
+  ],
+  "pack": {
+    "genericMode": false,
+    "id": "fin-pl-v1",
+    "notice": null,
+    "version": "1.0"
+  },
+  "relationships": [
+    {
+      "cardinality": "N:1",
+      "evidence": {
+        "name": 1.0,
+        "orphan": 3,
+        "overlap": 0.9,
+        "type": 1.0
+      },
+      "fanOutEvidence": null,
+      "fanOutRisk": "none",
+      "fromColumns": [
+        "AccountCode"
+      ],
+      "fromTable": "tbl_d77145e20992",
+      "id": "rel_921d4ded9604",
+      "score": 0.9,
+      "status": "auto",
+      "toColumns": [
+        "AccountCode"
+      ],
+      "toTable": "tbl_eee82d73e347"
+    },
+    {
+      "cardinality": "N:1",
+      "evidence": {
+        "name": 1.0,
+        "orphan": 7,
+        "overlap": 0.767,
+        "type": 1.0
+      },
+      "fanOutEvidence": null,
+      "fanOutRisk": "none",
+      "fromColumns": [
+        "CostCenter"
+      ],
+      "fromTable": "tbl_d77145e20992",
+      "id": "rel_d8289ee4e065",
+      "score": 0.767,
+      "status": "auto",
+      "toColumns": [
+        "CostCenter"
+      ],
+      "toTable": "tbl_622b0ca12e33"
+    },
+    {
+      "cardinality": "N:1",
+      "evidence": {
+        "name": 1.0,
+        "orphan": 0,
+        "overlap": 1.0,
+        "type": 1.0
+      },
+      "fanOutEvidence": null,
+      "fanOutRisk": "none",
+      "fromColumns": [
+        "EntityCode"
+      ],
+      "fromTable": "tbl_d77145e20992",
+      "id": "rel_28952fba4648",
+      "score": 1.0,
+      "status": "auto",
+      "toColumns": [
+        "EntityCode"
+      ],
+      "toTable": "tbl_c58fa00f407f"
+    },
+    {
+      "cardinality": "N:1",
+      "evidence": {
+        "name": 0.0,
+        "orphan": 0,
+        "overlap": 1.0,
+        "type": 1.0
+      },
+      "fanOutEvidence": null,
+      "fanOutRisk": "none",
+      "fromColumns": [
+        "Currency"
+      ],
+      "fromTable": "tbl_d77145e20992",
+      "id": "rel_24bf1cbaf8b0",
+      "score": 1.0,
+      "status": "auto",
+      "toColumns": [
+        "CurrencyCode"
+      ],
+      "toTable": "tbl_dc3eb42975d1"
+    },
+    {
+      "cardinality": "N:1",
+      "evidence": {
+        "name": 1.0,
+        "orphan": 0,
+        "overlap": 1.0,
+        "type": 1.0
+      },
+      "fanOutEvidence": null,
+      "fanOutRisk": "none",
+      "fromColumns": [
+        "EntityCode"
+      ],
+      "fromTable": "tbl_622b0ca12e33",
+      "id": "rel_325b0b5f556c",
+      "score": 1.0,
+      "status": "auto",
+      "toColumns": [
+        "EntityCode"
+      ],
+      "toTable": "tbl_c58fa00f407f"
+    },
+    {
+      "cardinality": "N:1",
+      "evidence": {
+        "name": 0.5,
+        "orphan": 0,
+        "overlap": 1.0,
+        "type": 1.0
+      },
+      "fanOutEvidence": null,
+      "fanOutRisk": "none",
+      "fromColumns": [
+        "Currency",
+        "Month"
+      ],
+      "fromTable": "tbl_d77145e20992",
+      "id": "rel_364e24e2db34",
+      "score": 1.0,
+      "status": "auto",
+      "toColumns": [
+        "CurrencyCode",
+        "Month"
+      ],
+      "toTable": "tbl_d934591b174e"
+    },
+    {
+      "cardinality": "N:N",
+      "evidence": {
+        "name": 1.0,
+        "orphan": 13,
+        "overlap": 0.567,
+        "type": 1.0
+      },
+      "fanOutEvidence": {
+        "blockedBy": "AF_FANOUT_RISK",
+        "inflationFactor": 1.067,
+        "rowsAfter": 32,
+        "rowsBefore": 30
+      },
+      "fanOutRisk": "high",
+      "fromColumns": [
+        "AccountCode",
+        "CostCenter",
+        "Month"
+      ],
+      "fromTable": "tbl_d77145e20992",
+      "id": "rel_ea44c2fa93cd",
+      "score": 0.567,
+      "status": "needs_confirm",
+      "toColumns": [
+        "AccountCode",
+        "CostCenter",
+        "Month"
+      ],
+      "toTable": "tbl_a90b2dbd61c5"
+    }
+  ],
+  "roles": [
+    {
+      "confidence": 1.0,
+      "domainLabel": "Bảng Budget_2026",
+      "evidence": [
+        {
+          "formulaId": "fm_row_count",
+          "kind": "row_count",
+          "ref": null,
+          "value": "13"
+        }
+      ],
+      "structural": "dim",
+      "tableId": "tbl_a90b2dbd61c5"
+    },
+    {
+      "confidence": 1.0,
+      "domainLabel": "Bảng CoA",
+      "evidence": [
+        {
+          "formulaId": "fm_row_count",
+          "kind": "row_count",
+          "ref": null,
+          "value": "9"
+        }
+      ],
+      "structural": "dim",
+      "tableId": "tbl_eee82d73e347"
+    },
+    {
+      "confidence": 1.0,
+      "domainLabel": "Bảng CostCenter",
+      "evidence": [
+        {
+          "formulaId": "fm_row_count",
+          "kind": "row_count",
+          "ref": null,
+          "value": "5"
+        }
+      ],
+      "structural": "dim",
+      "tableId": "tbl_622b0ca12e33"
+    },
+    {
+      "confidence": 1.0,
+      "domainLabel": "Bảng Currency",
+      "evidence": [
+        {
+          "formulaId": "fm_row_count",
+          "kind": "row_count",
+          "ref": null,
+          "value": "3"
+        }
+      ],
+      "structural": "dim",
+      "tableId": "tbl_dc3eb42975d1"
+    },
+    {
+      "confidence": 1.0,
+      "domainLabel": "Bảng Entity",
+      "evidence": [
+        {
+          "formulaId": "fm_row_count",
+          "kind": "row_count",
+          "ref": null,
+          "value": "2"
+        }
+      ],
+      "structural": "dim",
+      "tableId": "tbl_c58fa00f407f"
+    },
+    {
+      "confidence": 1.0,
+      "domainLabel": "Bảng FX_Rates_2026",
+      "evidence": [
+        {
+          "formulaId": "fm_row_count",
+          "kind": "row_count",
+          "ref": null,
+          "value": "10"
+        }
+      ],
+      "structural": "lookup",
+      "tableId": "tbl_d934591b174e"
+    },
+    {
+      "confidence": 1.0,
+      "domainLabel": "Bảng GL_Actuals_2026-09",
+      "evidence": [
+        {
+          "formulaId": "fm_row_count",
+          "kind": "row_count",
+          "ref": null,
+          "value": "31"
+        }
+      ],
+      "structural": "fact",
+      "tableId": "tbl_d77145e20992"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "snapshotHash": "sha256:38a8e560b0f821664e1cf7e117e9b8e0376bf84af629eb895eeb64655980fb99",
+  "understandHash": "sha256:339bd6586d18330bda4737697e6e6be53a86aa2552722811797dc52f56a0f845",
+  "variantOf": null,
+  "variantReason": null,
+  "warnings": [
+    {
+      "code": "AF_MISSING_DATA",
+      "message": "Thiếu EUR average T9 nhưng không có phát sinh EUR nên không ảnh hưởng.",
+      "severity": "warning"
+    },
+    {
+      "code": "AF_MISSING_DATA",
+      "message": "Thiếu USD closing T8; P&L chỉ dùng average nên không ảnh hưởng.",
+      "severity": "warning"
+    }
+  ]
+}

@@ -1,0 +1,229 @@
+{
+  "$defs": {
+    "formulaValue": {
+      "additionalProperties": false,
+      "properties": {
+        "formulaId": {
+          "pattern": "^fm_[A-Za-z0-9_]+$",
+          "type": "string"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "value": {
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "formulaId",
+        "value",
+        "unit"
+      ],
+      "type": "object"
+    },
+    "subProblemOption": {
+      "additionalProperties": false,
+      "properties": {
+        "consequence": {
+          "additionalProperties": false,
+          "properties": {
+            "statement": {
+              "type": "string"
+            },
+            "value": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/formulaValue"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "statement",
+            "value"
+          ],
+          "type": "object"
+        },
+        "id": {
+          "enum": [
+            "A",
+            "B"
+          ]
+        },
+        "label": {
+          "type": "string"
+        },
+        "recommended": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "recommended",
+        "consequence"
+      ],
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "blocker": {
+      "type": "boolean"
+    },
+    "chosenOptionId": {
+      "anyOf": [
+        {
+          "enum": [
+            "A",
+            "B"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "consequenceOfChoice": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "evidence": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "formulaId": {
+            "anyOf": [
+              {
+                "pattern": "^fm_[A-Za-z0-9_]+$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "kind": {
+            "type": "string"
+          },
+          "ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "kind",
+          "value",
+          "ref",
+          "formulaId"
+        ],
+        "type": "object"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "id": {
+      "pattern": "^SP-[1-9][0-9]*$",
+      "type": "string"
+    },
+    "labels": {
+      "items": {
+        "enum": [
+          "unverified",
+          "assumed",
+          "out_of_scope",
+          "stale"
+        ]
+      },
+      "minItems": 0,
+      "type": "array"
+    },
+    "options": {
+      "items": {
+        "$ref": "#/$defs/subProblemOption"
+      },
+      "minItems": 2,
+      "type": "array"
+    },
+    "proposedOptionId": {
+      "anyOf": [
+        {
+          "enum": [
+            "A",
+            "B"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "provenance": {
+      "enum": [
+        "pack",
+        "data",
+        "history",
+        "llm",
+        "user"
+      ]
+    },
+    "question": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "verified",
+        "inferred",
+        "assumed",
+        "unknown",
+        "missing_data",
+        "conflict"
+      ]
+    },
+    "whyItMatters": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "question",
+    "whyItMatters",
+    "status",
+    "provenance",
+    "evidence",
+    "options",
+    "proposedOptionId",
+    "chosenOptionId",
+    "blocker",
+    "consequenceOfChoice",
+    "labels"
+  ],
+  "type": "object"
+}

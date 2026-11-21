@@ -1,0 +1,502 @@
+{
+  "anchors": {
+    "tp-fin": {
+      "actualUsd": "1450000",
+      "actualVnd": "8604000000",
+      "bridgeTotal": "-1740600000",
+      "budgetUsd": "1470000",
+      "budgetVnd": "8565000000",
+      "cogsActual": "-30083200000",
+      "cogsBudget": "-30361800000",
+      "controlTotalRawSource": "16906900000",
+      "controlTotalSource": "14206900000",
+      "exactDuplicates": "1",
+      "fx": "-1276000000",
+      "fxSharePct": "73.31",
+      "grossActual": "43931000000",
+      "grossMarginActualPct": "31.38",
+      "grossMarginBudgetPct": "33.39",
+      "grossMarginDeltaPp": "-2.01",
+      "grossProfitActual": "13755800000",
+      "grossProfitBudget": "15217800000",
+      "icExcludedEffectGrossProfit": "-4374000000",
+      "intercompanyNetVnd": "4374000000",
+      "intercompanyRows": "2",
+      "keyCollisionGroups": "1",
+      "keyCollisionRows": "2",
+      "netRevenueActual": "43839000000",
+      "netRevenueBudget": "45579600000",
+      "op": "-464600000",
+      "opexActual": "-3922900000",
+      "opexBudget": "-3556700000",
+      "orphanCostCenters": [
+        "CC-901",
+        "CC-902",
+        "CC-903",
+        "CC-904",
+        "CC-905",
+        "CC-906",
+        "CC-907"
+      ],
+      "rateActualUsdAverage": "24300",
+      "rateBudgetUsd": "25180",
+      "rebateActual": "-92000000",
+      "rowsDeduped": "30",
+      "rowsRaw": "31",
+      "unmappedAccounts": [
+        "511150",
+        "632150",
+        "641950"
+      ],
+      "variance": "-1740600000",
+      "variancePct": "-3.82"
+    },
+    "tp-sales": {
+      "cancelledOrders": "2",
+      "orderLines": "24",
+      "orders": "12",
+      "ordersMissingTerritory": "3",
+      "orphanCustomerOrders": "1",
+      "regionTotals": {
+        "CENTRAL": "10620000",
+        "NORTH": "40880000",
+        "SOUTH": "70542500",
+        "UNKNOWN": "11900000"
+      },
+      "returnLinesEffect": "-4500000",
+      "returnedOrders": "1",
+      "revenueAllOrders": "162742500",
+      "revenueCancelledExcluded": "28800000",
+      "revenueExcludingCancelled": "133942500"
+    }
+  },
+  "cases": [
+    {
+      "artifacts": [
+        "wl1_snapshot.json"
+      ],
+      "expects": "Đủ nguồn, bảng, schema, mẫu và hash; đây là hợp đồng dữ liệu, chưa chứng minh connector live.",
+      "id": "T-WL1-01",
+      "scenario": "tp-fin"
+    },
+    {
+      "artifacts": [
+        "variants/wl1_csv_ambiguous.json"
+      ],
+      "expects": "CSV mơ hồ cần chọn lại; profile khác nhau có fingerprint khác nhau.",
+      "id": "T-WL1-02",
+      "scenario": "tp-fin"
+    },
+    {
+      "artifacts": [
+        "wl1_snapshot.json"
+      ],
+      "expects": "Orders nối ba file tháng theo tên, số dòng bằng tổng nguồn.",
+      "id": "T-WL1-03",
+      "scenario": "tp-sales"
+    },
+    {
+      "artifacts": [
+        "wl1_snapshot.json"
+      ],
+      "expects": "Cùng nguồn sinh cùng fingerprint.",
+      "id": "T-WL1-04",
+      "scenario": "tp-fin"
+    },
+    {
+      "artifacts": [
+        "variants/wl1_connector_blocked.json"
+      ],
+      "expects": "Chặn exe, path traversal và oversize; không tạo temp.",
+      "id": "T-WL1-05",
+      "scenario": "tp-fin"
+    },
+    {
+      "artifacts": [
+        "variants/wl1_duplicate_table_name.json"
+      ],
+      "expects": "Trùng tên cần đổi tên, không ghi đè.",
+      "id": "T-WL1-06",
+      "scenario": "tp-fin"
+    },
+    {
+      "artifacts": [
+        "wl1_snapshot.json"
+      ],
+      "expects": "Snapshot sinh lại có hash và bytes trùng khớp.",
+      "id": "T-WL1-07",
+      "scenario": "tp-fin"
+    },
+    {
+      "artifacts": [
+        "wl1_snapshot.json",
+        "wl2_understand.json"
+      ],
+      "expects": "Vai fact/dim/lookup đúng dữ liệu FIN.",
+      "id": "T-WL2-01",
+      "scenario": "tp-fin"
+    },
+    {
+      "artifacts": [
+        "wl1_snapshot.json",
+        "wl2_understand.json"
+      ],
+      "expects": "Đủ cặp khóa, overlap, orphan và score có bằng chứng.",
+      "id": "T-WL2-02",
+      "scenario": "tp-fin"
+    },
+    {
+      "artifacts": [
+        "wl2_understand.json",
+        "wl4_execution_spec.json"
+      ],
+      "expects": "Nối GL trực tiếp với Budget làm nhân dòng bị chặn.",
+      "id": "T-WL2-03",
+      "scenario": "tp-fin"
+    },
+    {
+      "artifacts": [
+        "wl2_understand.json"
+      ],
+      "expects": "SALES dùng generic mode với vai cấu trúc đúng.",
+      "id": "T-WL2-04",
+      "scenario": "tp-sales"
+    },
+    {
+      "artifacts": [
+        "wl2_understand.json",
+        "wl3_brief.json"
+      ],
+      "expects": "Assumption Ledger có nguồn, độ tin cậy và rủi ro.",
+      "id": "T-WL2-05",
+      "scenario": "tp-fin"
+    },
+    {
+      "artifacts": [
+        "wl1_snapshot.json"
+      ],
+      "expects": "Segment2 không đoán nghĩa: role null, roleStatus unknown.",
+      "id": "T-WL2-06",
+      "scenario": "tp-fin"
+    },
+    {
+      "artifacts": [
+        "wl2_understand.json"
+      ],
+      "expects": "Cùng snapshot sinh cùng understandHash.",
+      "id": "T-WL2-07",
+      "scenario": "tp-fin"
+    },
+    {
+      "artifacts": [
+        "wl3_brief.json"
+      ],
+      "expects": "Output contract đủ grain, measure, filter và kỳ.",
+      "id": "T-WL3-01",
+      "scenario": "tp-fin"
+    },
+    {
+      "artifacts": [
+        "wl3_brief.json"
+      ],
+      "expects": "FIN có mười sub-problem, lựa chọn A/B và hệ quả.",
+      "id": "T-WL3-02",
+      "scenario": "tp-fin"
+    },
+    {
+      "artifacts": [
+        "wl3_brief.json",
+        "formulas.json"
+      ],
+      "expects": "Mọi số kết quả truy tới formulaId tồn tại.",
+      "id": "T-WL3-03",
+      "scenario": "tp-fin"
+    },
+    {
+      "artifacts": [
+        "wl3_brief.json"
+      ],
+      "expects": "Insight có hypothesis và slice.",
+      "id": "T-WL3-04",
+      "scenario": "tp-fin"
+    },
+    {
+      "artifacts": [
+        "wl3_brief.json"
+      ],
+      "expects": "Thiếu LY và price/volume/mix phải out_of_scope, không bịa số.",
+      "id": "T-WL3-05",
+      "scenario": "tp-fin"
+    },
+    {
+      "artifacts": [
+        "wl3_brief.json"
+      ],
+      "expects": "Brief sinh lại có hash ổn định.",
+      "id": "T-WL3-06",
+      "scenario": "tp-fin"
+    },
+    {
+      "artifacts": [
+        "wl1_snapshot.json",
+        "wl3_brief.json",
+        "wl3_decisions.json",
+        "wl4_execution_spec.json"
+      ],
+      "expects": "Freeze gắn đúng snapshotHash, briefHash và decisionsHash.",
+      "id": "T-WL4-01",
+      "scenario": "tp-fin"
+    },
+    {
+      "artifacts": [
+        "wl3_decisions.json",
+        "wl4_execution_spec.json"
+      ],
+      "expects": "Quyết định ánh xạ step, dependency đúng và group trước join Budget.",
+      "id": "T-WL4-02",
+      "scenario": "tp-fin"
+    },
+    {
+      "artifacts": [
+        "variants/fin_spec_invalidated.json"
+      ],
+      "expects": "Đổi quyết định làm spec cũ stale.",
+      "id": "T-WL4-03",
+      "scenario": "tp-fin"
+    },
+    {
+      "artifacts": [
+        "wl4_execution_spec.json"
+      ],
+      "expects": "Assumption chưa kiểm chứng giữ nhãn unverified.",
+      "id": "T-WL4-04",
+      "scenario": "tp-fin"
+    },
+    {
+      "artifacts": [
+        "wl4_execution_spec.json"
+      ],
+      "expects": "Cùng spec sinh steps và fingerprint giống nhau.",
+      "id": "T-WL4-05",
+      "scenario": "tp-fin"
+    },
+    {
+      "artifacts": [
+        "wl5_preview.json"
+      ],
+      "expects": "Preview ghi workbook tạm; fingerprint nguồn trước và sau bằng nhau.",
+      "id": "T-WL5-01",
+      "scenario": "tp-fin"
+    },
+    {
+      "artifacts": [
+        "wl5_preview.json"
+      ],
+      "expects": "Preview values-only, có marker; không formula/query/connection.",
+      "id": "T-WL5-02",
+      "scenario": "tp-fin"
+    },
+    {
+      "artifacts": [
+        "wl5_reconciliation.json",
+        "formulas.json"
+      ],
+      "expects": "Control total sau dedupe bằng tổng kết quả.",
+      "id": "T-WL5-03",
+      "scenario": "tp-fin"
+    },
+    {
+      "artifacts": [
+        "wl5_reconciliation.json",
+        "formulas.json"
+      ],
+      "expects": "Bridge có Op + FX = Total = variance.",
+      "id": "T-WL5-04",
+      "scenario": "tp-fin"
+    },
+    {
+      "artifacts": [
+        "variants/fin_reconcile_control_drift.json",
+        "variants/fin_rate_missing_blocker.json",
+        "variants/fin_rate_closing_missing_warning.json"
+      ],
+      "expects": "Drift control total chặn duyệt; thiếu rate đang dùng là blocker, closing không dùng là warning.",
+      "id": "T-WL5-05",
+      "scenario": "tp-fin"
+    },
+    {
+      "artifacts": [
+        "wl5_preview.json"
+      ],
+      "expects": "Cùng spec sinh cùng previewHash.",
+      "id": "T-WL5-06",
+      "scenario": "tp-fin"
+    },
+    {
+      "artifacts": [
+        "wl6_apply.json",
+        "wl5_preview.json",
+        "wl4_execution_spec.json"
+      ],
+      "expects": "Approval gắn spec và preview; ghi vào sheet mới values-only.",
+      "id": "T-WL6-01",
+      "scenario": "tp-fin"
+    },
+    {
+      "artifacts": [
+        "wl6_apply.json"
+      ],
+      "expects": "Ghi kết quả giữ nguyên fingerprint nguồn.",
+      "id": "T-WL6-02",
+      "scenario": "tp-fin"
+    },
+    {
+      "artifacts": [
+        "wl6_apply.json"
+      ],
+      "expects": "Không tự Save workbook.",
+      "id": "T-WL6-03",
+      "scenario": "tp-fin"
+    },
+    {
+      "artifacts": [
+        "wl6_apply.json"
+      ],
+      "expects": "Approval chỉ dùng một lần và đã consumed.",
+      "id": "T-WL6-04",
+      "scenario": "tp-fin"
+    },
+    {
+      "artifacts": [
+        "wl6_apply.json"
+      ],
+      "expects": "Marker chứa binding và nhãn provenance.",
+      "id": "T-WL6-05",
+      "scenario": "tp-fin"
+    },
+    {
+      "artifacts": [
+        "wl7_decision_record.json"
+      ],
+      "expects": "Delta ghi rows, nulls, duplicate trước và sau.",
+      "id": "T-WL7-01",
+      "scenario": "tp-fin"
+    },
+    {
+      "artifacts": [
+        "wl7_decision_record.json",
+        "wl1_snapshot.json",
+        "wl3_brief.json",
+        "wl3_decisions.json",
+        "wl4_execution_spec.json",
+        "wl5_reconciliation.json"
+      ],
+      "expects": "Record đủ snapshot, brief, decisions, assumptions, steps và reconciliations.",
+      "id": "T-WL7-02",
+      "scenario": "tp-fin"
+    },
+    {
+      "artifacts": [
+        "wl3_brief.json",
+        "wl7_decision_record.json"
+      ],
+      "expects": "Không gán verified cho AI; nhãn kết quả chỉ thuộc enum.",
+      "id": "T-WL7-03",
+      "scenario": "tp-fin"
+    },
+    {
+      "artifacts": [
+        "wl7_decision_record.json"
+      ],
+      "expects": "Hash record tái tính khớp.",
+      "id": "T-WL7-04",
+      "scenario": "tp-fin"
+    },
+    {
+      "artifacts": [
+        "variants/fin_record_stale.json"
+      ],
+      "expects": "Nguồn đổi làm record stale và có mã lỗi.",
+      "id": "T-WL7-05",
+      "scenario": "tp-fin"
+    },
+    {
+      "artifacts": [
+        "wl1_snapshot.json",
+        "wl2_understand.json",
+        "wl3_brief.json",
+        "wl3_decisions.json",
+        "wl4_execution_spec.json",
+        "wl5_preview.json",
+        "wl5_reconciliation.json",
+        "wl6_apply.json",
+        "wl7_decision_record.json",
+        "formulas.json"
+      ],
+      "expects": "Chuỗi fixture FIN WL1–WL7, số khớp anchor và bridge đóng.",
+      "id": "T-E2E-FIN",
+      "scenario": "tp-fin"
+    },
+    {
+      "artifacts": [
+        "wl1_snapshot.json",
+        "wl2_understand.json",
+        "wl3_brief.json",
+        "wl3_decisions.json",
+        "wl4_execution_spec.json",
+        "wl5_preview.json",
+        "wl5_reconciliation.json",
+        "wl6_apply.json",
+        "wl7_decision_record.json",
+        "formulas.json"
+      ],
+      "expects": "Chuỗi SALES generic, không tạo FX, doanh thu theo vùng khớp anchor.",
+      "id": "T-E2E-SALES",
+      "scenario": "tp-sales"
+    },
+    {
+      "artifacts": [
+        "wl3_brief_unresolved.json",
+        "wl3_decisions_unresolved.json"
+      ],
+      "expects": "Hai kịch bản có số oracle, delta dương, checklist và freezeBlocked; không chọn hộ.",
+      "id": "T-E2E-UNKNOWN",
+      "scenario": "tp-unknown"
+    },
+    {
+      "artifacts": [
+        "wl2_understand.json",
+        "wl3_brief.json",
+        "wl7_decision_record.json"
+      ],
+      "expects": "Generic mode nêu rõ kém chính xác hơn và giữ nhãn unverified.",
+      "id": "T-E2E-NOPACK",
+      "scenario": "tp-sales"
+    }
+  ],
+  "fixture_set": "ASSISTANT-FLOW-v1.1",
+  "generatedBy": "tests/support/assistant_fin.py + assistant_sales.py",
+  "hash": "sha256:b185d6436ba53060d4a6b3ea7838899c8aa4fa69c30da44605991509496bc3cc",
+  "hashBasis": [
+    "fixture_set",
+    "generatedBy",
+    "anchors",
+    "cases",
+    "provenance",
+    "limitations"
+  ],
+  "limitations": [
+    "Fixture synthetic; không chứng minh runtime Excel/Power BI.",
+    "Số do oracle trong tests/support tính, không phải KPI đã kiểm toán."
+  ],
+  "provenance": {
+    "sources": [
+      "tp-fin/source/*.csv",
+      "tp-sales/source/*.csv",
+      "tp-sales/source/orders/*.csv"
+    ],
+    "synthetic": true,
+    "user_rows_used": 0
+  },
+  "schemaVersion": "1.0"
+}

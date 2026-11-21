@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "confidence": {
+      "maximum": 1,
+      "minimum": 0,
+      "type": "number"
+    },
+    "evidence": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "formulaId": {
+            "anyOf": [
+              {
+                "pattern": "^fm_[A-Za-z0-9_]+$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "kind": {
+            "type": "string"
+          },
+          "ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "kind",
+          "value",
+          "ref",
+          "formulaId"
+        ],
+        "type": "object"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "id": {
+      "pattern": "^asm_[a-f0-9]{12}$",
+      "type": "string"
+    },
+    "risk": {
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "source": {
+      "enum": [
+        "pack",
+        "data",
+        "history",
+        "llm",
+        "user"
+      ]
+    },
+    "statement": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "statement",
+    "source",
+    "confidence",
+    "risk",
+    "evidence"
+  ],
+  "type": "object"
+}

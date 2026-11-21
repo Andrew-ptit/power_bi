@@ -1,0 +1,629 @@
+{
+  "assumptions": [
+    {
+      "risk": "low",
+      "source": "data",
+      "statement": "Kỳ báo cáo lấy từ ngày hạch toán của nguồn."
+    },
+    {
+      "risk": "high",
+      "source": "pack",
+      "statement": "Doanh thu thuần bao gồm tài khoản giảm trừ."
+    },
+    {
+      "risk": "high",
+      "source": "pack",
+      "statement": "Báo cáo P&L sử dụng tỷ giá bình quân theo tiền tệ từng dòng."
+    },
+    {
+      "risk": "high",
+      "source": "pack",
+      "statement": "Loại cả hai vế nội bộ khỏi P&L; giữ bucket đối soát."
+    },
+    {
+      "risk": "medium",
+      "source": "data",
+      "statement": "Ánh xạ prefix tài khoản là đề xuất, chưa phải policy đã kiểm toán."
+    }
+  ],
+  "id": "fin-pl-v1",
+  "industry": "finance",
+  "insights": [
+    {
+      "formulaId": "fm_fx",
+      "kind": "hypothesis",
+      "statement": "Giả thuyết: tỷ giá giải thích phần lớn chênh lệch doanh thu; chưa chứng minh nguyên nhân giá bán."
+    },
+    {
+      "formulaId": "fm_fx",
+      "kind": "slice",
+      "statement": "Xem lát cắt các dòng USD theo cost center để kiểm tra phần ảnh hưởng tỷ giá."
+    }
+  ],
+  "metrics": [
+    {
+      "expression": "sum(non_ic_signed_USD where PnlGroup == NetRevenue)",
+      "formulaId": "fm_actual_usd",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "unit": "USD"
+    },
+    {
+      "expression": "sum(non_ic_signed_VND where PnlGroup == NetRevenue)",
+      "formulaId": "fm_actual_vnd",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "unit": "VND"
+    },
+    {
+      "expression": "op + fx",
+      "formulaId": "fm_bridge_total",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "unit": "VND"
+    },
+    {
+      "expression": "sum(budget_signed_USD where PnlGroup == NetRevenue)",
+      "formulaId": "fm_budget_usd",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "unit": "USD"
+    },
+    {
+      "expression": "sum(budget_signed_VND where PnlGroup == NetRevenue)",
+      "formulaId": "fm_budget_vnd",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "unit": "VND"
+    },
+    {
+      "expression": "sum(non_ic_COGS_signed_vnd)",
+      "formulaId": "fm_cogs_actual",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "unit": "VND"
+    },
+    {
+      "expression": "sum(budget_COGS_signed_amount * frozen_budget_rate)",
+      "formulaId": "fm_cogs_budget",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "unit": "VND"
+    },
+    {
+      "expression": "sum(deduped_signed_amount * row_currency_average_rate)",
+      "formulaId": "fm_control_total_deduped",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "unit": "VND"
+    },
+    {
+      "expression": "sum(raw_signed_amount * row_currency_average_rate)",
+      "formulaId": "fm_control_total_raw",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "unit": "VND"
+    },
+    {
+      "expression": "len(raw_rows) - len(exact_distinct_rows)",
+      "formulaId": "fm_exact_duplicates",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "unit": "rows"
+    },
+    {
+      "expression": "actual_usd * (rate_actual_usd_average-rate_budget_usd)",
+      "formulaId": "fm_fx",
+      "statement": "Ảnh hưởng tỷ giá trong cầu nối doanh thu thuần.",
+      "unit": "VND"
+    },
+    {
+      "expression": "fx / variance * 100",
+      "formulaId": "fm_fx_share_pct",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "unit": "percent"
+    },
+    {
+      "expression": "fx - fx",
+      "formulaId": "fm_fx_zero",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "unit": "VND"
+    },
+    {
+      "expression": "sum(non_ic_net_revenue_rows excluding ContraRevenue)",
+      "formulaId": "fm_gross_actual",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "unit": "VND"
+    },
+    {
+      "expression": "gross_profit_actual / net_revenue_actual * 100",
+      "formulaId": "fm_gross_margin_actual_pct",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "unit": "percent"
+    },
+    {
+      "expression": "gross_profit_budget / net_revenue_budget * 100",
+      "formulaId": "fm_gross_margin_budget_pct",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "unit": "percent"
+    },
+    {
+      "expression": "gross_margin_actual_pct - gross_margin_budget_pct",
+      "formulaId": "fm_gross_margin_delta_pp",
+      "statement": "Chênh lệch tỷ suất lợi nhuận gộp.",
+      "unit": "percentage_points"
+    },
+    {
+      "expression": "net_revenue_actual + cogs_actual",
+      "formulaId": "fm_gross_profit_actual",
+      "statement": "Lợi nhuận gộp thực tế theo policy đề xuất.",
+      "unit": "VND"
+    },
+    {
+      "expression": "net_revenue_budget + cogs_budget",
+      "formulaId": "fm_gross_profit_budget",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "unit": "VND"
+    },
+    {
+      "expression": "-intercompany_net_vnd",
+      "formulaId": "fm_ic_excluded_effect_gross_profit",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "unit": "VND"
+    },
+    {
+      "expression": "sum(signed_amount * average_rate where PartnerEntity nonempty)",
+      "formulaId": "fm_intercompany_net_vnd",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "unit": "VND"
+    },
+    {
+      "expression": "count(deduped_ledger where PartnerEntity nonempty)",
+      "formulaId": "fm_intercompany_rows",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "unit": "rows"
+    },
+    {
+      "expression": "sum(multiplicity for colliding document_keys)",
+      "formulaId": "fm_key_collision_rows",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "unit": "rows"
+    },
+    {
+      "expression": "count(document_keys where multiplicity > 1)",
+      "formulaId": "fm_key_collisions",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "unit": "groups"
+    },
+    {
+      "expression": "gross_actual + rebate_actual",
+      "formulaId": "fm_net_revenue_actual",
+      "statement": "Doanh thu thuần thực tế theo các policy đề xuất.",
+      "unit": "VND"
+    },
+    {
+      "expression": "sum(budget_net_revenue_signed_amount * frozen_budget_rate)",
+      "formulaId": "fm_net_revenue_budget",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "unit": "VND"
+    },
+    {
+      "expression": "(actual_usd-budget_usd)*rate_budget_usd + actual_vnd-budget_vnd",
+      "formulaId": "fm_op",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "unit": "VND"
+    },
+    {
+      "expression": "variance",
+      "formulaId": "fm_op_policy_b",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "unit": "VND"
+    },
+    {
+      "expression": "sum(non_ic_Opex_signed_vnd)",
+      "formulaId": "fm_opex_actual",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "unit": "VND"
+    },
+    {
+      "expression": "sum(budget_Opex_signed_amount * frozen_budget_rate)",
+      "formulaId": "fm_opex_budget",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "unit": "VND"
+    },
+    {
+      "expression": "rates[USD,report_month,average]",
+      "formulaId": "fm_rate_actual_usd_average",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "unit": "VND_per_USD"
+    },
+    {
+      "expression": "frozen_policy.budget_rate.USD",
+      "formulaId": "fm_rate_budget_usd",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "unit": "VND_per_USD"
+    },
+    {
+      "expression": "sum(non_ic_ContraRevenue_signed_vnd)",
+      "formulaId": "fm_rebate_actual",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "unit": "VND"
+    },
+    {
+      "expression": "len(exact_distinct_rows)",
+      "formulaId": "fm_rows_deduped",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "unit": "rows"
+    },
+    {
+      "expression": "len(ledger.raw_rows)",
+      "formulaId": "fm_rows_raw",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "unit": "rows"
+    },
+    {
+      "expression": "abs(fx - fx_zero)",
+      "formulaId": "fm_scenario_ab_delta",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "unit": "VND"
+    },
+    {
+      "expression": "missing_data(Sales_Detail)",
+      "formulaId": "fm_sp10_option_b_delta",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "unit": "VND"
+    },
+    {
+      "expression": "abs(rebate_actual)",
+      "formulaId": "fm_sp1_option_b_delta",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "unit": "VND"
+    },
+    {
+      "expression": "abs(fx)",
+      "formulaId": "fm_sp2_option_b_delta",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "unit": "VND"
+    },
+    {
+      "expression": "abs(intercompany_net_vnd)",
+      "formulaId": "fm_sp3_option_b_delta",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "unit": "VND"
+    },
+    {
+      "expression": "control_total_raw - control_total_deduped",
+      "formulaId": "fm_sp4_option_b_delta",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "unit": "VND"
+    },
+    {
+      "expression": "abs(sum(deduped_unmapped_signed_vnd))",
+      "formulaId": "fm_sp5_option_b_delta",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "unit": "VND"
+    },
+    {
+      "expression": "control_total_deduped - reclassified_control_total",
+      "formulaId": "fm_sp6_option_b_delta",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "unit": "VND"
+    },
+    {
+      "expression": "missing_data(LY)",
+      "formulaId": "fm_sp7_option_b_delta",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "unit": "VND"
+    },
+    {
+      "expression": "control_total_deduped - control_with_available_used_rates",
+      "formulaId": "fm_sp8_option_b_delta",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "unit": "VND"
+    },
+    {
+      "expression": "abs(sum(min(signed_vnd) per colliding_document_key))",
+      "formulaId": "fm_sp9_option_b_delta",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "unit": "VND"
+    },
+    {
+      "expression": "net_revenue_actual - net_revenue_budget",
+      "formulaId": "fm_variance",
+      "statement": "Chỉ tiêu đối soát do oracle tính, chưa xác nhận đúng nghiệp vụ.",
+      "unit": "VND"
+    },
+    {
+      "expression": "variance / net_revenue_budget * 100",
+      "formulaId": "fm_variance_pct",
+      "statement": "Chênh lệch doanh thu thuần so với ngân sách.",
+      "unit": "percent"
+    }
+  ],
+  "outputContract": {
+    "currency": "VND",
+    "grain": [
+      "pnlLine",
+      "accountCode",
+      "costCenter",
+      "entityCode"
+    ],
+    "measures": [
+      {
+        "formulaId": "fm_net_revenue_actual",
+        "name": "NetRevenue"
+      },
+      {
+        "formulaId": "fm_gross_profit_actual",
+        "name": "GrossProfit"
+      }
+    ]
+  },
+  "policies": [
+    {
+      "blocker": true,
+      "consequenceMetric": "fm_sp1_option_b_delta",
+      "evaluationRule": null,
+      "labels": [],
+      "options": [
+        {
+          "consequenceStatement": "Chênh lệch theo công thức engine; dấu của giá trị được giữ nguyên.",
+          "id": "A",
+          "label": "Trừ rebate",
+          "recommended": true
+        },
+        {
+          "consequenceStatement": "Chênh lệch theo công thức engine; dấu của giá trị được giữ nguyên.",
+          "id": "B",
+          "label": "Không trừ rebate",
+          "recommended": false
+        }
+      ],
+      "proposedOptionId": "A",
+      "provenance": "pack",
+      "question": "Net revenue có trừ rebate?",
+      "status": "assumed",
+      "subProblemId": "SP-1",
+      "whyItMatters": "Lựa chọn quyết định cách trình bày và phạm vi kết quả."
+    },
+    {
+      "blocker": true,
+      "consequenceMetric": "fm_sp2_option_b_delta",
+      "evaluationRule": null,
+      "labels": [],
+      "options": [
+        {
+          "consequenceStatement": "Chênh lệch theo công thức engine; dấu của giá trị được giữ nguyên.",
+          "id": "A",
+          "label": "Giữ FX riêng và trình bày Op",
+          "recommended": true
+        },
+        {
+          "consequenceStatement": "Chênh lệch theo công thức engine; dấu của giá trị được giữ nguyên.",
+          "id": "B",
+          "label": "Gom FX vào Op, giữ nguyên tổng chênh lệch",
+          "recommended": false
+        }
+      ],
+      "proposedOptionId": "A",
+      "provenance": "pack",
+      "question": "Ảnh hưởng FX được trình bày riêng hay gộp vào Op?",
+      "status": "assumed",
+      "subProblemId": "SP-2",
+      "whyItMatters": "Lựa chọn quyết định cách trình bày và phạm vi kết quả."
+    },
+    {
+      "blocker": true,
+      "consequenceMetric": "fm_sp3_option_b_delta",
+      "evaluationRule": null,
+      "labels": [],
+      "options": [
+        {
+          "consequenceStatement": "Chênh lệch theo công thức engine; dấu của giá trị được giữ nguyên.",
+          "id": "A",
+          "label": "Loại cả hai vế, giữ bucket đối soát",
+          "recommended": true
+        },
+        {
+          "consequenceStatement": "Chênh lệch theo công thức engine; dấu của giá trị được giữ nguyên.",
+          "id": "B",
+          "label": "Giữ cả hai vế và gắn cờ",
+          "recommended": false
+        }
+      ],
+      "proposedOptionId": "A",
+      "provenance": "pack",
+      "question": "Intercompany: loại hay giữ?",
+      "status": "assumed",
+      "subProblemId": "SP-3",
+      "whyItMatters": "Lựa chọn quyết định cách trình bày và phạm vi kết quả."
+    },
+    {
+      "blocker": false,
+      "consequenceMetric": "fm_sp4_option_b_delta",
+      "evaluationRule": "measured_dedupe_sign",
+      "labels": [],
+      "options": [
+        {
+          "consequenceStatement": "Chênh lệch theo công thức engine; dấu của giá trị được giữ nguyên.",
+          "id": "A",
+          "label": "Dedupe exact và chuẩn hoá dấu",
+          "recommended": true
+        },
+        {
+          "consequenceStatement": "Chênh lệch theo công thức engine; dấu của giá trị được giữ nguyên.",
+          "id": "B",
+          "label": "Không dedupe",
+          "recommended": false
+        }
+      ],
+      "proposedOptionId": "A",
+      "provenance": "data",
+      "question": "Dedupe và chuẩn hoá dấu theo luật dữ liệu?",
+      "status": "inferred",
+      "subProblemId": "SP-4",
+      "whyItMatters": "Lựa chọn quyết định cách trình bày và phạm vi kết quả."
+    },
+    {
+      "blocker": false,
+      "consequenceMetric": "fm_sp5_option_b_delta",
+      "evaluationRule": null,
+      "labels": [],
+      "options": [
+        {
+          "consequenceStatement": "Chênh lệch theo công thức engine; dấu của giá trị được giữ nguyên.",
+          "id": "A",
+          "label": "Ánh xạ theo prefix",
+          "recommended": true
+        },
+        {
+          "consequenceStatement": "Chênh lệch theo công thức engine; dấu của giá trị được giữ nguyên.",
+          "id": "B",
+          "label": "Giữ bucket Unmapped",
+          "recommended": false
+        }
+      ],
+      "proposedOptionId": "A",
+      "provenance": "data",
+      "question": "Tài khoản chưa map xử lý sao?",
+      "status": "inferred",
+      "subProblemId": "SP-5",
+      "whyItMatters": "Lựa chọn quyết định cách trình bày và phạm vi kết quả."
+    },
+    {
+      "blocker": false,
+      "consequenceMetric": "fm_sp6_option_b_delta",
+      "evaluationRule": null,
+      "labels": [],
+      "options": [
+        {
+          "consequenceStatement": "Chênh lệch theo công thức engine; dấu của giá trị được giữ nguyên.",
+          "id": "A",
+          "label": "Giữ và gắn cờ cc_unresolved",
+          "recommended": true
+        },
+        {
+          "consequenceStatement": "Chênh lệch theo công thức engine; dấu của giá trị được giữ nguyên.",
+          "id": "B",
+          "label": "Gán CC-UNALLOC",
+          "recommended": false
+        }
+      ],
+      "proposedOptionId": "A",
+      "provenance": "data",
+      "question": "Cost center lạc xử lý sao?",
+      "status": "inferred",
+      "subProblemId": "SP-6",
+      "whyItMatters": "Lựa chọn quyết định cách trình bày và phạm vi kết quả."
+    },
+    {
+      "blocker": false,
+      "consequenceMetric": null,
+      "evaluationRule": null,
+      "labels": [
+        "out_of_scope"
+      ],
+      "options": [
+        {
+          "consequenceStatement": "Ngoài phạm vi vì chưa có nguồn; không suy đoán số.",
+          "id": "A",
+          "label": "Báo cáo không LY, ngoài phạm vi",
+          "recommended": true
+        },
+        {
+          "consequenceStatement": "Ngoài phạm vi vì chưa có nguồn; không suy đoán số.",
+          "id": "B",
+          "label": "Chặn tới khi có nguồn",
+          "recommended": false
+        }
+      ],
+      "proposedOptionId": "A",
+      "provenance": "data",
+      "question": "So cùng kỳ năm trước (LY)?",
+      "status": "missing_data",
+      "subProblemId": "SP-7",
+      "whyItMatters": "Lựa chọn quyết định cách trình bày và phạm vi kết quả."
+    },
+    {
+      "blocker": false,
+      "consequenceMetric": "fm_sp8_option_b_delta",
+      "evaluationRule": null,
+      "labels": [],
+      "options": [
+        {
+          "consequenceStatement": "Chênh lệch theo công thức engine; dấu của giá trị được giữ nguyên.",
+          "id": "A",
+          "label": "Tiếp tục với warning cho rate không dùng",
+          "recommended": true
+        },
+        {
+          "consequenceStatement": "Chênh lệch theo công thức engine; dấu của giá trị được giữ nguyên.",
+          "id": "B",
+          "label": "Chặn tới khi bổ sung",
+          "recommended": false
+        }
+      ],
+      "proposedOptionId": "A",
+      "provenance": "data",
+      "question": "Rate thiếu có ảnh hưởng kỳ báo cáo?",
+      "status": "inferred",
+      "subProblemId": "SP-8",
+      "whyItMatters": "Lựa chọn quyết định cách trình bày và phạm vi kết quả."
+    },
+    {
+      "blocker": true,
+      "consequenceMetric": "fm_sp9_option_b_delta",
+      "evaluationRule": null,
+      "labels": [],
+      "options": [
+        {
+          "consequenceStatement": "Chênh lệch theo công thức engine; dấu của giá trị được giữ nguyên.",
+          "id": "A",
+          "label": "Giữ cả hai và gắn cờ",
+          "recommended": true
+        },
+        {
+          "consequenceStatement": "Chênh lệch theo công thức engine; dấu của giá trị được giữ nguyên.",
+          "id": "B",
+          "label": "Bỏ dòng nhỏ hơn",
+          "recommended": false
+        }
+      ],
+      "proposedOptionId": "A",
+      "provenance": "data",
+      "question": "Cặp trùng khoá khác số tiền xử lý sao?",
+      "status": "conflict",
+      "subProblemId": "SP-9",
+      "whyItMatters": "Lựa chọn quyết định cách trình bày và phạm vi kết quả."
+    },
+    {
+      "blocker": false,
+      "consequenceMetric": null,
+      "evaluationRule": null,
+      "labels": [
+        "out_of_scope"
+      ],
+      "options": [
+        {
+          "consequenceStatement": "Ngoài phạm vi vì chưa có nguồn; không suy đoán số.",
+          "id": "A",
+          "label": "Chỉ báo GM, ngoài phạm vi",
+          "recommended": true
+        },
+        {
+          "consequenceStatement": "Ngoài phạm vi vì chưa có nguồn; không suy đoán số.",
+          "id": "B",
+          "label": "Yêu cầu file Sales_Detail",
+          "recommended": false
+        }
+      ],
+      "proposedOptionId": "A",
+      "provenance": "data",
+      "question": "Tách price/volume/mix cho gross margin?",
+      "status": "missing_data",
+      "subProblemId": "SP-10",
+      "whyItMatters": "Lựa chọn quyết định cách trình bày và phạm vi kết quả."
+    }
+  ],
+  "signature": {
+    "columns": [
+      "AccountCode",
+      "Currency"
+    ],
+    "tables": [
+      "CoA",
+      "FX_Rates_2026"
+    ]
+  },
+  "version": "1.0"
+}

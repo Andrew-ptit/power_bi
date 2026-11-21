@@ -1,0 +1,429 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "blockers": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "enum": [
+              "AF_INGEST_FAILED",
+              "AF_SOURCE_LOST",
+              "AF_FANOUT_RISK",
+              "AF_MISSING_DATA",
+              "AF_RECONCILE_FAILED",
+              "AF_SPEC_STALE",
+              "AF_WRITE_PARTIAL"
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "severity": {
+            "enum": [
+              "blocker",
+              "warning"
+            ]
+          }
+        },
+        "required": [
+          "code",
+          "severity",
+          "message"
+        ],
+        "type": "object"
+      },
+      "minItems": 0,
+      "type": "array"
+    },
+    "bridge": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "actualUsd": {
+              "anyOf": [
+                {
+                  "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "actualVnd": {
+              "anyOf": [
+                {
+                  "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "applicable": {
+              "type": "boolean"
+            },
+            "budgetUsd": {
+              "anyOf": [
+                {
+                  "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "budgetVnd": {
+              "anyOf": [
+                {
+                  "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "fx": {
+              "anyOf": [
+                {
+                  "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "op": {
+              "anyOf": [
+                {
+                  "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "passed": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "rateActual": {
+              "anyOf": [
+                {
+                  "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "rateBudget": {
+              "anyOf": [
+                {
+                  "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "scope": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "total": {
+              "anyOf": [
+                {
+                  "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "variance": {
+              "anyOf": [
+                {
+                  "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "applicable",
+            "scope",
+            "actualUsd",
+            "actualVnd",
+            "budgetUsd",
+            "budgetVnd",
+            "rateActual",
+            "rateBudget",
+            "op",
+            "fx",
+            "total",
+            "variance",
+            "passed"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "applicable": {
+              "enum": [
+                false
+              ]
+            },
+            "fx": {
+              "enum": [
+                null
+              ]
+            },
+            "op": {
+              "enum": [
+                null
+              ]
+            },
+            "passed": {
+              "enum": [
+                null
+              ]
+            },
+            "scope": {
+              "enum": [
+                null
+              ]
+            },
+            "total": {
+              "enum": [
+                null
+              ]
+            },
+            "variance": {
+              "enum": [
+                null
+              ]
+            }
+          },
+          "required": [
+            "applicable",
+            "scope",
+            "op",
+            "fx",
+            "total",
+            "variance",
+            "passed"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "checks": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "detail": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "passed": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "passed",
+          "detail"
+        ],
+        "type": "object"
+      },
+      "minItems": 3,
+      "type": "array"
+    },
+    "colsIn": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "colsOut": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "controlTotalPassed": {
+      "type": "boolean"
+    },
+    "controlTotalRawSource": {
+      "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+      "type": "string"
+    },
+    "controlTotalResult": {
+      "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+      "type": "string"
+    },
+    "controlTotalSource": {
+      "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+      "type": "string"
+    },
+    "controlTotalTolerance": {
+      "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+      "type": "string"
+    },
+    "droppedByDedupe": {
+      "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+      "type": "string"
+    },
+    "hashBasis": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "labels": {
+      "items": {
+        "enum": [
+          "unverified",
+          "assumed",
+          "out_of_scope",
+          "stale"
+        ]
+      },
+      "minItems": 0,
+      "type": "array"
+    },
+    "passed": {
+      "type": "boolean"
+    },
+    "previewHash": {
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "type": "string"
+    },
+    "reconcileHash": {
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "type": "string"
+    },
+    "rowsIn": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "rowsInDeduped": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "rowsOut": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "schemaVersion": {
+      "enum": [
+        "1.0"
+      ]
+    },
+    "specFingerprint": {
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "type": "string"
+    },
+    "variantOf": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "variantReason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "warnings": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "enum": [
+              "AF_INGEST_FAILED",
+              "AF_SOURCE_LOST",
+              "AF_FANOUT_RISK",
+              "AF_MISSING_DATA",
+              "AF_RECONCILE_FAILED",
+              "AF_SPEC_STALE",
+              "AF_WRITE_PARTIAL"
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "severity": {
+            "enum": [
+              "blocker",
+              "warning"
+            ]
+          }
+        },
+        "required": [
+          "code",
+          "severity",
+          "message"
+        ],
+        "type": "object"
+      },
+      "minItems": 0,
+      "type": "array"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "specFingerprint",
+    "previewHash",
+    "rowsIn",
+    "rowsInDeduped",
+    "rowsOut",
+    "colsIn",
+    "colsOut",
+    "controlTotalRawSource",
+    "droppedByDedupe",
+    "controlTotalSource",
+    "controlTotalResult",
+    "controlTotalTolerance",
+    "controlTotalPassed",
+    "bridge",
+    "checks",
+    "blockers",
+    "warnings",
+    "labels",
+    "passed",
+    "hashBasis",
+    "reconcileHash",
+    "variantOf",
+    "variantReason"
+  ],
+  "type": "object"
+}

@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "confidence": {
+      "maximum": 1,
+      "minimum": 0,
+      "type": "number"
+    },
+    "domainLabel": {
+      "type": "string"
+    },
+    "evidence": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "formulaId": {
+            "anyOf": [
+              {
+                "pattern": "^fm_[A-Za-z0-9_]+$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "kind": {
+            "type": "string"
+          },
+          "ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "kind",
+          "value",
+          "ref",
+          "formulaId"
+        ],
+        "type": "object"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "structural": {
+      "enum": [
+        "fact",
+        "dim",
+        "bridge",
+        "lookup"
+      ]
+    },
+    "tableId": {
+      "pattern": "^tbl_[a-f0-9]{12}$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "tableId",
+    "structural",
+    "domainLabel",
+    "confidence",
+    "evidence"
+  ],
+  "type": "object"
+}

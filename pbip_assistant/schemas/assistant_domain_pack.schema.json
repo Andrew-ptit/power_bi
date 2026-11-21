@@ -1,0 +1,376 @@
+{
+  "$defs": {
+    "assumption": {
+      "additionalProperties": false,
+      "properties": {
+        "risk": {
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "type": "string"
+        },
+        "source": {
+          "enum": [
+            "pack",
+            "data"
+          ],
+          "type": "string"
+        },
+        "statement": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "statement",
+        "source",
+        "risk"
+      ],
+      "type": "object"
+    },
+    "insight": {
+      "additionalProperties": false,
+      "properties": {
+        "formulaId": {
+          "maxLength": 128,
+          "pattern": "fm_[a-z][a-z0-9_]*",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "hypothesis",
+            "slice"
+          ],
+          "type": "string"
+        },
+        "statement": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "statement",
+        "formulaId"
+      ],
+      "type": "object"
+    },
+    "measure": {
+      "additionalProperties": false,
+      "properties": {
+        "formulaId": {
+          "maxLength": 128,
+          "pattern": "fm_[a-z][a-z0-9_]*",
+          "type": "string"
+        },
+        "name": {
+          "maxLength": 128,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "formulaId"
+      ],
+      "type": "object"
+    },
+    "metric": {
+      "additionalProperties": false,
+      "properties": {
+        "expression": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        },
+        "formulaId": {
+          "maxLength": 128,
+          "pattern": "fm_[a-z][a-z0-9_]*",
+          "type": "string"
+        },
+        "statement": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        },
+        "unit": {
+          "enum": [
+            "VND",
+            "USD",
+            "VND_per_USD",
+            "rows",
+            "groups",
+            "count",
+            "percent",
+            "percentage_points"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "formulaId",
+        "expression",
+        "unit",
+        "statement"
+      ],
+      "type": "object"
+    },
+    "option": {
+      "additionalProperties": false,
+      "properties": {
+        "consequenceStatement": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        },
+        "id": {
+          "enum": [
+            "A",
+            "B"
+          ],
+          "type": "string"
+        },
+        "label": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        },
+        "recommended": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "recommended",
+        "consequenceStatement"
+      ],
+      "type": "object"
+    },
+    "policy": {
+      "additionalProperties": false,
+      "properties": {
+        "blocker": {
+          "type": "boolean"
+        },
+        "consequenceMetric": {
+          "pattern": "fm_[a-z][a-z0-9_]*",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "evaluationRule": {
+          "enum": [
+            null,
+            "measured_dedupe_sign"
+          ],
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "labels": {
+          "items": {
+            "enum": [
+              "out_of_scope"
+            ],
+            "type": "string"
+          },
+          "maxItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "options": {
+          "items": {
+            "$ref": "#/$defs/option"
+          },
+          "maxItems": 2,
+          "minItems": 2,
+          "type": "array"
+        },
+        "proposedOptionId": {
+          "enum": [
+            "A",
+            "B"
+          ],
+          "type": "string"
+        },
+        "provenance": {
+          "enum": [
+            "pack",
+            "data"
+          ],
+          "type": "string"
+        },
+        "question": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "inferred",
+            "assumed",
+            "unknown",
+            "missing_data",
+            "conflict"
+          ],
+          "type": "string"
+        },
+        "subProblemId": {
+          "pattern": "SP-(?:[1-9]|10)",
+          "type": "string"
+        },
+        "whyItMatters": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "subProblemId",
+        "question",
+        "whyItMatters",
+        "status",
+        "provenance",
+        "options",
+        "consequenceMetric",
+        "blocker",
+        "proposedOptionId",
+        "labels",
+        "evaluationRule"
+      ],
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "assumptions": {
+      "items": {
+        "$ref": "#/$defs/assumption"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "id": {
+      "enum": [
+        "fin-pl-v1",
+        "generic"
+      ],
+      "type": "string"
+    },
+    "industry": {
+      "enum": [
+        "finance",
+        "generic"
+      ],
+      "type": "string"
+    },
+    "insights": {
+      "items": {
+        "$ref": "#/$defs/insight"
+      },
+      "minItems": 2,
+      "type": "array"
+    },
+    "metrics": {
+      "items": {
+        "$ref": "#/$defs/metric"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "outputContract": {
+      "additionalProperties": false,
+      "properties": {
+        "currency": {
+          "const": "VND",
+          "type": "string"
+        },
+        "grain": {
+          "items": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "measures": {
+          "items": {
+            "$ref": "#/$defs/measure"
+          },
+          "minItems": 1,
+          "type": "array"
+        }
+      },
+      "required": [
+        "grain",
+        "measures",
+        "currency"
+      ],
+      "type": "object"
+    },
+    "policies": {
+      "items": {
+        "$ref": "#/$defs/policy"
+      },
+      "maxItems": 10,
+      "minItems": 5,
+      "type": "array"
+    },
+    "signature": {
+      "additionalProperties": false,
+      "properties": {
+        "columns": {
+          "items": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "tables": {
+          "items": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "tables",
+        "columns"
+      ],
+      "type": "object"
+    },
+    "version": {
+      "const": "1.0",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "version",
+    "industry",
+    "signature",
+    "outputContract",
+    "metrics",
+    "policies",
+    "insights",
+    "assumptions"
+  ],
+  "type": "object"
+}

@@ -1,0 +1,795 @@
+{
+  "$defs": {
+    "column": {
+      "additionalProperties": false,
+      "properties": {
+        "distinctCount": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "distinctRatio": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/columnEvidence"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "name": {
+          "type": "string"
+        },
+        "nullRate": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "role": {
+          "enum": [
+            "date",
+            "amount",
+            "key",
+            "text",
+            "percent",
+            "currency",
+            null
+          ]
+        },
+        "roleStatus": {
+          "enum": [
+            "verified",
+            "inferred",
+            "assumed",
+            "unknown",
+            "missing_data",
+            "conflict"
+          ]
+        },
+        "sample": {
+          "items": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "maxItems": 20,
+          "type": "array"
+        },
+        "type": {
+          "enum": [
+            "text",
+            "integer",
+            "decimal",
+            "date",
+            "boolean"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "nullRate",
+        "distinctCount",
+        "distinctRatio",
+        "sample",
+        "role",
+        "roleStatus",
+        "evidence"
+      ],
+      "type": "object"
+    },
+    "columnEvidence": {
+      "additionalProperties": false,
+      "properties": {
+        "formulaId": {
+          "anyOf": [
+            {
+              "pattern": "^fm_[A-Za-z0-9_]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "kind": {
+          "type": "string"
+        },
+        "ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "value",
+        "ref",
+        "formulaId"
+      ],
+      "type": "object"
+    },
+    "locator": {
+      "additionalProperties": false,
+      "properties": {
+        "fileCount": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "kind": {
+          "enum": [
+            "file",
+            "sheet",
+            "table",
+            "range",
+            "folder"
+          ]
+        },
+        "path": {
+          "type": "string"
+        },
+        "range": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sheet": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "sheet",
+        "range",
+        "path",
+        "fileCount"
+      ],
+      "type": "object"
+    },
+    "source": {
+      "additionalProperties": false,
+      "properties": {
+        "addedAt": {
+          "type": "string"
+        },
+        "hash": {
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^src_[a-f0-9]{12}$",
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "origin": {
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "workbook",
+            "xlsx",
+            "csv",
+            "folder"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "type",
+        "origin",
+        "hash",
+        "addedAt"
+      ],
+      "type": "object"
+    },
+    "table": {
+      "additionalProperties": false,
+      "properties": {
+        "columnCount": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "columns": {
+          "items": {
+            "$ref": "#/$defs/column"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "fingerprint": {
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "type": "string"
+        },
+        "headerHash": {
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^tbl_[a-f0-9]{12}$",
+          "type": "string"
+        },
+        "locator": {
+          "$ref": "#/$defs/locator"
+        },
+        "name": {
+          "type": "string"
+        },
+        "rowCount": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "sampleHash": {
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "type": "string"
+        },
+        "sourceId": {
+          "pattern": "^src_[a-f0-9]{12}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "sourceId",
+        "name",
+        "locator",
+        "rowCount",
+        "columnCount",
+        "headerHash",
+        "sampleHash",
+        "fingerprint",
+        "columns"
+      ],
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "oneOf": [
+    {
+      "additionalProperties": false,
+      "properties": {
+        "hashBasis": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "schemaVersion": {
+          "enum": [
+            "1.0"
+          ]
+        },
+        "snapshot": {
+          "additionalProperties": false,
+          "properties": {
+            "createdAt": {
+              "type": "string"
+            },
+            "sessionId": {
+              "pattern": "^sess_[a-f0-9]{12}$",
+              "type": "string"
+            },
+            "snapshotId": {
+              "pattern": "^snap_[a-f0-9]{24}$",
+              "type": "string"
+            },
+            "sourceCount": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "tableCount": {
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "snapshotId",
+            "createdAt",
+            "sessionId",
+            "sourceCount",
+            "tableCount"
+          ],
+          "type": "object"
+        },
+        "snapshotHash": {
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "type": "string"
+        },
+        "sources": {
+          "items": {
+            "$ref": "#/$defs/source"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "tables": {
+          "items": {
+            "$ref": "#/$defs/table"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "variantOf": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "variantReason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "snapshot",
+        "sources",
+        "tables",
+        "hashBasis",
+        "snapshotHash",
+        "variantOf",
+        "variantReason"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "csvProfile": {
+          "additionalProperties": false,
+          "properties": {
+            "auto": {
+              "additionalProperties": false,
+              "properties": {
+                "delimiter": {
+                  "type": "string"
+                },
+                "encoding": {
+                  "type": "string"
+                },
+                "fingerprint": {
+                  "pattern": "^sha256:[a-f0-9]{64}$",
+                  "type": "string"
+                },
+                "header": {
+                  "type": "boolean"
+                },
+                "mode": {
+                  "enum": [
+                    "auto",
+                    "manual"
+                  ]
+                }
+              },
+              "required": [
+                "mode",
+                "encoding",
+                "delimiter",
+                "header",
+                "fingerprint"
+              ],
+              "type": "object"
+            },
+            "manual": {
+              "additionalProperties": false,
+              "properties": {
+                "delimiter": {
+                  "type": "string"
+                },
+                "encoding": {
+                  "type": "string"
+                },
+                "fingerprint": {
+                  "pattern": "^sha256:[a-f0-9]{64}$",
+                  "type": "string"
+                },
+                "header": {
+                  "type": "boolean"
+                },
+                "mode": {
+                  "enum": [
+                    "auto",
+                    "manual"
+                  ]
+                }
+              },
+              "required": [
+                "mode",
+                "encoding",
+                "delimiter",
+                "header",
+                "fingerprint"
+              ],
+              "type": "object"
+            }
+          },
+          "required": [
+            "auto",
+            "manual"
+          ],
+          "type": "object"
+        },
+        "hashBasis": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "schemaVersion": {
+          "enum": [
+            "1.0"
+          ]
+        },
+        "snapshot": {
+          "additionalProperties": false,
+          "properties": {
+            "createdAt": {
+              "type": "string"
+            },
+            "sessionId": {
+              "pattern": "^sess_[a-f0-9]{12}$",
+              "type": "string"
+            },
+            "snapshotId": {
+              "pattern": "^snap_[a-f0-9]{24}$",
+              "type": "string"
+            },
+            "sourceCount": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "tableCount": {
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "snapshotId",
+            "createdAt",
+            "sessionId",
+            "sourceCount",
+            "tableCount"
+          ],
+          "type": "object"
+        },
+        "snapshotHash": {
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "type": "string"
+        },
+        "sources": {
+          "items": {
+            "$ref": "#/$defs/source"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "status": {
+          "enum": [
+            "needs_clarification"
+          ]
+        },
+        "synthetic": {
+          "type": "boolean"
+        },
+        "tables": {
+          "items": {
+            "$ref": "#/$defs/table"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "variantOf": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "variantReason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "snapshot",
+        "sources",
+        "tables",
+        "hashBasis",
+        "snapshotHash",
+        "variantOf",
+        "variantReason",
+        "status",
+        "csvProfile",
+        "synthetic"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "cases": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "code": {
+                "enum": [
+                  "AF_INGEST_FAILED"
+                ]
+              },
+              "kind": {
+                "enum": [
+                  "exe",
+                  "pathTraversal",
+                  "oversize"
+                ]
+              },
+              "severity": {
+                "enum": [
+                  "blocker"
+                ]
+              },
+              "tempCreated": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "kind",
+              "code",
+              "severity",
+              "tempCreated"
+            ],
+            "type": "object"
+          },
+          "minItems": 3,
+          "type": "array"
+        },
+        "code": {
+          "enum": [
+            "AF_INGEST_FAILED"
+          ]
+        },
+        "hashBasis": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "schemaVersion": {
+          "enum": [
+            "1.0"
+          ]
+        },
+        "severity": {
+          "enum": [
+            "blocker"
+          ]
+        },
+        "snapshot": {
+          "additionalProperties": false,
+          "properties": {
+            "createdAt": {
+              "type": "string"
+            },
+            "sessionId": {
+              "pattern": "^sess_[a-f0-9]{12}$",
+              "type": "string"
+            },
+            "snapshotId": {
+              "pattern": "^snap_[a-f0-9]{24}$",
+              "type": "string"
+            },
+            "sourceCount": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "tableCount": {
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "snapshotId",
+            "createdAt",
+            "sessionId",
+            "sourceCount",
+            "tableCount"
+          ],
+          "type": "object"
+        },
+        "snapshotHash": {
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "type": "string"
+        },
+        "sources": {
+          "items": {
+            "$ref": "#/$defs/source"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "tables": {
+          "items": {
+            "$ref": "#/$defs/table"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "tempCreated": {
+          "type": "boolean"
+        },
+        "variantOf": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "variantReason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "snapshot",
+        "sources",
+        "tables",
+        "hashBasis",
+        "snapshotHash",
+        "variantOf",
+        "variantReason",
+        "code",
+        "severity",
+        "tempCreated",
+        "cases"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "enum": [
+            "AF_INGEST_FAILED"
+          ]
+        },
+        "hashBasis": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "overwritten": {
+          "type": "boolean"
+        },
+        "requiresRename": {
+          "type": "boolean"
+        },
+        "schemaVersion": {
+          "enum": [
+            "1.0"
+          ]
+        },
+        "snapshot": {
+          "additionalProperties": false,
+          "properties": {
+            "createdAt": {
+              "type": "string"
+            },
+            "sessionId": {
+              "pattern": "^sess_[a-f0-9]{12}$",
+              "type": "string"
+            },
+            "snapshotId": {
+              "pattern": "^snap_[a-f0-9]{24}$",
+              "type": "string"
+            },
+            "sourceCount": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "tableCount": {
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "snapshotId",
+            "createdAt",
+            "sessionId",
+            "sourceCount",
+            "tableCount"
+          ],
+          "type": "object"
+        },
+        "snapshotHash": {
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "type": "string"
+        },
+        "sources": {
+          "items": {
+            "$ref": "#/$defs/source"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "tables": {
+          "items": {
+            "$ref": "#/$defs/table"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "variantOf": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "variantReason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "snapshot",
+        "sources",
+        "tables",
+        "hashBasis",
+        "snapshotHash",
+        "variantOf",
+        "variantReason",
+        "requiresRename",
+        "code",
+        "overwritten"
+      ],
+      "type": "object"
+    }
+  ]
+}

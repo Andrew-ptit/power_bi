@@ -1,0 +1,42 @@
+{
+  "counts": {
+    "connectionCount": 0,
+    "formulaCount": 0,
+    "queryCount": 0
+  },
+  "hashBasis": [
+    "specFingerprint",
+    "target",
+    "counts",
+    "source",
+    "sheets",
+    "variantOf",
+    "variantReason"
+  ],
+  "previewHash": "sha256:a2d35f21a11b8fc9d7b175aac29185682c404bd5231fd6450b5c83b6f40ae93f",
+  "schemaVersion": "1.0",
+  "sheets": {
+    "after": {
+      "cols": 9,
+      "rows": 23
+    },
+    "before": {
+      "cols": 12,
+      "rows": 31
+    }
+  },
+  "source": {
+    "after": "sha256:d42a253f300b34680652b64bd47b12a5cbe163af411ca3be8ad2c4e1d017b5f8",
+    "before": "sha256:d42a253f300b34680652b64bd47b12a5cbe163af411ca3be8ad2c4e1d017b5f8",
+    "unchanged": true
+  },
+  "specFingerprint": "sha256:97e6b63a53d427d2c15a943bb1193771d16e2803a2c88b420ff57a2af038ab4c",
+  "target": {
+    "marker": "LOCAL_DATA_COPILOT|PnL_Preview|spec=sha256:97e6b63a53d427d2c15a943bb1193771d16e2803a2c88b420ff57a2af038ab4c|labels=assumed,unverified",
+    "mode": "values_only",
+    "sheet": "PnL_Preview",
+    "workbook": "temp_copy"
+  },
+  "variantOf": null,
+  "variantReason": null
+}

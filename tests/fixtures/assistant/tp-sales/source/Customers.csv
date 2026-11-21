@@ -1,0 +1,6 @@
+CustomerID,CustomerName,Segment,TerritoryID
+C-001,An Phu Retail,Retail,T-SOUTH
+C-002,Bac Ha Foods,Wholesale,T-NORTH
+C-003,Da Nang Mart,Retail,T-CENTRAL
+C-004,Mekong Trading,Wholesale,T-MEKONG
+C-005,Sai Gon Digital,Online,T-SOUTH

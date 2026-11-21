@@ -1,0 +1,42 @@
+{
+  "counts": {
+    "connectionCount": 0,
+    "formulaCount": 0,
+    "queryCount": 0
+  },
+  "hashBasis": [
+    "specFingerprint",
+    "target",
+    "counts",
+    "source",
+    "sheets",
+    "variantOf",
+    "variantReason"
+  ],
+  "previewHash": "sha256:cb4f1eadd700104eac0bbcc5cb80cad7811181b49de8a9018d05935de1c9b1ca",
+  "schemaVersion": "1.0",
+  "sheets": {
+    "after": {
+      "cols": 4,
+      "rows": 4
+    },
+    "before": {
+      "cols": 6,
+      "rows": 24
+    }
+  },
+  "source": {
+    "after": "sha256:d053d3702d2145c0f0337e6c8c0e247e9e4558f98cc46434233e80a1e510f33c",
+    "before": "sha256:d053d3702d2145c0f0337e6c8c0e247e9e4558f98cc46434233e80a1e510f33c",
+    "unchanged": true
+  },
+  "specFingerprint": "sha256:db5c6c3d10a034850583b6641a0ea31f9c6b0bb06daf19d09049d93e7c20d5db",
+  "target": {
+    "marker": "LOCAL_DATA_COPILOT|Sales_Preview|spec=sha256:db5c6c3d10a034850583b6641a0ea31f9c6b0bb06daf19d09049d93e7c20d5db|labels=assumed,unverified",
+    "mode": "values_only",
+    "sheet": "Sales_Preview",
+    "workbook": "temp_copy"
+  },
+  "variantOf": null,
+  "variantReason": null
+}
