@@ -10,10 +10,10 @@
   <DefaultLocale>vi-VN</DefaultLocale>
   <DisplayName DefaultValue="Reqwise-excel-mcp"/>
   <Description DefaultValue="Reqwise MCP cho Excel: Đọc dữ liệu, phân tích prompt, preview an toàn và áp dụng có kiểm soát."/>
-  <IconUrl DefaultValue="https://localhost:3079/assets/icon-64.png?channel=7c719ed439131c44dca2c0e3"/>
-  <SupportUrl DefaultValue="https://localhost:3079/taskpane.html?channel=7c719ed439131c44dca2c0e3"/>
+  <IconUrl DefaultValue="https://localhost:3075/assets/icon-64.png?channel=6be938899c6d5dee71487235"/>
+  <SupportUrl DefaultValue="https://localhost:3075/taskpane.html?channel=6be938899c6d5dee71487235"/>
   <AppDomains>
-    <AppDomain>https://localhost:3079</AppDomain>
+    <AppDomain>https://localhost:3075</AppDomain>
   </AppDomains>
   <Hosts>
     <Host Name="Workbook"/>
@@ -24,7 +24,7 @@
     </Sets>
   </Requirements>
   <DefaultSettings>
-    <SourceLocation DefaultValue="https://localhost:3079/taskpane.html?channel=7c719ed439131c44dca2c0e3"/>
+    <SourceLocation DefaultValue="https://localhost:3075/taskpane.html?channel=6be938899c6d5dee71487235"/>
   </DefaultSettings>
   <Permissions>ReadWriteDocument</Permissions>
   <VersionOverrides xmlns="http://schemas.microsoft.com/office/taskpaneappversionoverrides"
@@ -71,13 +71,13 @@
     </Hosts>
     <Resources>
       <bt:Images>
-        <bt:Image id="Icon.16" DefaultValue="https://localhost:3079/assets/icon-16.png?channel=7c719ed439131c44dca2c0e3"/>
-        <bt:Image id="Icon.32" DefaultValue="https://localhost:3079/assets/icon-32.png?channel=7c719ed439131c44dca2c0e3"/>
-        <bt:Image id="Icon.80" DefaultValue="https://localhost:3079/assets/icon-80.png?channel=7c719ed439131c44dca2c0e3"/>
+        <bt:Image id="Icon.16" DefaultValue="https://localhost:3075/assets/icon-16.png?channel=6be938899c6d5dee71487235"/>
+        <bt:Image id="Icon.32" DefaultValue="https://localhost:3075/assets/icon-32.png?channel=6be938899c6d5dee71487235"/>
+        <bt:Image id="Icon.80" DefaultValue="https://localhost:3075/assets/icon-80.png?channel=6be938899c6d5dee71487235"/>
       </bt:Images>
       <bt:Urls>
-        <bt:Url id="Commands.Url" DefaultValue="https://localhost:3079/commands.html?channel=7c719ed439131c44dca2c0e3"/>
-        <bt:Url id="Taskpane.Url" DefaultValue="https://localhost:3079/taskpane.html?channel=7c719ed439131c44dca2c0e3"/>
+        <bt:Url id="Commands.Url" DefaultValue="https://localhost:3075/commands.html?channel=6be938899c6d5dee71487235"/>
+        <bt:Url id="Taskpane.Url" DefaultValue="https://localhost:3075/taskpane.html?channel=6be938899c6d5dee71487235"/>
       </bt:Urls>
       <bt:ShortStrings>
         <bt:String id="Group.Label" DefaultValue="Reqwise MCP"/>
