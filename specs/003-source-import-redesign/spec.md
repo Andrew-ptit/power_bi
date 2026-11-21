@@ -131,7 +131,7 @@ Tên sheet trùng/Unicode/31 ký tự; CSV BOM; delimiter `, ; \t |`; encoding W
    - Trộn cả hai (>12 ở cả hai vị trí) hoặc năm 2 chữ số → text, reason `INVALID_DATE_TEXT` / `DATE_UNSUPPORTED_TEXT`.
    - Xuất serial theo hệ ngày của workbook (probe hàm `DATE(1904,1,1)`: `0` → 1904, `1462` → 1900), numberFormat `yyyy-mm-dd`.
 5. **Text**: mặc định; trim hai đầu; numberFormat `@`. Nếu cột trộn số/ngày/chữ → text + reason `MIXED_TYPE_TEXT`.
-6. **Empty**: giữ `""`, numberFormat `@`; cột toàn rỗng → text `@`, reason `EMPTY_COLUMN`.
+6. **Empty**: ô rỗng giữ `null`, numberFormat `General` (ô để trống, không ghi chữ); cột toàn rỗng → `null` + `General`, reason `EMPTY_COLUMN`.
 7. Header: luôn text `@`, không suy luận kiểu.
 8. Mỗi quyết định khác `TEXT`/`NUMBER` mặc định được ghi vào report; `DECIMAL_DOT`, `DECIMAL_COMMA` có low-confidence cũng ghi.
 9. **Delimiter thắng dấu thập phân.** Tách ô xảy ra trước, suy luận kiểu sau. Ví dụ đã chốt 2026-11-19:
@@ -140,6 +140,8 @@ Tên sheet trùng/Unicode/31 ký tự; CSV BOM; delimiter `, ; \t |`; encoding W
    |---|---|---|
    | `Code;Price` | `A01;00123,2` | `Code` = text `A01`; `Price` = number `123.2` (một ô, dấu phẩy là thập phân) |
    | `Code,Qty` | `00123,2` | `,` là delimiter → hai ô: `Code` = text `00123` (giữ số 0 đầu), `Qty` = number `2` |
+
+   Amendment 2026-11-20 (đã duyệt): ô CSV rỗng giữ `null` + `General`; physical verifier so `numberFormats` của package thay vì bắt mọi ô `@`.
 
 ## 7. Key entities
 

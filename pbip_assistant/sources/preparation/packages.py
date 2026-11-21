@@ -1,6 +1,7 @@
 """Bounded, read-only transfer packages and independently derived image hashes."""
 import base64
 import csv
+import hashlib
 from copy import deepcopy
 from io import BytesIO, StringIO
 import json
@@ -10,9 +11,10 @@ import struct
 from zipfile import ZipFile
 
 from pbip_assistant.errors import InputError
-from pbip_assistant.sources.assistant_ingest import canonical_hash, _bounded_bytes, _guard, _unchanged
+from pbip_assistant.sources.assistant_ingest import canonical_hash, _bounded_bytes, _unchanged
 from pbip_assistant.sources.xlsx import MAIN, REL, _safe_member
-from .inventory import review_import, verify_inventory, _xml
+from .csv_typing import build_typed_frame
+from .inventory import inventory_file_path, review_import, verify_inventory, _xml
 
 
 MAX_IMAGE_BYTES = 8 * 1024 * 1024
@@ -178,14 +180,92 @@ def _xlsx_frames(payload):
         return result
 
 
-def build_packages(inventory, inventory_hash, mappings, existing_names, *, native_runner=None, workspace_manager=None):
+_SKIP_MESSAGES = {
+    "CSV_COLUMN_COUNT": "CSV rows have inconsistent column counts.",
+    "CSV_HEADER": "CSV header is missing or invalid.",
+    "CSV_DUPLICATE_HEADER": "CSV headers are duplicated.",
+    "CSV_ENCODING": "CSV encoding could not be read.",
+    "CSV_LIMIT": "CSV exceeds the supported import limits.",
+    "REQUEST_LIMIT": "File exceeds the supported import limits.",
+    "INVALID_CSV": "CSV records could not be read.",
+    "INVALID_XLSX": "Workbook could not be read.",
+    "DP_SOURCE_STALE": "Selected file is unavailable.",
+    "DP_UNSUPPORTED_SOURCE": "Selected file type is unsupported.",
+}
+
+
+def _skipped(file_id, file_name, code):
+    return {"fileId": file_id, "fileName": file_name, "status": "skipped", "reading": None,
+            "sheets": [], "decisions": [], "readingDecisions": [], "issues": [
+                {"code": code, "message": _SKIP_MESSAGES.get(code, "File could not be imported.")}]}
+
+
+def _csv_frame(payload, reading, date_system):
+    reader = csv.reader(StringIO(payload.decode(reading["encoding"]), newline=""),
+                        delimiter=reading["delimiter"], strict=True)
+    for _ in range(reading["header_row"] - 1):
+        next(reader, None)
+    headers = next(reader, [])
+    if not headers or len(headers) > 200:
+        raise InputError("REQUEST_LIMIT", "packages", "CSV exceeds the supported column limit")
+    rows = []
+    for row in reader:
+        if len(row) != len(headers):
+            raise InputError("CSV_COLUMN_COUNT", "packages", "CSV row widths require correction")
+        if len(rows) + 2 > 100000 or (len(rows) + 2) * len(headers) > MAX_CELLS:
+            raise InputError("REQUEST_LIMIT", "packages", "CSV exceeds the supported frame size")
+        rows.append(row)
+    metadata = {"encoding": reading["encoding"], "delimiter": reading["delimiter"],
+                "headerRow": reading["header_row"], "columns": len(headers)}
+    typed = build_typed_frame(headers, rows, date_system=date_system or "1900")
+    values, formats, decisions = typed["values"], typed["numberFormats"], typed["decisions"]
+    if date_system is None and any("yyyy-mm-dd" in row for row in formats):
+        raise InputError("DP_DATE_SYSTEM_REQUIRED", "dateSystem", "Dated CSV columns require the workbook date system")
+    frame = {"rowOffset": 0, "columnOffset": 0, "values": values, "formulas": deepcopy(values),
+             "formulaCells": [], "numberFormats": formats}
+    return frame, decisions, metadata
+
+
+def _imported(entry, package, reading=None, decisions=None):
+    reading_decisions = []
+    if reading and "fileSummary" in entry:  # Selection inventory infers its codec and delimiter.
+        if reading["encoding"] == "cp1252":
+            reading_decisions.append({"reasonCode": "ENCODING_FALLBACK"})
+        if reading["delimiter"] != ",":
+            reading_decisions.append({"reasonCode": "DELIMITER_INFERRED"})
+    return {"fileId": entry["fileId"], "fileName": entry["fileName"], "status": "imported",
+            "reading": reading, "decisions": decisions or [], "readingDecisions": reading_decisions, "issues": [],
+            "sheets": [{k: s[k] for k in ("sourceSheetId", "targetName")} for s in package["sheets"]]}
+
+
+def build_packages(inventory, inventory_hash, mappings, existing_names, *, native_runner=None, workspace_manager=None,
+                   date_system=None, report=None, reviewed_xlsx=None):
     review_import(inventory, inventory_hash, mappings, existing_names)
+    if date_system not in (None, "1900", "1904"):
+        raise InputError("INVALID_REQUEST", "dateSystem", "Unknown workbook date system")
     selected = {m["fileId"] for m in mappings}
+    files = []
+    for index, error in enumerate(inventory._errors):
+        # A file rejected before reading has no content-derived ID.
+        file_id = error.get("fileId") or "file_" + hashlib.sha256(
+            f"{inventory_hash}:{index}".encode()).hexdigest()[:24]
+        files.append(_skipped(file_id, error["fileName"], error["code"]))
     result = []
     for entry in inventory._files:
         if entry["fileId"] not in selected: continue
-        path = _guard(inventory._folder / entry["fileName"], root=inventory._root)
-        payload, stamp = _bounded_bytes(path)
+        if reviewed_xlsx and entry["fileId"] in reviewed_xlsx:
+            package = reviewed_xlsx[entry["fileId"]]
+            result.append(package)
+            files.append(_imported(entry, package))
+            continue
+        path = inventory_file_path(inventory, entry["fileId"])
+        try:
+            payload, stamp = _bounded_bytes(path)
+        except (OSError, ValueError) as exc:
+            raise InputError("DP_SOURCE_STALE", "packages", "Reviewed source is unavailable") from exc
+        if "sha256:" + hashlib.sha256(payload).hexdigest() != entry["sourceHash"]:
+            raise InputError("DP_SOURCE_STALE", "packages", "Reviewed source content changed")
+        decisions, reading_metadata = [], None
         package = {"kind": entry["kind"], "fileId": entry["fileId"], "sheets": [], "preflight": dict(PREFLIGHT)}
         frames = None
         if entry["kind"] == "xlsx":
@@ -206,17 +286,28 @@ def build_packages(inventory, inventory_hash, mappings, existing_names, *, nativ
             if frames is not None:
                 frame = deepcopy(frames[mapping["proposedName"]])
             else:
-                reading = entry["csvReading"]
-                rows = list(csv.reader(StringIO(payload.decode(reading["encoding"]), newline=""), delimiter=reading["delimiter"], strict=True))[reading["header_row"] - 1:]
-                if not rows or len(rows) > 100000 or len(rows[0]) > 200 or len(rows) * len(rows[0]) > MAX_CELLS or any(len(row) != len(rows[0]) for row in rows):
-                    raise _fail("CSV exceeds the supported rectangular recovery frame")
-                frame = {"rowOffset": 0, "columnOffset": 0, "values": rows, "formulas": deepcopy(rows),
-                         "formulaCells": [], "numberFormats": [["@"] * len(rows[0]) for _ in rows]}
+                try:
+                    frame, decisions, reading_metadata = _csv_frame(payload, entry["csvReading"], date_system)
+                except InputError as exc:
+                    if exc.code not in {"REQUEST_LIMIT", "CSV_COLUMN_COUNT"}:
+                        raise
+                    files.append(_skipped(entry["fileId"], entry["fileName"], exc.code))
+                    continue
             package["sheets"].append({"sourceSheetId": source["sourceSheetId"], "sourceName": source["sourceName"],
                                       "targetName": mapping["proposedName"], **frame})
-        _unchanged(path, payload, stamp)
-        result.append(package)
+        try:
+            _unchanged(inventory_file_path(inventory, entry["fileId"]), payload, stamp)
+        except (OSError, ValueError) as exc:
+            raise InputError("DP_SOURCE_STALE", "packages", "Reviewed source changed during transfer") from exc
+        if package["sheets"]:
+            result.append(package)
+            files.append(_imported(entry, package, reading_metadata, decisions))
     verify_inventory(inventory)
-    if len(json.dumps(result, ensure_ascii=False).encode()) > MAX_IMAGE_BYTES:
+    summary = {"files": files, "totals": {"files": len(result), "skipped": len(files) - len(result),
+               "sheets": sum(len(p["sheets"]) for p in result), "decisions": sum(len(f["decisions"]) + len(f["readingDecisions"]) for f in files)}}
+    transfer = {"packages": result, "importReport": summary}
+    if len(json.dumps(transfer, ensure_ascii=False).encode()) > MAX_IMAGE_BYTES:
         raise InputError("REQUEST_LIMIT", "packages", "Reviewed package exceeds the bounded transfer envelope")
+    if report is not None:
+        report.update(summary)
     return result

@@ -3,6 +3,7 @@ from copy import deepcopy
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from pbip_assistant.errors import InputError
 from pbip_assistant.sources.assistant_ingest import canonical_hash
@@ -29,7 +30,8 @@ class PreparationDirectTests(unittest.TestCase):
         self.pid = self.state["preparationId"]
 
     def prepare(self):
-        state = self.store.inventory("transport", self.pid, self.folder.name, ".")
+        state = self.store.inventory("transport", self.pid, self.folder.name,
+            [{"relativePath": "", "fileName": "data.csv"}], expected_claim_version=self.state["claimVersion"])
         mappings = [{k: s[k] for k in ("fileId", "sourceSheetId", "proposedName")} for s in state["inventory"]["sheets"]]
         review = self.store.review_import("transport", self.pid, state["inventory"]["inventoryHash"], mappings, ["Personal"])
         return self.store.approve("transport", self.pid, review["reviewHash"], "import", {"strategy": "import_new", "sheetIds": ["native"]})
@@ -41,8 +43,8 @@ class PreparationDirectTests(unittest.TestCase):
     def after(self):
         image = deepcopy(self.before)
         image["sheets"].append({"sheetId": "new_native", "name": "data", "rowOffset": 0, "columnOffset": 0,
-            "values": [["Code", "Qty"], ["00123", "2"]], "formulas": [["Code", "Qty"], ["00123", "2"]],
-            "formulaCells": [], "numberFormats": [["@", "@"], ["@", "@"]]})
+            "values": [["Code", "Qty"], ["00123", 2]], "formulas": [["Code", "Qty"], ["00123", 2]],
+            "formulaCells": [], "numberFormats": [["@", "@"], ["@", "General"]]})
         return image
 
     def ready(self, a, fingerprint=None, permit=None):
@@ -53,6 +55,46 @@ class PreparationDirectTests(unittest.TestCase):
         image = self.after() if image is None else image
         return self.store.direct_complete("transport", self.pid, a["attemptId"], {"phase": "verified", "imageId": None,
             "observedFingerprint": image_fingerprint(image), "actualSheetIds": ["new_native"], **receipt}, image)
+
+    def test_identical_xlsx_rereview_rejects_delayed_approval(self):
+        from tests.support.preparation_images import native_package
+        frame = {"name": "Data", "rowOffset": 0, "columnOffset": 0, "values": [[2]], "formulas": [[2]],
+                 "formulaCells": [], "numberFormats": [["General"]]}
+        payload = native_package({"sheets": [frame]})
+        (Path(self.folder.name) / "data.xlsx").write_bytes(payload)
+        state = self.store.inventory("transport", self.pid, self.folder.name,
+            [{"relativePath": "", "fileName": "data.xlsx"}], expected_claim_version=self.state["claimVersion"])
+        inventory = state["inventory"]
+        first_sheet = inventory["sheets"][0]
+        mapping = {"fileId": first_sheet["fileId"], "sourceSheetId": first_sheet["sourceSheetId"], "proposedName": "Data"}
+
+        class Runner:
+            def apply(self, request):
+                Path(request["outputPath"]).write_bytes(payload)
+                return {"sheets": [frame], "namespaceId": request["namespaceId"]}
+
+        target = {"strategy": "import_new", "sheetIds": ["native"]}
+        with patch("pbip_assistant.sources.preparation.xlsx_preservation.PowerShellExcelRunner", return_value=Runner()):
+            transfers = []
+            for _ in range(2):
+                review = self.store.review_import("transport", self.pid, inventory["inventoryHash"], [mapping], ["Personal"])
+                for read in range(2):
+                    transfer = self.store.packages("transport", self.pid, review["reviewHash"], reuse_reviewed=False)
+                    if read == 0:
+                        transfers.append(transfer)
+                    else:
+                        self.assertEqual(transfer, transfers[-1])
+            first, second = transfers
+            self.assertNotEqual(first["packages"][0]["namespace"], second["packages"][0]["namespace"])
+            with self.assertRaises(InputError) as caught:
+                self.store.approve("transport", self.pid, first["reviewHash"], "import", target)
+            self.assertEqual(caught.exception.code, "DP_REVIEW_STALE")
+            with self.assertRaises(InputError) as caught:
+                self.store.packages("transport", self.pid, first["reviewHash"], reuse_reviewed=False)
+            self.assertEqual(caught.exception.code, "DP_REVIEW_STALE")
+            grant = self.store.approve("transport", self.pid, second["reviewHash"], "import", target)
+            attempt = self.store.direct_begin("transport", self.pid, grant["grantId"], self.before)
+            self.assertEqual(attempt["packages"], second["packages"])
 
     def test_import_success_retains_identity_but_no_recoverable_images_or_packages(self):
         self.assertTrue(self.state["writeEnabled"])
@@ -279,13 +321,32 @@ class PreparationDirectApiTests(unittest.TestCase):
         self.assertEqual(status, 200)
         pid = state["preparationId"]
         with tempfile.TemporaryDirectory() as directory:
-            (Path(directory) / "data.csv").write_text("Code,Qty\n00123,2\n", encoding="utf-8")
-            status, state = self.post("inventory", preparationId=pid, root=directory, relativePath=".")
+            (Path(directory) / "data.csv").write_text("Code,Qty,Date\n00123,2,1904-01-01\n", encoding="utf-8")
+            status, state = self.post("inventory", preparationId=pid, root=directory,
+                items=[{"relativePath": "", "fileName": "data.csv"}], expectedClaimVersion=state["claimVersion"])
             self.assertEqual(status, 200)
             mappings = [{k: s[k] for k in ("fileId", "sourceSheetId", "proposedName")} for s in state["inventory"]["sheets"]]
             status, review = self.post("review-import", preparationId=pid, inventoryHash=state["inventory"]["inventoryHash"], mappings=mappings, existingNames=["Personal"])
             self.assertEqual(status, 200)
-            status, grant = self.post("approve", preparationId=pid, reviewHash=review["reviewHash"], kind="import", target={"strategy": "import_new", "sheetIds": ["native"]})
+            status, packages = self.post("packages", preparationId=pid, reviewHash=review["reviewHash"], dateSystem="1904")
+            self.assertEqual(status, 200)
+            self.assertEqual(packages["packages"][0]["sheets"][0]["values"][1], ["00123", 2, 0])
+            request = {"preparationId": pid, "reviewHash": review["reviewHash"]}
+            target = {"strategy": "import_new", "sheetIds": ["native"]}
+            old_hash = packages["reviewHash"]
+            status, switched = self.post("packages", **request, dateSystem="1900")
+            self.assertEqual(status, 200)
+            self.assertEqual(switched["packages"][0]["sheets"][0]["values"][1], ["00123", 2, 1462])
+            # A delayed approval from the first panel must fail even before any grant exists.
+            status, rejected = self.post("approve", preparationId=pid, reviewHash=old_hash, kind="import", target=target)
+            self.assertEqual(rejected["error"]["code"], "DP_REVIEW_STALE")
+            status, old_grant = self.post("approve", preparationId=pid, reviewHash=switched["reviewHash"], kind="import", target=target)
+            self.assertEqual(status, 200)
+            status, current = self.post("packages", **request, dateSystem="1904")
+            self.assertEqual(status, 200)
+            status, rejected = self.post("direct-begin", preparationId=pid, grantId=old_grant["grantId"], beforeImage=before)
+            self.assertEqual(rejected["error"]["code"], "DP_REVIEW_STALE")
+            status, grant = self.post("approve", preparationId=pid, reviewHash=current["reviewHash"], kind="import", target=target)
             self.assertEqual(status, 200)
             begin = {"schemaVersion": 1, "action": "direct-begin", "preparationId": pid, "grantId": grant["grantId"], "beforeImage": before}
             self.assertEqual(self.call("POST", "/api/preparation/direct-begin", begin)[0], 403)
@@ -296,9 +357,9 @@ class PreparationDirectApiTests(unittest.TestCase):
             self.assertEqual(status, 200)
             after = deepcopy(before)
             after["sheets"].append({"sheetId": "new_native", "name": "data", "rowOffset": 0, "columnOffset": 0,
-                "values": [["Code", "Qty"], ["00123", "2"]], "formulas": [["Code", "Qty"], ["00123", "2"]],
-                "formulaCells": [], "numberFormats": [["@", "@"], ["@", "@"]]})
-            receipt = {"phase": "verified", "imageId": None, "observedFingerprint": image_fingerprint(after), "actualSheetIds": ["new_native"], "rows": 2, "columns": 2}
+                "values": [["Code", "Qty", "Date"], ["00123", 2, 0]], "formulas": [["Code", "Qty", "Date"], ["00123", 2, 0]],
+                "formulaCells": [], "numberFormats": [["@", "@", "@"], ["@", "General", "yyyy-mm-dd"]]})
+            receipt = {"phase": "verified", "imageId": None, "observedFingerprint": image_fingerprint(after), "actualSheetIds": ["new_native"], "rows": 2, "columns": 3}
             status, state = self.post("direct-complete", preparationId=pid, attemptId=attempt["attemptId"], receipt=receipt, afterImage=after)
             self.assertEqual(status, 200)
             self.assertEqual(state["status"], "verified")

@@ -117,6 +117,10 @@ Luồng lỗi bắt buộc: Excel lỗi/mật khẩu, PBIP không đúng cấu t
 
 ## 6. Yêu cầu chức năng
 
+> Khi nhập CSV thành sheet từ tab `Nguồn` trong task pane, hệ thống tự xác định kiểu cột và định dạng ghi.
+> Báo cáo nhập ghi các ngoại lệ đã xử lý cùng lý do của từng file bị bỏ qua.
+> FR-023 tiếp tục áp dụng khi dùng dữ liệu CSV để lập patch PBIP.
+
 | ID | Ưu tiên | Release | Yêu cầu kiểm thử được |
 |---|---|---|---|
 | FR-001 | Must | R1 | Hệ thống phải nhận nhiều `.xlsx` và `.csv`; đọc sheet/table theo lựa chọn với workbook hoặc header/bản ghi với CSV; báo lỗi riêng cho file mật khẩu, lỗi định dạng, mã hóa hoặc không đọc được. |

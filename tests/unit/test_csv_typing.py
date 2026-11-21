@@ -36,7 +36,44 @@ class NumberRulesTest(unittest.TestCase):
     def test_decimal_comma_column(self):
         result = frame(["n"], [["1,5"], ["2,25"]])
         self.assertEqual(oracle.column(result, 0), [1.5, 2.25])
+        self.assertEqual(oracle.formats(result, 0), [oracle.NUMBER] * 2)
         self.assertEqual(oracle.reason_of(result, "n"), oracle.DECIMAL_COMMA)
+
+    def test_single_dot_in_each_grouped_value(self):
+        result = frame(["n"], [["1.234"], ["2.345"]])
+        self.assertEqual(oracle.column(result, 0), [1234, 2345])
+        self.assertEqual(oracle.reason_of(result, "n"), oracle.GROUP_SEPARATOR)
+
+    def test_negative_localized_numbers(self):
+        for raw, expected, reason in (
+            ("-1,234", -1234, oracle.GROUP_SEPARATOR),
+            ("-12.345.678", -12345678, oracle.GROUP_SEPARATOR),
+            ("-1,25", -1.25, oracle.DECIMAL_COMMA),
+        ):
+            with self.subTest(raw=raw):
+                result = frame(["n"], [[raw]])
+                self.assertEqual(oracle.column(result, 0), [expected])
+                self.assertEqual(oracle.formats(result, 0), [oracle.NUMBER])
+                self.assertEqual(oracle.reason_of(result, "n"), reason)
+
+    def test_group_separator_with_ungrouped_integer_rows(self):
+        for grouped in ("1,234", "1.234"):
+            with self.subTest(grouped=grouped):
+                result = frame(["qty"], [[grouped], ["12"]])
+                self.assertEqual(oracle.column(result, 0), [1234, 12])
+                self.assertEqual(oracle.reason_of(result, "qty"), oracle.GROUP_SEPARATOR)
+
+    def test_plain_integers_have_no_exception(self):
+        result = frame(["n"], [["1234"], ["12"]])
+        self.assertEqual(oracle.column(result, 0), [1234, 12])
+        self.assertEqual(oracle.formats(result, 0), [oracle.NUMBER] * 2)
+        self.assertEqual(result["decisions"], [])
+
+    def test_grouped_integer_part_and_decimal_part(self):
+        result = frame(["n"], [["1,234.567"]])
+        self.assertEqual(oracle.column(result, 0), [1234.567])
+        self.assertEqual(oracle.formats(result, 0), [oracle.NUMBER])
+        self.assertEqual(oracle.reason_of(result, "n"), oracle.DECIMAL_DOT)
 
     def test_leading_zero_stays_text(self):
         result = frame(["code"], [["00123"], ["00456"]])
@@ -86,6 +123,12 @@ class DateRulesTest(unittest.TestCase):
 
 
 class TextRulesTest(unittest.TestCase):
+    def test_minus_expression_keeps_whole_column_as_text(self):
+        result = frame(["f"], [["-2,25"], ["-2+1"]])
+        self.assertEqual(oracle.column(result, 0), ["-2,25", "-2+1"])
+        self.assertEqual(oracle.formats(result, 0), [oracle.TEXT] * 2)
+        self.assertEqual(oracle.reason_of(result, "f"), oracle.FORMULA_LIKE_TEXT)
+
     def test_formula_like_never_numeric(self):
         result = frame(["f"], [["=1+1"], ["+A1"], ["@x"]])
         self.assertEqual(oracle.column(result, 0), ["=1+1", "+A1", "@x"])
@@ -99,13 +142,39 @@ class TextRulesTest(unittest.TestCase):
 
     def test_empty_cells_and_empty_column(self):
         result = frame(["a", "b"], [["", "1"], ["", "2"]])
-        self.assertEqual(oracle.column(result, 0), ["", ""])
-        self.assertEqual(oracle.formats(result, 0), [oracle.TEXT, oracle.TEXT])
+        self.assertEqual(oracle.column(result, 0), [None, None])
+        self.assertEqual(oracle.formats(result, 0), [oracle.NUMBER, oracle.NUMBER])
         self.assertEqual(oracle.reason_of(result, "a"), oracle.EMPTY_COLUMN)
         self.assertEqual(oracle.column(result, 1), [1, 2])
 
 
 class ShapeAndBoundsTest(unittest.TestCase):
+    def test_product_import_reports_only_three_exceptions(self):
+        result = frame(["unit_price", "qty", "code", "created", "note"], [
+            ["1234.56", "1,234", "00123", "03/04/2026", " KH01 "],
+            ["0.99", "12", "", "", ""],
+        ])
+        self.assertEqual(result["values"][1:], [
+            [1234.56, 1234, "00123", oracle.serial(2026, 4, 3, 1900), "KH01"],
+            [0.99, 12, None, None, None],
+        ])
+        self.assertCountEqual([(d["column"], d["reasonCode"]) for d in result["decisions"]],
+                              [("qty", oracle.GROUP_SEPARATOR), ("code", oracle.LEADING_ZERO_TEXT),
+                               ("created", oracle.DATE_DMY_DEFAULT)])
+
+    def test_empty_cells_are_blank_with_general_format(self):
+        result = frame(["price", "created"], [["0", "03/04/2026"], ["", " "]])
+        self.assertEqual(result["values"][2], [None, None])
+        self.assertEqual(result["numberFormats"][1:], [[oracle.NUMBER, oracle.DATE],
+                                                      [oracle.NUMBER, oracle.NUMBER]])
+
+    def test_unsupported_formats_remain_reportable_text(self):
+        for value in ("25%", "$12", "12 €", "2025-01-14T15:00"):
+            with self.subTest(value=value):
+                result = frame(["x"], [[value]])
+                self.assertEqual(oracle.column(result, 0), [value])
+                self.assertEqual(oracle.reason_of(result, "x"), oracle.MIXED_TYPE_TEXT)
+
     def test_header_row_is_always_text(self):
         result = frame(["1", "2.5"], [["x", "1"]])
         self.assertEqual(result["numberFormats"][0], [oracle.TEXT, oracle.TEXT])
@@ -118,9 +187,9 @@ class ShapeAndBoundsTest(unittest.TestCase):
 
     def test_report_bounds(self):
         headers = [f"c{index}" for index in range(250)]
-        row = [str(index + 1) for index in range(250)]
+        row = ["00123"] * len(headers)
         result = frame(headers, [row])
-        self.assertLessEqual(len(result["decisions"]), oracle.MAX_DECISIONS)
+        self.assertEqual(len(result["decisions"]), oracle.MAX_DECISIONS)
         for decision in result["decisions"]:
             self.assertLessEqual(len(decision["samples"]), oracle.MAX_SAMPLES)
             for sample in decision["samples"]:

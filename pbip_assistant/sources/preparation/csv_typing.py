@@ -7,8 +7,9 @@
 from __future__ import annotations
 
 import re
+import unicodedata
 from datetime import date
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal
 
 __all__ = ["build_typed_frame", "describe_columns"]
 
@@ -26,7 +27,8 @@ _RE_NUMBER_DOT = re.compile(r"^[+-]?(\d{1,3}(,\d{3})+|\d+)(\.\d+)?$")
 _RE_NUMBER_COMMA = re.compile(r"^[+-]?(\d{1,3}(\.\d{3})+|\d+)(,\d+)?$")
 _RE_DATE = re.compile(r"^(\d{1,4})[/.-](\d{1,2})[/.-](\d{1,4})$")
 _RE_LEADING_ZERO = re.compile(r"^0\d+$")
-_RE_GROUPED = re.compile(r"^[+-]?\d{1,3}([.,]\d{3})+$")
+_RE_GROUPED = re.compile(r"[+-]?\d{1,3}([.,])\d{3}(?:\1\d{3})*")
+_RE_DATETIME = re.compile(r"^\d{1,4}[/.-]\d{1,2}[/.-]\d{1,4}[T ]\d{1,2}:\d{2}")
 _FORMULA_PREFIXES = ("=", "+", "@")
 
 
@@ -40,11 +42,7 @@ def _formula_like(value: str) -> bool:
     if value[0] in _FORMULA_PREFIXES:
         return True
     if value[0] == "-":
-        try:
-            Decimal(value)
-            return False
-        except InvalidOperation:
-            return True
+        return not (_RE_NUMBER_DOT.fullmatch(value) or _RE_NUMBER_COMMA.fullmatch(value))
     return False
 
 
@@ -55,6 +53,19 @@ def _significant_digits(value: str) -> int:
     return len(digits)
 
 
+def _numeric_or_date_like(value: str) -> bool:
+    if (_RE_NUMBER_DOT.fullmatch(value) or _RE_NUMBER_COMMA.fullmatch(value)
+            or _RE_DATE.fullmatch(value) or _RE_DATETIME.match(value)):
+        return True
+    # Unsupported percentage and currency values are retained as text and reported.
+    token = value
+    if value.endswith("%") or unicodedata.category(value[-1]) == "Sc":
+        token = value[:-1].strip()
+    elif unicodedata.category(value[0]) == "Sc":
+        token = value[1:].strip()
+    return token != value and bool(_RE_NUMBER_DOT.fullmatch(token) or _RE_NUMBER_COMMA.fullmatch(token))
+
+
 def _decimal_dot(value: str) -> Decimal:
     return Decimal(value.replace(",", ""))
 
@@ -63,28 +74,19 @@ def _decimal_comma(value: str) -> Decimal:
     return Decimal(value.replace(".", "").replace(",", "."))
 
 
-def _three_digit_groups(value: str) -> bool:
-    body = value.lstrip("+-")
-    if not _RE_GROUPED.match(body):
-        return False
-    parts = re.split(r"[.,]", body)
-    return 1 <= len(parts[0]) <= 3 and all(len(part) == 3 for part in parts[1:])
-
-
 def _number_cells(values: list[str]):
     """Trả (cells, reason) hoặc None nếu cột không phải số."""
     dot_ok = all(_RE_NUMBER_DOT.match(value) for value in values)
     comma_ok = all(_RE_NUMBER_COMMA.match(value) for value in values)
     if not dot_ok and not comma_ok:
         return None
-    grouped = all(_three_digit_groups(value) for value in values) and any(
-        "," in value or "." in value for value in values
-    )
+    punctuated = [value for value in values if "." in value or "," in value]
+    if punctuated and all(_RE_GROUPED.fullmatch(value) for value in punctuated):
+        integers = [Decimal(value.replace(".", "").replace(",", "")) for value in values]
+        return integers, "GROUP_SEPARATOR"
     if dot_ok:
-        parsed = [_decimal_dot(value) for value in values]
-        return parsed, ("GROUP_SEPARATOR" if grouped else "DECIMAL_DOT")
-    return [_decimal_comma(value) for value in values], (
-        "GROUP_SEPARATOR" if grouped else "DECIMAL_COMMA")
+        return [_decimal_dot(value) for value in values], "DECIMAL_DOT"
+    return [_decimal_comma(value) for value in values], "DECIMAL_COMMA"
 
 
 def _date_order(parts: list[tuple[str, str, str]]) -> str | None:
@@ -163,7 +165,7 @@ def _decide(column: str, index: int, cells: list[str], date_system: str):
     """Trả (kind, numberFormat, reasonCode, converted cells, decision|None)."""
     filled = [value for value in cells if value]
     if not filled:
-        return "text", TEXT_FORMAT, "EMPTY_COLUMN", [], True
+        return "text", NUMBER_FORMAT, "EMPTY_COLUMN", [], True
     if any(_formula_like(value) for value in filled):
         return "text", TEXT_FORMAT, "FORMULA_LIKE_TEXT", list(filled), True
     if any(_RE_LEADING_ZERO.match(value) for value in filled):
@@ -178,7 +180,8 @@ def _decide(column: str, index: int, cells: list[str], date_system: str):
             return "text", TEXT_FORMAT, "PRECISION_TEXT", list(filled), True
         typed = [int(cell) if cell == cell.to_integral_value() else float(cell)
                  for cell in cells_out]
-        return "number", NUMBER_FORMAT, reason, typed, True
+        report = reason != "DECIMAL_DOT" or any("," in value for value in filled)
+        return "number", NUMBER_FORMAT, reason, typed, report
 
     parsed = _parse_dates(filled)
     if parsed is not None:
@@ -192,7 +195,8 @@ def _decide(column: str, index: int, cells: list[str], date_system: str):
         reason = "DATE_UNSUPPORTED_TEXT" if unsupported else "INVALID_DATE_TEXT"
         return "text", TEXT_FORMAT, reason, list(filled), True
 
-    return "text", TEXT_FORMAT, "MIXED_TYPE_TEXT", list(filled), True
+    mixed = any(_numeric_or_date_like(value) for value in filled)
+    return "text", TEXT_FORMAT, "MIXED_TYPE_TEXT", list(filled), mixed
 
 
 def build_typed_frame(headers, rows, *, date_system) -> dict:
@@ -215,15 +219,15 @@ def build_typed_frame(headers, rows, *, date_system) -> dict:
         if report and len(decisions) < MAX_DECISIONS:
             decisions.append(_decision(column, index, kind, number_format, reason,
                                        len(filled), _sample(filled)))
-        # Giữ đúng độ dài: ô rỗng ở lại "" (không dịch chuyển giá trị).
+        # Ô CSV rỗng ở lại rỗng (null) với numberFormat General, không ghi text.
         iterator = iter(converted)
-        column_values = ["" if cell == "" else next(iterator) for cell in cells]
+        column_values = [None if cell == "" else next(iterator) for cell in cells]
         for row_index, value in enumerate(column_values, start=1):
             if row_index >= len(values):
-                values.append([""] * width)
-                formats.append([TEXT_FORMAT] * width)
+                values.append([None] * width)
+                formats.append([NUMBER_FORMAT] * width)
             values[row_index][index] = value
-            formats[row_index][index] = number_format
+            formats[row_index][index] = NUMBER_FORMAT if value is None else number_format
 
     return {"values": values, "numberFormats": formats,
             "decisions": decisions, "issues": []}

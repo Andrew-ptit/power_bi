@@ -3,7 +3,7 @@
   "use strict";
   const fail=(code,message)=>Object.assign(new Error(message),{code});
   function create({post,runtime,environment,getState,setState,backupEnabled=true}){
-    let busy=false, active=null, businessIds=null, businessEvidence=null, confirmedDateSystem=null, currentSheetNames=[];
+    let busy=false, active=null, confirmedDateSystem=null, currentSheetNames=[], scannedReview=null;
     const digest=async bytes=>"sha256:"+Array.from(new Uint8Array(await environment.crypto.subtle.digest("SHA-256",bytes)),v=>v.toString(16).padStart(2,"0")).join("");
     const base64=bytes=>{let text="";for(let i=0;i<bytes.length;i+=8192)text+=String.fromCharCode(...bytes.subarray(i,i+8192));return environment.btoa(text);};
     const send=(action,fields)=>post(action,{preparationId:getState().preparationId,...fields});
@@ -76,9 +76,9 @@
         throw error;
       }finally{active=null;busy=false;}
     }
-    async function perform(kind,reviewHash,target,onProgress){
+    async function performImport(reviewHash,target,onProgress){
       const before=await native.captureAffectedScope();
-      const grant=await send("approve",{kind,reviewHash,target:{...target,sheetIds:target.sheetIds.length?target.sheetIds:before.sheets.map(s=>s.sheetId)}});
+      const grant=await send("approve",{kind:"import",reviewHash,target:{...target,sheetIds:target.sheetIds.length?target.sheetIds:before.sheets.map(s=>s.sheetId)}});
       let attempt;
       try {
         attempt=backupEnabled
@@ -86,7 +86,7 @@
           : await send("direct-begin",{grantId:grant.grantId,beforeImage:before});
       } catch (error) {
         if (!backupEnabled && (!error.code || ["COORDINATOR_RESPONSE_INVALID", "COORDINATOR_TIMEOUT", "REQUEST_FAILED", "REQUEST_TIMEOUT"].includes(error.code))) throw fail("DP_PARTIAL_UNKNOWN",
-          "Mất phản hồi khi chuẩn bị nhập hoặc làm sạch. Chưa gửi lệnh ghi tới Excel. Bắt đầu phiên mới để đọc lại workbook và duyệt lại.");
+          "Mất phản hồi khi chuẩn bị nhập. Chưa gửi lệnh ghi tới Excel. Bắt đầu phiên mới để đọc lại workbook và duyệt lại.");
         throw error;
       }
       active={attempt,permitRequested:false,restore:false};
@@ -95,11 +95,11 @@
         const saved=await upload(attempt,before,"before");active.beforeImageId=saved.imageId;
         Object.assign(attempt,{expectedFingerprint:saved.expectedFingerprint,targetCopies:saved.targetCopies||[]});
       }
-      onProgress(kind==="import"?"Đang chuyển file thành sheet trong workbook…":"Đang áp dụng các thay đổi đã duyệt…");
-      const result=kind==="import"?await native.importReviewedSources(attempt,attempt.packages,value=>onProgress(
+      onProgress("Đang chuyển file thành sheet trong workbook…");
+      const result=await native.importReviewedSources(attempt,attempt.packages,value=>onProgress(
         value.processed===value.total
           ? `Đã chèn ${value.total}/${value.total} file. Đang đọc lại và xác minh workbook…`
-          : `Đang nhập: ${value.processed}/${value.total} file…`)):await native.applyCleanup(attempt,attempt.changes);
+          : `Đang nhập: ${value.processed}/${value.total} file…`));
       if(result.phase!=="verified")throw fail("DP_PARTIAL_UNKNOWN","Excel chưa xác minh được kết quả ghi.");
       onProgress("Đang đọc lại và đối chiếu kết quả…");
       let state;
@@ -112,8 +112,6 @@
       setState(state);
       if(state.status!=="verified")throw fail("DP_PARTIAL_UNKNOWN","Kết quả đọc lại chưa khớp bản đã duyệt.");
       if(session)await session.persist(state);
-      businessEvidence=kind==="cleanup"?{kind:"image",image:result.after}:null;
-      businessIds=kind==="cleanup"?new Set([...target.sheetIds.filter(id=>!(attempt.targetCopies||[]).some(copy=>copy.sourceSheetId===id)),...(result.createdSheetIds||[])]):null;
       active=null;return {status:"verified",state};
     }
     async function attach(read){
@@ -160,9 +158,10 @@
       let state=await send("source-set",{snapshots:read.sources,expectedSourceRevision:getState().sourceRevision});setState(state);
       state=await send("scan",{sourceRevision:state.sourceRevision,expectedFingerprint:state.sourceHash,
         sources:state.sources.map(s=>({sourceId:s.sourceId,sheetId:s.sheetId,fingerprint:s.fingerprint,kind:"usedRange"}))});setState(state);
-      businessIds=null;businessEvidence=null;return {state,sourceLabels:read.sourceLabels,warnings:read.warnings,dateSystem:read.dateSystem};
+      scannedReview={sources:read.sources,sourceLabels:read.sourceLabels,dateSystem:read.dateSystem};
+      return {state,sourceLabels:read.sourceLabels,warnings:read.warnings,dateSystem:read.dateSystem};
     }
-    async function importFiles({inventory,fileIds,mappings,onProgress=()=>{}}){
+    async function importFiles({inventory,fileIds,mappings,dateSystem=null,onProgress=()=>{}}){
       return transaction(async()=>{
         const before=await native.captureAffectedScope();
         const chosen=new Set(fileIds);
@@ -170,85 +169,78 @@
         if(!chosen.size||!selected.length)throw fail("INVALID_REQUEST","Chọn ít nhất một file có sheet được hỗ trợ.");
         onProgress("Đang kiểm tra file và tên sheet trước khi nhập…");
         const review=await send("review-import",{inventoryHash:inventory.inventoryHash,mappings:selected,existingNames:before.sheets.map(s=>s.name)});
-        // Read-only package validation must succeed before approval/backup/native writes.
-        await send("packages",{reviewHash:review.reviewHash});
-        return perform("import",review.reviewHash,{strategy:"import_new",sheetIds:[]},onProgress);
+        const transfer=await send("packages",{reviewHash:review.reviewHash,...(dateSystem?{dateSystem}:{})});
+        const result=await performImport(transfer.reviewHash,{strategy:"import_new",sheetIds:[]},onProgress);
+        return {...result,report:transfer.importReport};
       });
     }
-    async function applyCleanup({state,onProgress=()=>{}}){
-      if(!state?.preview||state.preview.reviewHash!==getState()?.preview?.reviewHash)throw fail("DP_REVIEW_STALE","Bản xem trước đã đổi. Hãy xem lại.");
-      if(state.preview.changeCount===0){
-        // Re-read the selected source set before approving a no-change handoff.
-        const fresh=await runtime.readWorkbookSources(environment,confirmedDateSystem);
-        const checked=await send("source-set",{snapshots:fresh.sources,expectedSourceRevision:state.sourceRevision});setState(checked);
-        if(checked.sourceHash!==state.sourceHash||checked.answerRevision!==state.answerRevision)
-          throw fail("DP_SOURCE_STALE","Dữ liệu đã đổi. Hãy quét và duyệt lại trước khi tiếp tục.");
-        businessIds=new Set(checked.sources.map(source=>source.sheetId));businessEvidence={kind:"snapshots",sources:fresh.sources};return {status:"noop_verified",state:checked};
-      }
-      return transaction(async()=>{
-        const ids=state.sources.map(s=>s.sheetId),owned=new Set(state.importedSheetIds||[]);
-        return perform("cleanup",state.preview.reviewHash,{strategy:ids.every(id=>owned.has(id))?"imported_inplace":"personal_copy",sheetIds:ids},onProgress);
-      });
+    let sourceRoot=null,sourceRootName="",probedDateSystem=null;
+    async function pickRoot(){
+      const chosen=await post("pick-folder",{});
+      if(!chosen||chosen.cancelled||!chosen.path)return {cancelled:true};
+      sourceRoot=chosen.path;sourceRootName=chosen.name||"";probedDateSystem=null;
+      return {cancelled:false,rootName:sourceRootName};
     }
-    async function restore(direction,{onProgress=()=>{}}={}){
+    async function browse(relativePath=""){
+      if(!sourceRoot)throw fail("INVALID_REQUEST","Chọn thư mục nguồn trước.");
+      await attach();
+      return send("browse",{root:sourceRoot,relativePath:relativePath||"",expectedClaimVersion:getState()?.claimVersion});
+    }
+    async function inventorySelection(items){
+      if(!sourceRoot)throw fail("INVALID_REQUEST","Chọn thư mục nguồn trước.");
+      await attach();
+      const state=await send("inventory",{root:sourceRoot,items,expectedClaimVersion:getState()?.claimVersion});
+      return state.inventory;
+    }
+    async function probeDateSystem(){
+      if(probedDateSystem)return probedDateSystem;
+      const value=await runtime.probeDateSystem(environment);
+      if(!["1900","1904"].includes(value))throw fail("DP_DATE_SYSTEM_REQUIRED","Không xác định được hệ ngày của workbook (1900/1904). Không nhập để tránh sai ngày.");
+      probedDateSystem=value;return value;
+    }
+    async function importSelection({items,dateSystem,onProgress=()=>{}}){
+      if(!Array.isArray(items)||!items.length)throw fail("INVALID_REQUEST","Chọn ít nhất một file trước khi nhập.");
+      await attach();
       return transaction(async()=>{
-        const state=getState(),journal=state.journal;
-        const index=direction==="undo"?journal?.undoCount-1:journal?.undoCount;
-        const point=journal?.points?.[index];
-        if(!point)throw fail("DP_POINT_EXPIRED","Không còn điểm khôi phục phù hợp.");
         const before=await native.captureAffectedScope();
-        const attempt=await send(direction,{pointId:point.pointId,expectedCursor:journal.cursor,expectedFingerprint:before.fingerprint,
-          expectedPreservationFingerprint:before.fullFingerprint});
-        active={attempt,beforeImageId:attempt.imageId,permitRequested:false,restore:true};
-        onProgress(direction==="undo"?"Đang khôi phục…":"Đang làm lại…");
-        const result=await native.restoreAffectedScope(attempt,{...attempt,kind:attempt.kind,direction,image:attempt.image});
-        const after=await upload(attempt,result.after,"restore-readback");
-        const final=await send("restore-complete",{attemptId:attempt.attemptId,receipt:receipt(result,after.imageId)});setState(final);
-        if(final.status!=="verified")throw fail("DP_PARTIAL_UNKNOWN","Chưa xác minh được khôi phục.");
-        if(session)await session.persist(final);
-        active=null;return {status:"verified",state:final};
+        onProgress({fileName:"đang đọc file đã chọn"});
+        const inventory=await inventorySelection(items);
+        const names=new Map((inventory.files||[]).map(entry=>[entry.fileId,entry.fileName]));
+        const mappings=(inventory.sheets||[]).map(({fileId,sourceSheetId,proposedName})=>({fileId,sourceSheetId,proposedName}));
+        if(!mappings.length)throw fail("INVALID_REQUEST","Không có sheet nào đọc được từ file đã chọn.");
+        const review=await send("review-import",{inventoryHash:inventory.inventoryHash,mappings,existingNames:before.sheets.map(s=>s.name)});
+        const transfer=await send("packages",{reviewHash:review.reviewHash,...(dateSystem?{dateSystem}:{})});
+        const result=await performImport(transfer.reviewHash,{strategy:"import_new",sheetIds:[]},
+          value=>onProgress({...value,fileName:names.get(value.fileId)||""}));
+        return {...result,report:transfer.importReport,inventory};
       });
     }
-    async function businessSources(){
-      if(!businessIds)throw fail("DP_REVIEW_STALE","Duyệt dữ liệu làm sạch trước khi mở đề bài.");
-      const read=await runtime.readWorkbookSources(environment,confirmedDateSystem);
-      if(businessEvidence?.kind==="snapshots"&&JSON.stringify(read.sources)!==JSON.stringify(businessEvidence.sources))
-        throw fail("DP_SOURCE_STALE","Dữ liệu hoặc sheet đã đổi sau khi duyệt. Hãy quét và duyệt lại.");
-      const selected=read.sources.filter(source=>businessIds.has(source.sheetId));
-      if(selected.length!==businessIds.size)throw fail("DP_SOURCE_STALE","Dữ liệu hoặc sheet đã đổi sau khi duyệt. Hãy quét và duyệt lại.");
-      if(businessEvidence?.kind==="image"){
-        for(const source of selected){
-          const sheet=businessEvidence.image.sheets.find(sheet=>sheet.sheetId===source.sheetId);
-          const expected=sheet&&{headers:sheet.values[0],rows:sheet.values.slice(1),numberFormats:sheet.numberFormats.slice(1),
-            formulaCells:sheet.formulaCells.filter(([r])=>r>0).map(([r,c])=>[r-1,c]),rowOffset:sheet.rowOffset+1,columnOffset:sheet.columnOffset};
-          if(!expected||Object.keys(expected).some(key=>JSON.stringify(source[key])!==JSON.stringify(expected[key])))
-            throw fail("DP_SOURCE_STALE","Dữ liệu hoặc sheet đã đổi sau khi duyệt. Hãy quét và duyệt lại.");
-        }
-        await native.verifyAffectedScope(businessEvidence.image);
-      }
-      const evidence=JSON.stringify({sources:selected,sourceLabels:read.sourceLabels});
-      return {sources:selected,sourceLabels:read.sourceLabels,observedHash:await digest(new TextEncoder().encode(evidence)),
+    async function businessSourcesFromScan(){
+      const review=scannedReview;
+      if(!review)throw fail("DP_REVIEW_STALE","Đọc lại nguồn trước khi mở đề bài.");
+      const evidence=JSON.stringify({sources:review.sources,sourceLabels:review.sourceLabels});
+      const observedHash=await digest(new TextEncoder().encode(evidence));
+      return {sources:review.sources,sourceLabels:review.sourceLabels,observedHash,
         async validate(){
-          const fresh=await businessSources();
-          if(JSON.stringify({sources:fresh.sources,sourceLabels:fresh.sourceLabels})!==evidence)
-            throw fail("DP_SOURCE_STALE","Dữ liệu hoặc sheet đã đổi sau khi duyệt. Hãy quét và duyệt lại.");
-          return fresh;
+          const fresh=await runtime.readWorkbookSources(environment,review.dateSystem);
+          if(JSON.stringify(fresh.sources)!==JSON.stringify(review.sources)
+            ||JSON.stringify(fresh.sourceLabels)!==JSON.stringify(review.sourceLabels))
+            throw fail("DP_SOURCE_STALE","Dữ liệu hoặc sheet đã đổi sau khi đọc lại. Hãy đọc lại nguồn.");
+          return {sources:review.sources,sourceLabels:review.sourceLabels,observedHash};
         }};
     }
-    return {importFiles,applyCleanup,scanWorkbook,attach,mapInventory,businessSources,
+    return {importFiles,importSelection,scanWorkbook,attach,mapInventory,businessSourcesFromScan,pickRoot,browse,inventorySelection,probeDateSystem,
       async restart(){
         if(busy||active)throw fail("COORDINATOR_BUSY","Chờ thao tác hiện tại kết thúc trước khi mở phiên mới.");
         if (!backupEnabled) {
-          setState(null);businessIds=null;businessEvidence=null;currentSheetNames=[];
+          setState(null);scannedReview=null;currentSheetNames=[];
           return attach();
         }
         if(!session)throw fail("DP_BINDING_REQUIRED","Hãy đóng và mở lại panel để bắt đầu phiên mới.");
         const state=await session.attach({confirmTarget:true,fork:true});
-        businessIds=null;businessEvidence=null;currentSheetNames=[];return state;
+        scannedReview=null;currentSheetNames=[];return state;
       },
-      detach:()=>session?session.detach():getState()?send("detach",{expectedClaimVersion:getState().claimVersion}):Promise.resolve({status:"detached"}),
-      async businessSheets(){const read=await businessSources();return read.sources.map(source=>read.sourceLabels[source.sourceId]);},
-      undo:options=>restore("undo",options),redo:options=>restore("redo",options)};
+      detach:()=>session?session.detach():getState()?send("detach",{expectedClaimVersion:getState().claimVersion}):Promise.resolve({status:"detached"})};
   }
   const api={create};if(typeof module!=="undefined"&&module.exports)module.exports=api;else root.ReqwisePreparationBridge=api;
 })(typeof window!=="undefined"?window:globalThis);

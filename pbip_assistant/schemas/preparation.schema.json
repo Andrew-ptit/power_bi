@@ -519,6 +519,55 @@
         "columns"
       ],
       "additionalProperties": false
+    },
+    "sourceRoot": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2048,
+      "pattern": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f])(?:(?:[A-Za-z]:[/\\\\]|/(?!/))[\\s\\S]*|(?:\\\\\\\\|//)(?![?.][/\\\\])[^/\\\\:]+[/\\\\][^/\\\\:]+(?:[/\\\\][\\s\\S]*)?)(?![\\s\\S])"
+    },
+    "sourceRelativePath": {
+      "type": "string",
+      "maxLength": 2048,
+      "pattern": "^(?:(?!\\.{1,2}(?:[/\\\\]|$))[^/\\\\:\\x00-\\x1f]+(?:[/\\\\](?!\\.{1,2}(?:[/\\\\]|$))[^/\\\\:\\x00-\\x1f]+)*)?(?![\\s\\S])"
+    },
+    "sourceSelectionItem": {
+      "type": "object",
+      "properties": {
+        "relativePath": {
+          "$ref": "#/$defs/sourceRelativePath"
+        },
+        "fileName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255,
+          "pattern": "^(?!\\.{1,2}$)[^/\\\\:\\x00-\\x1f]+(?![\\s\\S])"
+        }
+      },
+      "required": [
+        "relativePath",
+        "fileName"
+      ],
+      "additionalProperties": false
+    },
+    "importReasonCode": {
+      "type": "string",
+      "enum": [
+        "DECIMAL_DOT",
+        "DECIMAL_COMMA",
+        "GROUP_SEPARATOR",
+        "DATE_ORDER_DETECTED",
+        "DATE_DMY_DEFAULT",
+        "INVALID_DATE_TEXT",
+        "DATE_UNSUPPORTED_TEXT",
+        "LEADING_ZERO_TEXT",
+        "MIXED_TYPE_TEXT",
+        "PRECISION_TEXT",
+        "FORMULA_LIKE_TEXT",
+        "EMPTY_COLUMN",
+        "ENCODING_FALLBACK",
+        "DELIMITER_INFERRED"
+      ]
     }
   },
   "oneOf": [
@@ -604,29 +653,68 @@
           "type": "integer"
         },
         "action": {
-          "const": "inventory",
+          "const": "browse",
           "type": "string"
         },
         "preparationId": {
           "$ref": "#/$defs/identifier"
         },
+        "expectedClaimVersion": {
+          "$ref": "#/$defs/counter"
+        },
         "root": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 2048
+          "$ref": "#/$defs/sourceRoot"
         },
         "relativePath": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 2048
+          "$ref": "#/$defs/sourceRelativePath"
         }
       },
       "required": [
         "schemaVersion",
         "action",
         "preparationId",
+        "expectedClaimVersion",
         "root",
         "relativePath"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": 1,
+          "type": "integer"
+        },
+        "action": {
+          "const": "inventory",
+          "type": "string"
+        },
+        "preparationId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "expectedClaimVersion": {
+          "$ref": "#/$defs/counter"
+        },
+        "root": {
+          "$ref": "#/$defs/sourceRoot"
+        },
+        "items": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 200,
+          "items": {
+            "$ref": "#/$defs/sourceSelectionItem"
+          }
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "action",
+        "preparationId",
+        "expectedClaimVersion",
+        "root",
+        "items"
       ],
       "additionalProperties": false
     },
@@ -1240,6 +1328,12 @@
         },
         "reviewHash": {
           "$ref": "#/$defs/fingerprint"
+        },
+        "dateSystem": {
+          "enum": [
+            "1900",
+            "1904"
+          ]
         }
       },
       "required": [

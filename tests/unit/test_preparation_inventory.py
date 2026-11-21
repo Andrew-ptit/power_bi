@@ -3,6 +3,7 @@ import tempfile
 import unittest
 from io import BytesIO
 from pathlib import Path
+from struct import unpack_from
 from unittest.mock import patch
 from zipfile import ZIP_DEFLATED, ZipFile
 
@@ -107,6 +108,130 @@ class PreparationInventoryTests(unittest.TestCase):
         (folder / "hidden.csv").write_text("A,B\n1,2\n", encoding="utf-8")
         result = self.inventory.inventory_folder(self.root, ".")
         self.assertEqual(len(result.public()["files"]), 2)
+
+    def test_inventory_reads_only_selected_items(self):
+        nested = self.root / "nested"
+        nested.mkdir()
+        contents = b"Code,Qty,Date\n00123,2,03/04/2026\n"
+        (self.root / "a.csv").write_bytes(contents)
+        (nested / "a.csv").write_bytes(contents)
+        (nested / "unselected.csv").write_bytes(b"other")
+        items = [{"relativePath": "", "fileName": "a.csv"}, {"relativePath": "nested", "fileName": "a.csv"}]
+        opened = []
+        original_open = Path.open
+
+        def trace_open(path, *args, **kwargs):
+            opened.append(path.relative_to(self.root).as_posix())
+            return original_open(path, *args, **kwargs)
+
+        with patch.object(Path, "open", trace_open):
+            result = self.inventory.inventory_selection(self.root, items)
+            self.inventory.verify_inventory(result)
+        self.assertEqual(set(opened), {"a.csv", "nested/a.csv"})
+        files = result.public()["files"]
+        self.assertEqual([entry["fileName"] for entry in files], ["a.csv", "a.csv"])
+        self.assertNotEqual(files[0]["fileId"], files[1]["fileId"])
+        paths = [self.inventory.inventory_file_path(result, entry["fileId"]) for entry in files]
+        self.assertEqual(paths, [self.root / "a.csv", nested / "a.csv"])
+        self.assertEqual(files[1]["fileSummary"], {"columnCount": 3,
+            "kinds": {"number": 1, "date": 1, "text": 1}, "encoding": "utf-8", "delimiter": ",", "headerRow": 1})
+        self.assertNotIn("00123", str(files))
+
+    def test_inventory_collects_per_file_errors_without_failing_batch(self):
+        (self.root / "ragged.csv").write_bytes(b"Code,Qty\nz,1,2\n")
+        (self.root / "broken.xlsx").write_bytes(b"not a zip")
+        with (self.root / "oversize.csv").open("wb") as handle:
+            handle.truncate(64 * 1024 * 1024 + 1)
+        items = [{"relativePath": "", "fileName": name}
+                 for name in ("a.csv", "ragged.csv", "broken.xlsx", "missing.csv", "oversize.csv")]
+        result = self.inventory.inventory_selection(self.root, items)
+        public = result.public()
+        self.assertEqual({entry["fileName"]: entry["code"] for entry in public["errors"]},
+                         {"ragged.csv": "CSV_COLUMN_COUNT", "broken.xlsx": "INVALID_XLSX",
+                          "missing.csv": "DP_SOURCE_STALE", "oversize.csv": "REQUEST_LIMIT"})
+        self.assertEqual([entry["proposedName"] for entry in public["sheets"]], ["a"])
+        self.inventory.verify_inventory(result)
+
+    def test_inventory_rejects_duplicate_items_and_over_200(self):
+        item = {"relativePath": "", "fileName": "a.csv"}
+        with self.assertRaises(InputError) as duplicate:
+            self.inventory.inventory_selection(self.root, [item, item])
+        self.assertEqual(duplicate.exception.code, "INVALID_REQUEST")
+        with self.assertRaises(InputError) as limit:
+            self.inventory.inventory_selection(self.root, [{"relativePath": "", "fileName": f"{n}.csv"}
+                                                           for n in range(201)])
+        self.assertEqual(limit.exception.code, "REQUEST_LIMIT")
+
+    def test_inventory_still_detects_source_change(self):
+        nested = self.root / "nested"
+        nested.mkdir()
+        selected = nested / "a.csv"
+        selected.write_bytes(b"Code,Qty\n00123,2\n")
+        result = self.inventory.inventory_selection(self.root, [{"relativePath": "nested", "fileName": "a.csv"}])
+        (nested / "unselected.csv").touch()
+        self.inventory.verify_inventory(result)
+        selected.write_bytes(b"Code,Qty\n00123,3\n")
+        with self.assertRaises(InputError) as changed:
+            self.inventory.verify_inventory(result)
+        self.assertEqual(changed.exception.code, "DP_SOURCE_STALE")
+
+    def test_selected_csv_infers_encoding_and_single_column_dialect(self):
+        for name, encoding, data, kinds in (
+                ("western.csv", "cp1252", "Café;Qty\nElève;2\n", {"number": 1, "date": 0, "text": 1}),
+                ("wide.csv", "utf-16", "Date,Qty\n03/04/2026,2\n", {"number": 1, "date": 1, "text": 0}),
+                ("one.csv", "utf-8", "Quantity\n2\n3\n", {"number": 1, "date": 0, "text": 0})):
+            with self.subTest(name=name):
+                (self.root / name).write_bytes(data.encode(encoding))
+                result = self.inventory.inventory_selection(self.root, [{"relativePath": "", "fileName": name}]).public()
+                self.assertEqual(result["errors"], [])
+                entry = result["files"][0]
+                delimiter = ";" if encoding == "cp1252" else ","
+                self.assertEqual(entry["csvReading"], {"encoding": encoding, "delimiter": delimiter, "header_row": 1})
+                self.assertEqual(entry["fileSummary"]["kinds"], kinds)
+
+    def test_selected_csv_rejects_cell_limit_before_describing_columns(self):
+        header = ",".join(f"col{index}" for index in range(200))
+        row = ",".join("1" for _ in range(200))
+        (self.root / "large.csv").write_text(header + "\n" + (row + "\n") * 2000, encoding="utf-8")
+        with patch.object(self.inventory, "describe_columns", side_effect=AssertionError("over-limit columns were described")):
+            result = self.inventory.inventory_selection(self.root, [{"relativePath": "", "fileName": "large.csv"}]).public()
+        self.assertEqual(result["errors"][0]["code"], "REQUEST_LIMIT")
+        self.assertEqual(result["sheets"], [])
+
+    def test_xlsx_summary_counts_native_typed_columns_across_sheet_group(self):
+        result = self.inventory.inventory_selection(self.root, [{"relativePath": "", "fileName": "b.xlsx"}]).public()
+        self.assertEqual(result["errors"], [])
+        self.assertEqual(result["files"][0]["fileSummary"], {
+            "columnCount": 6, "kinds": {"number": 3, "date": 1, "text": 2},
+            "encoding": None, "delimiter": None, "headerRow": None,
+        })
+        self.assertEqual([sheet["sourceName"] for sheet in result["sheets"]], ["Orders", "Rates"])
+
+    def test_malformed_xlsx_metadata_and_deflate_are_isolated(self):
+        member = "xl/workbook.xml"
+        contents = preparation_workbook(source=True)
+        invalid = BytesIO()
+        compressed = BytesIO()
+        with ZipFile(BytesIO(contents)) as source, ZipFile(invalid, "w") as target, ZipFile(
+                compressed, "w", ZIP_DEFLATED) as deflated:
+            for name in source.namelist():
+                data = source.read(name)
+                deflated.writestr(name, data)
+                if name == member:
+                    data = data.replace(b'localSheetId="1"', 'localSheetId="²"'.encode())
+                target.writestr(name, data)
+            offset = deflated.getinfo(member).header_offset
+        damaged = bytearray(compressed.getvalue())
+        name_length, extra_length = unpack_from("<HH", damaged, offset + 26)
+        block_start = offset + 30 + name_length + extra_length
+        damaged[block_start] = 0b00000111  # Reserved DEFLATE block type.
+        (self.root / "invalid.xlsx").write_bytes(invalid.getvalue())
+        (self.root / "damaged.xlsx").write_bytes(damaged)
+        items = [{"relativePath": "", "fileName": name} for name in ("invalid.xlsx", "damaged.xlsx", "a.csv")]
+        result = self.inventory.inventory_selection(self.root, items).public()
+        self.assertEqual([(entry["fileName"], entry["code"]) for entry in result["errors"]],
+                         [("invalid.xlsx", "INVALID_XLSX"), ("damaged.xlsx", "INVALID_XLSX")])
+        self.assertEqual([entry["proposedName"] for entry in result["sheets"]], ["a"])
 
 
 if __name__ == "__main__":

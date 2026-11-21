@@ -131,6 +131,8 @@ py -m unittest tests.unit.test_csv_typing -v
 - `pbip_assistant/sources/preparation/inventory.py`
 - `pbip_assistant/sources/preparation/store.py`
 - `pbip_assistant/coordinator/endpoints/preparation.py`
+- `pbip_assistant/coordinator/server.py` (đăng ký route browse)
+- `tests/fixtures/contracts/route_paths.json` (đồng bộ danh sách route)
 - `tests/unit/test_preparation_browse.py` (mới)
 - `tests/unit/test_preparation_inventory.py` (cập nhật theo signature mới)
 
@@ -175,7 +177,17 @@ py -m unittest tests.contracts.test_source_import_contracts -v
 - `pbip_assistant/sources/preparation/store.py` (truyền `dateSystem`)
 - `tests/unit/test_preparation_packages.py` (cập nhật)
 - `tests/integration/test_preparation_api.py` (thêm case `packages` + `dateSystem`)
-- `tests/integration/test_preparation_direct.py` (duyệt 2026-11-19: payload `inventory` theo `items[]` + kỳ vọng kiểu ô)
+- `pbip_assistant/coordinator/endpoints/preparation.py` (chỉ nhánh packages chuyển dateSystem)
+- `tests/integration/test_preparation_direct.py` (đồng bộ request inventory và kiểm chứng dữ liệu đúng kiểu)
+- `tests/integration/test_preparation_mutation.py` (chỉ fixture Qty nếu tái hiện sai kiểu trong ảnh phục hồi)
+- `pbip_assistant/sources/preparation/csv_typing.py` (duyệt 2026-11-20: ô trống = `null` + `General`)
+- `pbip_assistant/sources/preparation/package_preservation.py` (duyệt 2026-11-20: verifier so `numberFormats` của package)
+- `tests/unit/test_preparation_package_preservation.py` (duyệt 2026-11-20: plan CSV có `numberFormats`)
+- `tests/unit/test_csv_typing.py` (duyệt 2026-11-20: kỳ vọng ô trống)
+- `specs/003-source-import-redesign/contracts/source-import.md` (duyệt 2026-11-20: `readingDecisions`, `reviewHash` theo `dateSystem`)
+- `specs/003-source-import-redesign/spec.md` (duyệt 2026-11-20: đồng bộ mục 9 + ô trống)
+- `specs/003-source-import-redesign/acceptance.md` (duyệt 2026-11-20: bằng chứng T304)
+- `specs/003-source-import-redesign/tasks.md` (duyệt 2026-11-20: allowlist + phạm vi T304)
 
 **Không sửa**: `csv_typing.py` (T302), UI.
 
@@ -185,6 +197,8 @@ py -m unittest tests.contracts.test_source_import_contracts -v
 3. Gộp `decisions` + `reading` + `sheets` thành `importReport` (contract §3); file lỗi thành `status: "skipped"` với `issues[]`, **không** ném lỗi cả lô; không có package cho file skipped.
 4. `mutation.Store.packages(..., date_system=None)`; endpoint truyền `body["dateSystem"]`; thiếu khi có cột ngày → `DP_DATE_SYSTEM_REQUIRED`; không có cột ngày → mặc định `"1900"` để `direct.py` không đổi.
 5. XLSX branch giữ nguyên hành vi (không đổi frame native).
+6. Ô CSV rỗng → `null` + numberFormat `General`; cột toàn rỗng vẫn `EMPTY_COLUMN` (quyết định 2026-11-20).
+7. `verify_package_csv_import` so `numberFormats` từng ô của package, không bắt mọi ô `@` (quyết định 2026-11-20).
 
 **Test bắt buộc**
 - `test_csv_number_column_written_as_number_general`
@@ -195,6 +209,10 @@ py -m unittest tests.contracts.test_source_import_contracts -v
 - `test_report_has_no_absolute_path_or_raw_row`
 - `test_date_system_required_when_date_columns_exist`
 - `test_xlsx_package_unchanged`
+- `test_empty_cells_are_blank_with_general_format` (quyết định 2026-11-20)
+- `test_packages_leaves_empty_csv_cells_blank_with_general` (quyết định 2026-11-20)
+- `test_typed_formats_pass_and_wrong_format_is_rejected` (quyết định 2026-11-20)
+- `test_oversized_csv_is_skipped_without_blocking_other_files`
 
 **Kiểm chứng**
 ```
@@ -220,6 +238,11 @@ py -m unittest tests.unit.test_csv_typing -v
 - `pbip_assistant/excel_addin/taskpane.css`
 - `tests/taskpane/taskpane_assistant_browser.js` (mới)
 - `tests/taskpane/test_taskpane_js.py` (đăng ký script mới)
+- `pbip_assistant/excel_addin/taskpane.js` (duyệt 2026-11-20: mount browser + nối `onBrowse`/`onImported`)
+- `tests/taskpane/preparation_native_mutations.js` (duyệt 2026-11-20: fixture typed + `probeDateSystem`)
+- `tests/taskpane/taskpane_preparation_startup.js` (duyệt 2026-11-20: nạp module browser)
+- `specs/003-source-import-redesign/acceptance.md` (duyệt 2026-11-20: bằng chứng T305)
+- `specs/003-source-import-redesign/tasks.md` (duyệt 2026-11-20: allowlist + phạm vi T305)
 
 **Không sửa**: `assistant_entry.js` phần journey/step (T306 sửa); `preparation_controller.js`.
 
@@ -236,6 +259,9 @@ py -m unittest tests.unit.test_csv_typing -v
 3. Nhập: `probeDateSystem()` (một lần, cache theo workbook) → `importSelection({items, dateSystem})` → render report → gọi `onImported()` (entry sẽ nối ở T306).
 4. Không có bảng preview, không câu hỏi, không select hệ ngày, không nút `Xem trước`.
 5. Keyboard: Tab/Enter/Space hoạt động; mọi text qua `textContent`; 360px không tràn ngang.
+6. Trước khi nhập chỉ hiện số file đã chọn; cột/số/ngày/chữ và số sheet chỉ hiện sau khi nhập (SI04 đã chốt 2026-11-20). Đọc file khi bấm nhập: `inventorySelection` → `review-import` → `packages(dateSystem)` → approve/direct.
+7. `probeDateSystem()` thất bại → chặn nhập, báo rõ; không mặc định 1900 (quyết định 2026-11-20).
+8. Sau nhập: bỏ file đã nhập khỏi selection, giữ file bị skipped để nhập lại (quyết định 2026-11-20).
 
 **Test bắt buộc** (`node tests/taskpane/taskpane_assistant_browser.js`, fake DOM + fake bridge)
 - `test_browse_renders_folders_before_files_and_breadcrumb`
@@ -251,6 +277,8 @@ py -m unittest tests.unit.test_csv_typing -v
 **Kiểm chứng**
 ```
 node tests/taskpane/taskpane_assistant_browser.js
+node tests/taskpane/preparation_native_mutations.js
+node tests/taskpane/taskpane_preparation_startup.js
 py -m unittest tests.taskpane.test_taskpane_js -v
 ```
 
@@ -268,9 +296,16 @@ py -m unittest tests.taskpane.test_taskpane_js -v
 - `pbip_assistant/excel_addin/taskpane.css`
 - `pbip_assistant/excel_addin/taskpane.js` (chỉ phần mount/gate liên quan)
 - `tests/taskpane/taskpane_assistant_journey.js` (mới)
+- `tests/taskpane/taskpane_assistant_entry.js` (đồng bộ kiểm tra hành trình hai bước, giữ kiểm tra lỗi và phục hồi)
 - `tests/taskpane/test_taskpane_js.py`
-- `tests/taskpane/taskpane_assistant_entry.js` (duyệt 2026-11-19: Đề bài chỉ bật sau khi đọc lại nguồn thành công)
 - `tests/taskpane/taskpane_preparation_wizard.js` (chỉ để bỏ assert DOM wizard nếu đã xoá — ghi rõ lý do)
+- `pbip_assistant/excel_addin/preparation_controller.js` (duyệt 2026-11-20: headless, bỏ nhánh render wizard)
+- `pbip_assistant/excel_addin/preparation_bridge.js` (duyệt 2026-11-20: `businessSourcesFromScan`, bỏ applyCleanup/undo/redo)
+- `pbip_assistant/excel_addin/assistant_browser.js` (duyệt 2026-11-20: `reopen()` giữ thư mục + selection)
+- `tests/taskpane/taskpane_preparation_bridge.js` (duyệt 2026-11-20: handoff từ scan, bỏ cleanup)
+- `tests/taskpane/taskpane_preparation_direct.js` (duyệt 2026-11-20: `packages` trả `reviewHash`)
+- `specs/003-source-import-redesign/acceptance.md` (duyệt 2026-11-20: bằng chứng T306)
+- `specs/003-source-import-redesign/tasks.md` (duyệt 2026-11-20: allowlist + phạm vi T306)
 
 **Việc phải làm**
 1. Xoá `#assistant-step-clean` khỏi journey; `#assistant-step-problem` đổi nhãn `2. Đề bài`; state machine trong `assistant_entry.js` bỏ `step === "clean"`.
@@ -278,6 +313,10 @@ py -m unittest tests.taskpane.test_taskpane_js -v
 3. Sau nhập (T305) hoặc chọn workbook: chạy `scan()` ngầm với progress `Đang đọc lại nguồn…`; thành công → `canProblem = true`, hiện summary nguồn; thất bại → thông báo lỗi, `Đề bài` tắt.
 4. `+ Thêm nguồn` mở lại browser; giữ selection cũ hay reset theo hành vi hiện có nhưng phải nhất quán và có test.
 5. Không đổi cơ chế approval/permit/read-back của import; không đổi nhánh workbook.
+6. Business handoff lấy snapshot của lần scan sau import (`businessSourcesFromScan`), không Apply làm sạch (quyết định 2026-11-20).
+7. Scan lỗi: giữ report đã nhập, tắt Đề bài, hiện nút `Đọc lại nguồn` (quyết định 2026-11-20).
+8. `+ Thêm nguồn` mở lại browser đúng thư mục, giữ selection skipped (quyết định 2026-11-20).
+9. Bỏ applyCleanup/undo/redo/cleaningComplete khỏi entry, bridge, taskpane; controller còn headless giữ `wizard.state` + `scanWorkbook` (quyết định 2026-11-20).
 
 **Test bắt buộc**
 - `test_journey_has_two_steps_only`
@@ -294,7 +333,6 @@ node tests/taskpane/taskpane_assistant_entry.js
 node tests/taskpane/taskpane_preparation_wizard.js
 py -m unittest tests.taskpane.test_taskpane_js -v
 ```
-
 **Done**: không còn tham chiếu DOM `#preparation-wizard`/`#assistant-step-clean`; journey 2 bước; scan ngầm vẫn cấp binding cho Đề bài.
 
 ---
@@ -305,6 +343,17 @@ py -m unittest tests.taskpane.test_taskpane_js -v
 - `specs/003-source-import-redesign/acceptance.md` (mới)
 - `docs/current/TASKPANE_UI.md`, `docs/current/CURRENT_STATUS.md` (chỉ ghi trạng thái, **không** bump version)
 - `tests/required_cases.json` (chỉ nếu cần thêm case mới; không xoá case)
+- `specs/003-source-import-redesign/tasks.md` (duyệt 2026-11-20: allowlist follow-up T307)
+- `tests/taskpane/taskpane_assistant_browser.js`, `tests/taskpane/taskpane_assistant_entry.js` (duyệt 2026-11-20: đóng S13/SI14/SC05 bằng test 3 cấp + static a11y)
+- `pbip_assistant/excel_addin/assistant_browser.js` (duyệt 2026-11-20: sửa relativePath khi vào thư mục cấp 3, do test mới phát hiện)
+- `pbip_assistant/coordinator/server.py` (duyệt 2026-11-20: serve file assistant_browser.js trong thư mục assets)
+- `tests/contracts/test_taskpane_asset_routes.py` (duyệt 2026-11-20: chặn asset thiếu route)
+- `tools/excel_addin/manifest.xml` (duyệt 2026-11-20: dev server ghi lại channel khi khởi động)
+- `pbip_assistant/excel_addin/preparation_bridge.js` (duyệt 2026-11-20: browse/inventory attach trước khi gửi)
+- `tests/taskpane/taskpane_preparation_bridge.js` (duyệt 2026-11-20: test attach-before-browse)
+- `pbip_assistant/excel_addin/assistant_entry.js` (duyệt 2026-11-20: tự sang Đề bài khi scan thành công)
+- `tests/taskpane/taskpane_assistant_journey.js` (duyệt 2026-11-20: auto-advance)
+- `tests/taskpane/taskpane_assistant_browser.js` (duyệt 2026-11-20: tự vào 1 thư mục con)
 
 **Việc phải làm**
 1. Lập acceptance matrix: mỗi `S01–S13`, `SI01–SI15`, `SC01–SC08` ↔ test/evidence, trạng thái `Pass / Fail / Blocked / Not run`.
