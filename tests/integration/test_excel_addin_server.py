@@ -81,10 +81,21 @@ class ExcelAddinServerTests(unittest.TestCase):
         self.assertEqual(status, 200)
         self.assertIn("Excel task pane", body)
         self.assertIn("appsforoffice.microsoft.com", body)
-        self.assertEqual(body.count('id="formula-list-separator"'), 1)
-        self.assertEqual(body.count('id="codex-status"'), 1)
-        self.assertLess(body.index('class="connection-toolbar"'), body.index('<nav class="tab-bar"'))
-        self.assertLess(body.index('id="formula-list-separator"'), body.index('id="prompt-title"'))
+        assistant_cards = [
+            "flow-workbook-section", "flow-source-section", "flow-prompt-section",
+            "flow-understand-section", "flow-branches-section", "flow-spec-section",
+            "flow-apply-section", "flow-result-section",
+        ]
+        for identifier in assistant_cards:
+            self.assertEqual(body.count(f'id="{identifier}"'), 1, identifier)
+        positions = [body.index(f'id="{identifier}"') for identifier in assistant_cards]
+        self.assertEqual(positions, sorted(positions))
+        for identifier in ("formula-list-separator", "codex-status", "plan-section", "code-section",
+                           "preview-section", "approval-section", "result-section", "analyze-button"):
+            self.assertNotIn(f'id="{identifier}"', body)
+        self.assertEqual(body.count('id="connection-badge"'), 1)
+        self.assertLess(body.index('id="connection-badge"'), body.index('<nav class="tab-bar"'))
+        self.assertLess(body.index('/assets/assistant_custom_xml.js'), body.index('/assets/taskpane.js'))
         self.assertNotIn('id="pq-source"', body)
         self.assertNotIn('id="pq-risk-check"', body)
         self.assertNotIn('id="pq-save-button"', body)
@@ -97,6 +108,9 @@ class ExcelAddinServerTests(unittest.TestCase):
         status, _, script = self.request("GET", "/assets/taskpane.js")
         self.assertEqual(status, 200)
         self.assertNotIn("window.confirm(", script)
+        status, _, record_helper = self.request("GET", "/assets/assistant_custom_xml.js")
+        self.assertEqual(status, 200)
+        self.assertIn("AssistantRecordXml", record_helper)
         self.assertIn("appsforoffice.microsoft.com", headers["Content-Security-Policy"])
         status, _, bootstrap = self.request("GET", "/api/bootstrap")
         self.assertFalse(bootstrap["capabilities"]["sourceWrite"])

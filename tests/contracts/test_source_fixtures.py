@@ -13,7 +13,7 @@ import unittest
 from xml.etree import ElementTree as ET
 from zipfile import ZipFile
 
-from examples.source_fixtures import EXPECTED, ORDER_HEADERS, build_fixtures, generate
+from tests.support.source_fixtures import EXPECTED, ORDER_HEADERS, build_fixtures, generate
 
 
 ROOT = Path(__file__).resolve().parents[2]

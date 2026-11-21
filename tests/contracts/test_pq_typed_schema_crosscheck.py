@@ -43,9 +43,9 @@ class TypedSchemaMutationOracleTests(unittest.TestCase):
             with self.subTest(label=label):
                 self._assert_preflight_rejects(mutate)
 
-    @patch("pbip_assistant.pq_typed.subprocess.run")
-    @patch("pbip_assistant.pq_typed.find_codex_executable")
-    @patch("pbip_assistant.pq_typed._load_and_preflight_ai_schema")
+    @patch("pbip_assistant.adapters.codex.typed.subprocess.run")
+    @patch("pbip_assistant.adapters.codex.typed.find_codex_executable")
+    @patch("pbip_assistant.adapters.codex.typed._load_and_preflight_ai_schema")
     def test_schema_failure_occurs_before_executable_lookup_or_subprocess(
         self, preflight, find_executable, subprocess_run,
     ) -> None:

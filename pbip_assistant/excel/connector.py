@@ -5,16 +5,16 @@ from __future__ import annotations
 import base64
 import binascii
 from collections.abc import Callable
+import ctypes
+from ctypes import wintypes
 from datetime import datetime, timezone
 import hashlib
 import json
 import os
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 import secrets
-import signal
 import subprocess
 import tempfile
-import time
 from typing import Any, Protocol
 
 from pbip_assistant.core.resources import repository_path
@@ -28,6 +28,58 @@ MAX_WORKBOOK_BYTES = 32 * 1024 * 1024
 DEFAULT_HELPER_TIMEOUT_SECONDS = 120
 DEFAULT_CALC_TIMEOUT_SECONDS = 45
 HELPER_SCRIPT = repository_path("tools", "excel_connector", "Invoke-ExcelConnector.ps1")
+
+
+class _WindowsProcessApi:
+    """Query and terminate one retained kernel object, never a re-looked-up PID."""
+
+    def __init__(self):
+        if os.name != "nt":
+            raise OSError("Windows process handles are unavailable")
+        self.kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+        self.kernel.OpenProcess.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.DWORD]
+        self.kernel.OpenProcess.restype = wintypes.HANDLE
+        self.kernel.GetProcessTimes.argtypes = [wintypes.HANDLE, *([ctypes.POINTER(wintypes.FILETIME)] * 4)]
+        self.kernel.GetProcessTimes.restype = wintypes.BOOL
+        self.kernel.QueryFullProcessImageNameW.argtypes = [wintypes.HANDLE, wintypes.DWORD, wintypes.LPWSTR, ctypes.POINTER(wintypes.DWORD)]
+        self.kernel.QueryFullProcessImageNameW.restype = wintypes.BOOL
+        self.kernel.TerminateProcess.argtypes = [wintypes.HANDLE, wintypes.UINT]
+        self.kernel.TerminateProcess.restype = wintypes.BOOL
+        self.kernel.WaitForSingleObject.argtypes = [wintypes.HANDLE, wintypes.DWORD]
+        self.kernel.WaitForSingleObject.restype = wintypes.DWORD
+        self.kernel.CloseHandle.argtypes = [wintypes.HANDLE]
+        self.kernel.CloseHandle.restype = wintypes.BOOL
+
+    def open(self, process_id):
+        # PROCESS_TERMINATE | PROCESS_QUERY_LIMITED_INFORMATION | SYNCHRONIZE
+        handle = self.kernel.OpenProcess(0x0001 | 0x1000 | 0x00100000, False, process_id)
+        if not handle:
+            raise ctypes.WinError(ctypes.get_last_error())
+        return handle
+
+    def creation_time(self, handle):
+        created, exited, kernel, user = (wintypes.FILETIME() for _ in range(4))
+        if not self.kernel.GetProcessTimes(handle, ctypes.byref(created), ctypes.byref(exited), ctypes.byref(kernel), ctypes.byref(user)):
+            raise ctypes.WinError(ctypes.get_last_error())
+        return (created.dwHighDateTime << 32) | created.dwLowDateTime
+
+    def image_path(self, handle):
+        size = wintypes.DWORD(32768)
+        image = ctypes.create_unicode_buffer(size.value)
+        if not self.kernel.QueryFullProcessImageNameW(handle, 0, image, ctypes.byref(size)):
+            raise ctypes.WinError(ctypes.get_last_error())
+        return image.value
+
+    def terminate(self, handle):
+        if not self.kernel.TerminateProcess(handle, 1):
+            raise ctypes.WinError(ctypes.get_last_error())
+        return True
+
+    def wait(self, handle, milliseconds):
+        return self.kernel.WaitForSingleObject(handle, milliseconds)
+
+    def close(self, handle):
+        self.kernel.CloseHandle(handle)
 
 
 class ExcelRunner(Protocol):
@@ -128,22 +180,40 @@ class PowerShellExcelRunner:
 
     @staticmethod
     def _terminate_created_excel(state_path: Path) -> None:
-        """Terminate only the Excel PID recorded by this helper invocation."""
+        """Fail closed unless helper ownership and kernel process identity agree.
 
+        The helper records proof only after excluding all pre-existing Excel
+        PIDs. Holding the queried process HANDLE through termination avoids PID
+        reuse between identity verification and the termination request.
+        """
+        handle, api = None, None
         try:
             state = json.loads(state_path.read_text(encoding="utf-8-sig"))
-            process_id = state.get("excelPid")
-            if not isinstance(process_id, int) or process_id <= 0:
+            if not isinstance(state, dict) or state.get("excelOwned") is not True:
                 return
-            os.kill(process_id, signal.SIGTERM)
-            for _ in range(20):
-                time.sleep(0.1)
-                try:
-                    os.kill(process_id, 0)
-                except OSError:
-                    break
-        except (OSError, ValueError, json.JSONDecodeError):
+            process_id = state.get("excelPid")
+            creation = state.get("excelCreationFileTime")
+            if (type(process_id) is not int or not 0 < process_id < 2**32
+                    or not isinstance(creation, str) or not creation.isascii() or not creation.isdecimal()
+                    or not 0 < len(creation) <= 20 or not 0 < int(creation) < 2**64):
+                return
+            api = _WindowsProcessApi()
+            handle = api.open(process_id)
+            if not handle or api.creation_time(handle) != int(creation):
+                return
+            image = api.image_path(handle)
+            if not isinstance(image, str) or PureWindowsPath(image).name.casefold() != "excel.exe":
+                return
+            if api.terminate(handle):
+                api.wait(handle, 2000)
+        except (OSError, ValueError, TypeError):
             return
+        finally:
+            if handle is not None and api is not None:
+                try:
+                    api.close(handle)
+                except OSError:
+                    pass
 
 
 def decode_workbook_export(value: Any) -> bytes:

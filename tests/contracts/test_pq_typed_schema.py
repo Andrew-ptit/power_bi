@@ -227,8 +227,8 @@ class CodexTypedRunnerFailureTests(unittest.TestCase):
             self.assertEqual(code, expected)
             self.assertNotIn("secret-cell-value", detail)
 
-    @patch("pbip_assistant.pq_typed.find_codex_executable", return_value="codex")
-    @patch("pbip_assistant.pq_typed.subprocess.run")
+    @patch("pbip_assistant.adapters.codex.typed.find_codex_executable", return_value="codex")
+    @patch("pbip_assistant.adapters.codex.typed.subprocess.run")
     def test_runner_maps_invalid_schema_without_exposing_stderr(self, run, _find) -> None:
         run.return_value = SimpleNamespace(
             returncode=1, stdout="", stderr="invalid_json_schema secret-cell-value",
@@ -238,8 +238,8 @@ class CodexTypedRunnerFailureTests(unittest.TestCase):
         self.assertEqual(caught.exception.code, "CODEX_SCHEMA_INVALID")
         self.assertNotIn("secret-cell-value", str(caught.exception))
 
-    @patch("pbip_assistant.pq_typed.find_codex_executable", return_value="codex")
-    @patch("pbip_assistant.pq_typed.subprocess.run")
+    @patch("pbip_assistant.adapters.codex.typed.find_codex_executable", return_value="codex")
+    @patch("pbip_assistant.adapters.codex.typed.subprocess.run")
     def test_runner_returns_valid_json_object(self, run, _find) -> None:
         expected = {
             "summary": "Không cần biến đổi.", "questions": [], "assumptions": [], "warnings": [],

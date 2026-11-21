@@ -36,5 +36,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("output", type=Path)
     parser.add_argument("run_id")
+    parser.add_argument("--scenario", choices=("default", "preparation"), default="default")
     args = parser.parse_args()
-    print(create_fixture(args.output, args.run_id))
+    if args.scenario == "preparation":
+        from tests.support.preparation import create_preparation_fixture
+        print(create_preparation_fixture(args.output, args.run_id))
+    else:
+        print(create_fixture(args.output, args.run_id))

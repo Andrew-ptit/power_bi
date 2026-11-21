@@ -8,6 +8,7 @@ must never be presented as live Codex evidence.
 from __future__ import annotations
 
 import argparse
+import base64
 import json
 from pathlib import Path
 import re
@@ -29,6 +30,7 @@ def main() -> int:
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--port", type=int)
     parser.add_argument("--parameters", type=Path)
+    parser.add_argument("--scenario", choices=("default", "preparation"), default="default")
     parser.add_argument("--certfile", type=Path, default=REPOSITORY / "tools/excel_addin/.certs/localhost.pem")
     parser.add_argument("--keyfile", type=Path, default=REPOSITORY / "tools/excel_addin/.certs/localhost.key")
     args = parser.parse_args()
@@ -39,11 +41,18 @@ def main() -> int:
     if (output / "config.json").exists():
         parser.error("Choose a fresh --out directory; a gate configuration already exists")
     parameters = json.loads(args.parameters.read_text(encoding="utf-8")) if args.parameters else {}
+    driver = "taskpane_gate_driver.js"
+    if args.scenario == "preparation":
+        from tests.support.preparation import ORACLE, preparation_workbook
+        driver = "preparation_gate_driver.js"
+        parameters = {**parameters, "preparation": True,
+                      "preparationSourceBase64": base64.b64encode(preparation_workbook(source=True)).decode("ascii"),
+                      "preparationOracle": ORACLE}
     config = {
         "runId": args.run_id, "gateKey": secrets.token_hex(32), "channel": secrets.token_hex(12),
         "appId": str(uuid.uuid4()), "displayName": "Excel Gate " + args.run_id[:24],
         "markerName": "Gate_Run_Id", "planner": "deterministic",
-        "driverPath": str(REPOSITORY / "tests/live/taskpane_gate_driver.js"),
+        "driverPath": str(REPOSITORY / "tests/live" / driver),
         "outputPath": str(output), "manifestPath": str(output / "manifest.xml"),
         "driverParameters": parameters,
     }

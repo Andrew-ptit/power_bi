@@ -66,7 +66,9 @@ class CoordinatorDispatchContracts(unittest.TestCase):
         return handler, events
 
     def test_success_and_handler_error_release_state_slot_then_job(self) -> None:
-        for route in ("/api/pq/v2/plans", "/api/pq/v2/approvals"):
+        for route in ("/api/pq/v2/plans", "/api/pq/v2/approvals",
+                      "/api/assistant/plan-draft", "/api/assistant/ingest",
+                      "/api/assistant/branches", "/api/assistant/apply"):
             for failing in (False, True):
                 with self.subTest(route=route, handler_error=failing):
                     handler, events = self.harness(route=route, handler_error=failing)

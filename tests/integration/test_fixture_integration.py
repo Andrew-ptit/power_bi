@@ -5,7 +5,7 @@ import unittest
 
 from pbip_assistant.pbip import create_snapshot, inventory_pbip, snapshot_matches
 from pbip_assistant.xlsx import profile_workbook
-from examples.pbip_fixtures import fixture_manifest
+from tests.support.pbip_fixtures import fixture_manifest
 
 
 FIXTURES = Path(__file__).resolve().parents[1] / "fixtures"

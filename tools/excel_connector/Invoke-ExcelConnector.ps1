@@ -27,6 +27,22 @@ public static class W21NativeMethods {
 }
 "@
 
+function Get-NewExcelProcessProof {
+    param([int]$ExcelProcessId, [int[]]$BaselineExcelPids, [long]$CreationFloorFileTime)
+    if ($ExcelProcessId -le 0 -or $BaselineExcelPids -contains $ExcelProcessId) {
+        Throw-ConnectorError "EXCEL_INSTANCE_NOT_OWNED" "Excel application ownership is unproven; existing instances remain untouched."
+    }
+    $excelProcess = Get-Process -Id $ExcelProcessId -ErrorAction Stop
+    try {
+        $created = $excelProcess.StartTime.ToFileTimeUtc()
+        if ($excelProcess.ProcessName -ine "EXCEL" -or $created -lt $CreationFloorFileTime) {
+            Throw-ConnectorError "EXCEL_INSTANCE_NOT_OWNED" "Excel process identity or creation time did not prove a new owned instance."
+        }
+        return [ordered]@{ excelOwned = $true; excelPid = $ExcelProcessId; excelCreationFileTime = $created.ToString([Globalization.CultureInfo]::InvariantCulture) }
+    }
+    finally { $excelProcess.Dispose() }
+}
+
 function Get-TableByName {
     param($Workbook, [string]$Name)
     for ($sheetIndex = 1; $sheetIndex -le $Workbook.Worksheets.Count; $sheetIndex++) {
@@ -84,6 +100,7 @@ $catalog = [ordered]@{
 }
 
 $excel = $null
+$excelOwned = $false
 $workbook = $null
 $result = $null
 $exitCode = 0
@@ -115,16 +132,22 @@ try {
     }
 
     Write-ConnectorTrace "create-excel"
+    $baselineExcelProcesses = @([Diagnostics.Process]::GetProcessesByName("EXCEL"))
+    $baselineExcelPids = @($baselineExcelProcesses | ForEach-Object { $_.Id })
+    foreach ($baselineProcess in $baselineExcelProcesses) { $baselineProcess.Dispose() }
+    $creationFloorFileTime = [DateTime]::UtcNow.ToFileTimeUtc()
     $excel = New-Object -ComObject Excel.Application
     [uint32]$excelPid = 0
     [void][W21NativeMethods]::GetWindowThreadProcessId([IntPtr]$excel.Hwnd, [ref]$excelPid)
+    $ownershipProof = Get-NewExcelProcessProof -ExcelProcessId ([int]$excelPid) -BaselineExcelPids $baselineExcelPids -CreationFloorFileTime $creationFloorFileTime
+    $excelOwned = $true
     if ($request.statePath) {
         $statePath = [IO.Path]::GetFullPath([string]$request.statePath)
         $requestDirectory = [IO.Path]::GetDirectoryName($resolvedRequest)
         if ([IO.Path]::GetDirectoryName($statePath) -ne $requestDirectory) {
             Throw-ConnectorError "CONNECTOR_PROTOCOL" "statePath must remain beside the request file."
         }
-        [ordered]@{ excelPid = [int]$excelPid } | ConvertTo-Json -Compress | Set-Content -LiteralPath $statePath -Encoding UTF8
+        $ownershipProof | ConvertTo-Json -Compress | Set-Content -LiteralPath $statePath -Encoding UTF8
     }
     $excel.Visible = $false
     $excel.DisplayAlerts = $false
@@ -272,10 +295,10 @@ catch {
 }
 finally {
     Write-ConnectorTrace "cleanup"
-    if ($null -ne $workbook) {
+    if ($excelOwned -and $null -ne $workbook) {
         try { $workbook.Close($false) } catch {}
     }
-    if ($null -ne $excel) {
+    if ($excelOwned -and $null -ne $excel) {
         try { $excel.Quit() } catch {}
     }
     $salesTable = $null

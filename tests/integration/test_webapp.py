@@ -9,7 +9,7 @@ import unittest
 from contextlib import redirect_stdout
 from io import StringIO
 
-from examples.source_fixtures import build_fixtures
+from tests.support.source_fixtures import build_fixtures
 from pbip_assistant.webapp import UploadStore, create_server
 
 

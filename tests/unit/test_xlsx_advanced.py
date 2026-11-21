@@ -8,7 +8,7 @@ from pathlib import Path
 from unittest.mock import patch
 from zipfile import ZipFile
 
-from examples.source_fixtures import build_fixtures
+from tests.support.source_fixtures import build_fixtures
 from pbip_assistant.errors import InputError
 from pbip_assistant.xlsx import compare_workbook_schemas, profile_workbook, profile_workbooks
 from tests.support.fixtures import make_xlsx

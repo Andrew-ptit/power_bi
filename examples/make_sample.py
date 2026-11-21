@@ -4,7 +4,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from tests.fixtures import make_csv_shaped_xlsx, make_pbip, make_xlsx
+from tests.support.fixtures import make_csv_shaped_xlsx, make_pbip, make_xlsx
 
 
 def main() -> None:
