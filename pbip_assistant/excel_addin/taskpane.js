@@ -145,7 +145,7 @@ async function connectTaskpane() {
     }
     state.officeReady = true;
     if (!state.preparationReadCapability || !window.ReqwisePreparation || !window.ReqwisePreparationRuntime
-        || !window.ReqwisePreparationBridge || !window.ReqwiseAssistantEntry) {
+        || !window.ReqwisePreparationBridge || !window.ReqwiseAssistantEntry || !window.ReqwiseAssistantBrowser) {
       throw Object.assign(new Error("Chưa tải đủ bộ hỗ trợ trợ lý. Bấm Kết nối lại; nếu vẫn lỗi, mở lại panel."), {code: "ASSISTANT_STARTUP_FAILED"});
     }
     if (state.preparationReadCapability && window.ReqwisePreparation && window.ReqwisePreparationRuntime) {
@@ -163,16 +163,13 @@ async function connectTaskpane() {
           }
           return result;
         };
-      let preparation = null, bridge = null;
+      let preparation = null, bridge = null, browser = null;
       const updatePreparation = value => preparation?.acceptState(value);
       const unavailable = () => { throw flowFailure("DP_UNSUPPORTED_PRESERVATION", "Bộ hỗ trợ chuẩn bị dữ liệu chưa được cập nhật. Hãy mở lại panel."); };
       preparation = window.ReqwisePreparation.mount({document, environment: window,
         runtime: window.ReqwisePreparationRuntime, post: preparationPost, deferOpen: !!window.ReqwiseAssistantEntry,
         scanWorkbook: options => bridge ? bridge.scanWorkbook(options) : unavailable(),
-        applyCleanup: options => bridge ? bridge.applyCleanup(options) : unavailable(),
-        undo: options => bridge ? bridge.undo(options) : unavailable(),
-        redo: options => bridge ? bridge.redo(options) : unavailable(),
-        onApplied: receipt => window.ReqwiseAssistantEntryUI?.cleaningComplete(receipt),
+
         onDirty: () => { window.ReqwiseAssistantEntryUI?.invalidate(); flowInvalidateSourceAuthority(state.flow); renderFlow(); },
         onBusy: value => window.ReqwiseAssistantEntryUI?.setBusy(value)});
       if (window.ReqwisePreparationBridge && preparation) {
@@ -183,31 +180,24 @@ async function connectTaskpane() {
       }
       if (window.ReqwiseAssistantEntry && preparation) {
         window.ReqwiseAssistantEntryUI = window.ReqwiseAssistantEntry.mount({document,
-          chooseFolder: () => {
-            if (!state.preparationFolderPicker) throw new Error("Bộ hỗ trợ chọn thư mục chưa được cập nhật. Hãy đóng rồi mở lại panel.");
-            return preparationPost("pick-folder", {});
-          }, inventory: async root => {
-            if (bridge) await bridge.attach();
-            const inventory = await preparation.inventoryRoot(root);
-            return bridge ? bridge.mapInventory(inventory) : inventory;
-          },
+          onBrowse: options => options?.reopen ? browser?.reopen() : browser?.open(),
           // Scan every worksheet; a blank active sheet does not exclude data on other sheets.
           selectWorkbook: async () => true,
-          canImport: () => preparation.wizard.state?.writeEnabled === true,
-          importBlocker: () => "Chưa xác nhận được workbook đích hoặc phiên đã hết hạn. Hãy chọn lại nguồn.",
-          importFiles: options => bridge ? bridge.importFiles(options) : unavailable(),
           restartSession: () => bridge ? bridge.restart() : unavailable(),
           canRestartAfterPartial: state.preparationBackupEnabled === false,
-          scanWorkbook: options => preparation.scanWorkbook(options),
-          showCleaning: options => preparation.show(options),
+          scanWorkbook: options => bridge ? bridge.scanWorkbook(options) : unavailable(),
           showProblem: async () => {
             window.ReqwiseAssistantEntryUI.setBusy(true);
-            try { await preparationBusinessHandoff(await bridge.businessSources()); }
+            try { await preparationBusinessHandoff(await bridge.businessSourcesFromScan()); }
             catch (error) { showError(error.code || "AF_INGEST_FAILED", error.message); throw error; }
             finally { window.ReqwiseAssistantEntryUI.setBusy(false); renderFlow(); }
           },
           invalidateBusiness: () => { flowInvalidateSourceAuthority(state.flow); renderFlow(); },
           onStepChange: step => { state.preparationJourneyStep = step; renderFlow(); }});
+        if (window.ReqwiseAssistantBrowser && bridge) {
+          browser = window.ReqwiseAssistantBrowser.create({document, bridge,
+            onImported: receipt => window.ReqwiseAssistantEntryUI?.imported(receipt)});
+        }
       }
     }
     await refreshWorkbook();

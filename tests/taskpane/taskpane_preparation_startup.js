@@ -42,7 +42,7 @@ async function exerciseStartup() {
   sandbox.window = sandbox;
   vm.createContext(sandbox);
   for (const filename of ["assistant_custom_xml.js", "preparation_runtime.js", "preparation_session.js",
-    "preparation_bridge.js", "preparation_controller.js", "assistant_entry.js",
+    "preparation_bridge.js", "assistant_browser.js", "preparation_controller.js", "assistant_entry.js",
     "taskpane_core.js", "taskpane_flow.js", "taskpane_workspace.js", "taskpane_problem_chain.js",
     "taskpane_typed_pq.js", "taskpane.js"]) {
     vm.runInContext(fs.readFileSync(path.join(root, filename), "utf8"), sandbox, {filename});

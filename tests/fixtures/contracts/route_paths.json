@@ -47,6 +47,7 @@
     "/api/preparation/approve",
     "/api/preparation/attach",
     "/api/preparation/begin",
+    "/api/preparation/browse",
     "/api/preparation/complete",
     "/api/preparation/detach",
     "/api/preparation/direct-begin",

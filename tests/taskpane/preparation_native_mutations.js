@@ -115,10 +115,30 @@ async function attempt(runtime, operation) {
   assert.equal(env.writes.length,0);
   env=host();const csvRuntime=api.createMutationRuntime({...env,consumeWritePermit:async p=>p});
   a=await attempt(csvRuntime,"import");
-  const imported=await csvRuntime.importReviewedSources(a,[{kind:"csv",fileId:"f",sheets:[{sourceSheetId:"s",sourceName:"Data",targetName:"Data",values:[["Code"],["=1+1"],["00123"]]}]}]);
+  const imported=await csvRuntime.importReviewedSources(a,[{kind:"csv",fileId:"f",sheets:[{sourceSheetId:"s",sourceName:"Data",targetName:"Data",values:[["Code"],["=1+1"],["00123"]],numberFormats:[["@"],["@"],["@"]]}]}]);
   assert.equal(env.sheets[1].formats[1][0],"@");
   assert.equal(env.sheets[1].values[1][0],"=1+1");
   assert.equal(imported.createdSheetIds.length,1);
+  const typedEnv=host();const typedRuntime=api.createMutationRuntime({...typedEnv,consumeWritePermit:async p=>p});
+  a=await attempt(typedRuntime,"import");
+  const typedPackage={kind:"csv",fileId:"t",sheets:[{sourceSheetId:"s",sourceName:"Typed",targetName:"Typed",
+    values:[["Code","Qty","Date"],["A",2,1462],["B",null,null]],
+    numberFormats:[["@","@","@"],["@","General","yyyy-mm-dd"],["@","General","General"]]}]};
+  const typedReceipt=await typedRuntime.importReviewedSources(a,[typedPackage]);
+  assert.equal(typedEnv.sheets[1].values[1][1],2,"numbers are written as numbers, not text");
+  assert.equal(typedEnv.sheets[1].formats[1][1],"General");
+  assert.equal(typedEnv.sheets[1].formats[1][2],"yyyy-mm-dd");
+  assert.equal(typedEnv.sheets[1].values[2][1],null,"an empty CSV cell stays blank");
+  assert.equal(typedEnv.sheets[1].formats[2][1],"General");
+  const formatWrite=typedEnv.writes.find(w=>w[1]==="numberFormat"),valuesWrite=typedEnv.writes.find(w=>w[1]==="values");
+  assert(formatWrite[5]<valuesWrite[5],"per-cell number formats are set before typed values");
+  assert.equal(typedReceipt.createdSheetIds.length,1);
+  const probe1900=host(),probe1904=host(),probeUnknown=host();
+  probe1904.workbook.functions.date=()=>({value:0,load(){},error:null});
+  probeUnknown.workbook.functions.date=()=>({value:99,load(){},error:null});
+  assert.equal(await api.probeDateSystem(probe1900),"1900");
+  assert.equal(await api.probeDateSystem(probe1904),"1904");
+  await assert.rejects(api.probeDateSystem(probeUnknown),e=>e.code==="DP_DATE_SYSTEM_REQUIRED");
   a=await attempt(csvRuntime,"import"); const count=env.writes.length;
   await assert.rejects(csvRuntime.importReviewedSources(a,[{kind:"csv",sheets:[{targetName:"Data",values:[["x"]]}]}]),e=>e.code==="DP_UNSUPPORTED_PRESERVATION");
   assert.equal(env.writes.length,count,"mapping collision fails before writes");
@@ -129,14 +149,14 @@ async function attempt(runtime, operation) {
   env.workbook.names.items.push({name:"TaxRate",formula:"=100"});
   const constantRecovery=api.createMutationRuntime({...env,consumeWritePermit:async p=>p});
   a=await attempt(constantRecovery,"import");
-  const constantImported=await constantRecovery.importReviewedSources(a,[{kind:"csv",sheets:[{targetName:"Owned",values:[["ID"],["1"]]}]}]);
+  const constantImported=await constantRecovery.importReviewedSources(a,[{kind:"csv",sheets:[{targetName:"Owned",values:[["ID"],["1"]],numberFormats:[["@"],["@"]]}]}]);
   a=await attempt(constantRecovery,"undo");
   await constantRecovery.restoreAffectedScope(a,{kind:"import",direction:"undo",createdSheetIds:constantImported.createdSheetIds});
   assert.equal(env.sheets.length,2,"unrelated names and constant formulas preserve safe owned-sheet undo");
   env=host();env.add("Dependent",[["=Owned!A1"]],[[0,0]]);
   const dependentRecovery=api.createMutationRuntime({...env,consumeWritePermit:async p=>p});
   a=await attempt(dependentRecovery,"import");
-  const dependentImported=await dependentRecovery.importReviewedSources(a,[{kind:"csv",sheets:[{targetName:"Owned",values:[["ID"],["1"]]}]}]);
+  const dependentImported=await dependentRecovery.importReviewedSources(a,[{kind:"csv",sheets:[{targetName:"Owned",values:[["ID"],["1"]],numberFormats:[["@"],["@"]]}]}]);
   a=await attempt(dependentRecovery,"undo");const deleteCount=env.writes.filter(w=>w[1]==="delete").length;
   await assert.rejects(dependentRecovery.restoreAffectedScope(a,{kind:"import",direction:"undo",createdSheetIds:dependentImported.createdSheetIds}),e=>e.code==="DP_UNSUPPORTED_PRESERVATION");
   assert.equal(env.writes.filter(w=>w[1]==="delete").length,deleteCount,"surviving native references block before deletion");

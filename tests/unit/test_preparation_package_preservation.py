@@ -142,10 +142,10 @@ class PackagePreservationTests(unittest.TestCase):
 
     def test_csv_creation_preserves_literals_and_surviving_full_package(self):
         before=inspect_package(package());after=inspect_package(self.group(csv=True))
-        plan=[{"targetName":"Copy","values":[["ID"],["=literal"]]}]
+        plan=[{"targetName":"Copy","values":[["ID"],["=literal"]],"numberFormats":[["@"],["@"]]}]
         verify_package_csv_import(before,after,plan)
         verify_package_import(before,after,[{"kind":"csv","sheets":plan}])
-        with self.assertRaises(Exception):verify_package_csv_import(before,after,[{"targetName":"Copy","values":[["ID"],["wrong"]]}])
+        with self.assertRaises(Exception):verify_package_csv_import(before,after,[{"targetName":"Copy","values":[["ID"],["wrong"]],"numberFormats":[["@"],["@"]]}])
 
     def test_csv_native_row_storage_and_default_geometry_are_accepted_without_custom_heights(self):
         def native_rows(extra=""):
@@ -159,7 +159,7 @@ class PackagePreservationTests(unittest.TestCase):
                     target.writestr(member,data)
             return inspect_package(output.getvalue())
         before=inspect_package(package())
-        plan=[{"targetName":"Copy","values":[["ID"],["=literal"]]}]
+        plan=[{"targetName":"Copy","values":[["ID"],["=literal"]],"numberFormats":[["@"],["@"]]}]
         verify_package_csv_import(before,native_rows(),plan)
         with self.assertRaises(Exception):
             verify_package_csv_import(before,native_rows(' ht="25" customHeight="1"'),plan)

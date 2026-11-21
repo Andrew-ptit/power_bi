@@ -83,24 +83,44 @@ class PreparationMutation(PreparationDirectMutation):
             return document["preview"].review_hash
         raise _fail("DP_REVIEW_STALE", "Review the current cleanup first")
 
-    def packages(self, transport, preparation_id, review_hash):
+    def packages(self, transport, preparation_id, review_hash, date_system=None, *, reuse_reviewed=True):
         with self._lock:
             d = self._get(transport, preparation_id)
-            if self._current_review(d, "import") != review_hash:
-                raise _fail("DP_REVIEW_STALE", "Import mapping changed")
+            current_hash = self._current_review(d, "import")
             review = d["importReview"]
+            if review_hash not in (current_hash, review["mappingReviewHash"]):
+                raise _fail("DP_REVIEW_STALE", "Import mapping changed")
             cache = d.get("packageCache")
-            if cache is None or cache["reviewHash"] != review_hash:
-                cache = {"reviewHash": review_hash, "packages": build_packages(d["inventory"], d["inventory"].inventory_hash,
-                    review["mappings"], review["existingNames"], workspace_manager=self._workspace_manager)}
-                d["packageCache"] = cache
+            if reuse_reviewed and date_system is None and cache:
+                if not cache["packages"]:
+                    raise _fail("DP_REVIEW_STALE", "No reviewed sheets are available to write")
+                return deepcopy(cache)
+
+            # Regenerate CSV report metadata on demand. Reuse the verified XLSX
+            # transfer for this mapping so a report read never renormalizes it.
+            reviewed_xlsx = {p["fileId"]: p for p in cache["packages"] if p["kind"] == "xlsx"} if cache else {}
+            report = {}
+            packages = build_packages(d["inventory"], d["inventory"].inventory_hash,
+                review["mappings"], review["existingNames"], workspace_manager=self._workspace_manager,
+                date_system=date_system, report=report, reviewed_xlsx=reviewed_xlsx)
+            if reuse_reviewed and date_system is None and not packages:
+                raise _fail("DP_REVIEW_STALE", "No reviewed sheets are available to write")
+            has_dates = any("yyyy-mm-dd" in row for package in packages if package["kind"] == "csv"
+                            for sheet in package["sheets"] for row in sheet["numberFormats"])
+            frame_hash = (canonical_hash({"mapping": review["mappingReviewHash"], "dateSystem": date_system})
+                          if has_dates else review["mappingReviewHash"])
+            if cache is None or cache["reviewHash"] != frame_hash:
+                cache = {"reviewHash": frame_hash, "packages": packages}
+                d.update(packageCache=cache, grant=None)
                 try:
                     self._sync_metadata_budget()
                 except InputError:
                     d.pop("packageCache", None)
+                    review["reviewHash"] = review["mappingReviewHash"]
                     self._sync_metadata_budget()
                     raise
-            return deepcopy(cache)
+                review["reviewHash"] = frame_hash
+            return deepcopy({**cache, "importReport": report})
 
     def approve(self, transport, preparation_id, review_hash, kind, target):
         with self._lock:

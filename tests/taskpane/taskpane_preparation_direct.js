@@ -32,7 +32,7 @@ const bridgeApi = require("../../pbip_assistant/excel_addin/preparation_bridge.j
         return {preparationId: "direct", writeEnabled: true, backupEnabled: false};
       }
       if (action === "review-import") return {reviewHash: "review"};
-      if (action === "packages") return {packages: []};
+      if (action === "packages") return {reviewHash: "review", packages: [], importReport: {totals: {files: 0, sheets: 0, skipped: 0, decisions: 0}, files: []}};
       if (action === "approve") return {grantId: "grant"};
       if (action === "direct-begin") {
         if (loseBeginResponse) throw Object.assign(new TypeError("begin response lost"), typeof loseBeginResponse === "string" ? {code: loseBeginResponse} : {});

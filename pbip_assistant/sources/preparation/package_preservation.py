@@ -548,15 +548,21 @@ def verify_package_csv_import(before,after,sheets,*,_validate_only=False):
     if (len(set(targets))!=len(targets) or (not _validate_only and set(after["sheets"])-set(before["sheets"])!=set(targets))
             or any(name in before["sheets"] or name not in after["sheets"] for name in targets)
             or set(before["sheets"])-set(after["sheets"])):_fail("CSV worksheet group differs from reviewed targets")
-    expected_style=deepcopy(before["defaultStyle"]);expected_style["numFmt"]="@"
+    expected_style=deepcopy(before["defaultStyle"])
     descent = "{http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac}dyDescent"
     for plan in sheets:
-        name=plan["targetName"];rows=plan["values"];cells=after["cells"][name]
-        if not rows or not rows[0] or any(len(row)!=len(rows[0]) for row in rows):_fail("CSV expected rows are not rectangular")
+        name=plan["targetName"];rows=plan["values"];cells=after["cells"][name];formats=plan["numberFormats"]
+        if (not rows or not rows[0] or any(len(row)!=len(rows[0]) for row in rows)
+                or len(formats)!=len(rows) or any(len(row)!=len(rows[0]) for row in formats)
+                or any(not isinstance(item,str) for row in formats for item in row)):
+            _fail("CSV expected rows are not rectangular")
         expected={_column(c)+str(r+1):value for r,row in enumerate(rows) for c,value in enumerate(row)}
-        for address,value in expected.items():
-            cell=cells.get(address)
-            if not cell or cell["value"]!=value or cell["style"]!=expected_style or _rich_text(cell["xml"]):_fail("CSV literal, format or presentation differs from reviewed rows")
+        for r,row in enumerate(rows):
+            for c,value in enumerate(row):
+                address=_column(c)+str(r+1)
+                cell=cells.get(address)
+                style=deepcopy(expected_style);style["numFmt"]=formats[r][c]
+                if not cell or cell["value"]!=value or cell["style"]!=style or _rich_text(cell["xml"]):_fail("CSV literal, format or presentation differs from reviewed rows")
         if set(cells)-set(expected):_fail("CSV created data outside reviewed rows")
         graph,owned=_sheet_graph(after,name)
         if len(owned)!=1 or graph["localNames"]:_fail("CSV sheet acquired unreviewed dependencies or names")
@@ -571,7 +577,7 @@ def verify_package_csv_import(before,after,sheets,*,_validate_only=False):
                     if set(view[1])-{ "workbookViewId","tabSelected","zoomScale","zoomScaleNormal"}:_fail("CSV sheet acquired nondefault view state")
     if _validate_only:return True
     left=_without_group(before,());right=_without_group(after,targets)
-    _allow_style_extensions(left,right,allowed_formats={"@"})
+    _allow_style_extensions(left,right,allowed_formats={fmt for plan in sheets for row in plan["numberFormats"] for fmt in row})
     if canonical_hash(left)!=canonical_hash(right):_fail("CSV insertion changed surviving workbook metadata or content")
     return True
 

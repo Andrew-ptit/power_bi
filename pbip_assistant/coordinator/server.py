@@ -169,7 +169,7 @@ EXCEL_JOB_PATHS = frozenset({
 })
 PREPARATION_PATHS = frozenset("/api/preparation/" + action for action in (
     "preservation-begin", "preservation-chunk", "preservation-finish",
-    "attach", "detach", "state", "inventory", "source-snapshot", "source-set", "scan", "answer", "preview", "review-import", "pick-folder",
+"attach", "detach", "state", "browse", "inventory", "source-snapshot", "source-set", "scan", "answer", "preview", "review-import", "pick-folder",
     "direct-begin", "direct-write-ready", "direct-complete", "packages", "approve", "begin", "image-begin", "image-chunk", "image-finish", "write-ready", "complete", "undo", "redo", "restore-complete",
 ))
 EXCEL_JOB_PATHS = EXCEL_JOB_PATHS | frozenset("/api/preparation/" + action for action in (
@@ -427,7 +427,7 @@ class ExcelAddinRequestHandler(
             "/commands.html": ("commands.html", "text/html; charset=utf-8"),
             "/assets/taskpane.css": ("taskpane.css", "text/css; charset=utf-8"),
             "/assets/taskpane.js": ("taskpane.js", "text/javascript; charset=utf-8"),
-            "/assets/taskpane_core.js": ("taskpane_core.js", "text/javascript; charset=utf-8"),
+"/assets/taskpane_core.js": ("taskpane_core.js", "text/javascript; charset=utf-8"),
             "/assets/taskpane_flow.js": ("taskpane_flow.js", "text/javascript; charset=utf-8"),
             "/assets/taskpane_workspace.js": ("taskpane_workspace.js", "text/javascript; charset=utf-8"),
             "/assets/taskpane_problem_chain.js": ("taskpane_problem_chain.js", "text/javascript; charset=utf-8"),
@@ -437,6 +437,7 @@ class ExcelAddinRequestHandler(
             "/assets/preparation_session.js": ("preparation_session.js", "text/javascript; charset=utf-8"),
             "/assets/preparation_controller.js": ("preparation_controller.js", "text/javascript; charset=utf-8"),
             "/assets/assistant_entry.js": ("assistant_entry.js", "text/javascript; charset=utf-8"),
+"/assets/assistant_browser.js": ("assistant_browser.js", "text/javascript; charset=utf-8"),
             "/assets/assistant_custom_xml.js": ("assistant_custom_xml.js", "text/javascript; charset=utf-8"),
         }
         target = static_files.get(path)

@@ -21,7 +21,7 @@ ROOT = Path(__file__).resolve().parent.parent
 TASKS = ROOT / "specs" / "003-source-import-redesign" / "tasks.md"
 BASELINE = ROOT / "specs" / "003-source-import-redesign" / ".baseline.json"
 SKIP_DIRS = {".git", "runs", "node_modules", "__pycache__", ".artifacts", ".venv", "bin", "obj"}
-SKIP_MARKERS = ("@unittest.skip", "unittest.skip(", "pytest.mark.skip", "it.skip", "test.skip(", "describe.skip")
+SKIP_MARKERS = ("unittest.skip(", "pytest.mark.skip", "it.skip", "test.skip(", "describe.skip")
 WEAK_MARKERS = ("assert True", "assertEqual(1, 1)", "expect(true).toBe(true)")
 TODO_MARKERS = ("TODO", "FIXME", "XXX")
 

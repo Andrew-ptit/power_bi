@@ -10,8 +10,9 @@ import time
 from uuid import uuid4
 
 from pbip_assistant.errors import InputError
+from pbip_assistant.sources.assistant_ingest import canonical_hash
 from .cleaning import bind_sources, build_cleanup_preview, scan_sources
-from .inventory import inventory_folder, review_import
+from .inventory import browse_folder, inventory_folder, inventory_selection, review_import
 from .model import AnswerRevision, SourceSnapshot, require_hash, require_identifier
 from .mutation import PreparationMutation
 
@@ -301,10 +302,20 @@ class PreparationStore(PreparationMutation):
             document.update(status="preview_ready", needsReview=False)
             return self._public(document)
 
-    def inventory(self, transport, preparation_id, root, relative_path):
+    def browse(self, transport, preparation_id, root, relative_path, *, expected_claim_version):
         with self._lock:
             document = self._get(transport, preparation_id)
-            document["inventory"] = inventory_folder(root, relative_path)
+            if document["claimVersion"] != expected_claim_version:
+                raise _fail("DP_REVIEW_STALE", "Workbook attachment changed")
+            return browse_folder(root, relative_path)
+
+    def inventory(self, transport, preparation_id, root, items, *, expected_claim_version=None):
+        with self._lock:
+            document = self._get(transport, preparation_id)
+            if expected_claim_version is not None and document["claimVersion"] != expected_claim_version:
+                raise _fail("DP_REVIEW_STALE", "Workbook attachment changed")
+            document["inventory"] = (inventory_folder(root, items) if isinstance(items, str)
+                                     else inventory_selection(root, items))
             document.update(importReview=None, grant=None, packageCache=None)
             self._sync_metadata_budget()
             return {**self._public(document), "inventory": document["inventory"].public()}
@@ -315,7 +326,10 @@ class PreparationStore(PreparationMutation):
             if document["inventory"] is None:
                 raise _fail("DP_REVIEW_STALE", "Inventory the folder before reviewing its mapping")
             review = review_import(document["inventory"], inventory_hash, mappings, existing_names)
-            document["importReview"] = {**deepcopy(review), "existingNames": list(existing_names)}
+            # Each explicit review can allocate a fresh native XLSX namespace.
+            review["reviewHash"] = canonical_hash({"mappingHash": review["reviewHash"], "reviewId": uuid4().hex})
+            document["importReview"] = {**deepcopy(review), "mappingReviewHash": review["reviewHash"],
+                                        "existingNames": list(existing_names)}
             document["grant"] = None
             document.pop("packageCache", None)
             self._sync_metadata_budget()

@@ -1,6 +1,8 @@
 """Real local HTTP guards and scan/answer/preview, no live Excel claims."""
 import http.client
 import json
+from pathlib import Path
+import tempfile
 import threading
 import unittest
 
@@ -70,6 +72,48 @@ class PreparationApiTests(unittest.TestCase):
         self.assertFalse(state["writeEnabled"])
         self.assertEqual(self.post("approve", preparationId=pid, kind="cleanup", reviewHash=state["preview"]["reviewHash"],
                 target={"strategy": "personal_copy", "sheetIds": ["{sheet_01}"]})[0], 409)
+
+    def test_packages_date_system_cache_and_missing_field(self):
+        _, state = self.attach()
+        pid = state["preparationId"]
+        root = Path(self.enterContext(tempfile.TemporaryDirectory()))
+        (root / "date.csv").write_bytes(b"Day\n1904-01-01\n")
+        status, result = self.post("inventory", preparationId=pid, expectedClaimVersion=state["claimVersion"],
+            root=str(root), items=[{"relativePath": "", "fileName": "date.csv"}])
+        self.assertEqual(status, 200)
+        inventory = result["inventory"]
+        mappings = [{k: sheet[k] for k in ("fileId", "sourceSheetId", "proposedName")} for sheet in inventory["sheets"]]
+        status, review = self.post("review-import", preparationId=pid, inventoryHash=inventory["inventoryHash"], mappings=mappings)
+        self.assertEqual(status, 200)
+        request = {"preparationId": pid, "reviewHash": review["reviewHash"]}
+        for system, serial in (("1900", 1462), ("1904", 0)):
+            status, result = self.post("packages", **request, dateSystem=system)
+            self.assertEqual(status, 200)
+            self.assertEqual(result["packages"][0]["sheets"][0]["values"][1], [serial])
+            self.assertEqual(result["importReport"]["totals"]["sheets"], 1)
+            status, result = self.post("packages", **request)
+            self.assertGreaterEqual(status, 400)
+            self.assertEqual(result["error"]["code"], "DP_DATE_SYSTEM_REQUIRED")
+        self.assertEqual(self.post("packages", **request, dateSystem="1901")[1]["error"]["code"], "INVALID_REQUEST")
+
+    def test_packages_leaves_empty_csv_cells_blank_with_general(self):
+        _, state = self.attach()
+        pid = state["preparationId"]
+        root = Path(self.enterContext(tempfile.TemporaryDirectory()))
+        (root / "blank.csv").write_bytes(b"Code,Qty\nA,1\nB,\n")
+        status, result = self.post("inventory", preparationId=pid, expectedClaimVersion=state["claimVersion"],
+            root=str(root), items=[{"relativePath": "", "fileName": "blank.csv"}])
+        self.assertEqual(status, 200)
+        inventory = result["inventory"]
+        mappings = [{k: sheet[k] for k in ("fileId", "sourceSheetId", "proposedName")} for sheet in inventory["sheets"]]
+        status, review = self.post("review-import", preparationId=pid, inventoryHash=inventory["inventoryHash"], mappings=mappings)
+        self.assertEqual(status, 200)
+        status, result = self.post("packages", preparationId=pid, reviewHash=review["reviewHash"], dateSystem="1900")
+        self.assertEqual(status, 200)
+        sheet = result["packages"][0]["sheets"][0]
+        self.assertEqual(sheet["values"][2], ["B", None])
+        self.assertEqual(sheet["numberFormats"][2], ["@", "General"])
+        self.assertEqual(result["importReport"]["files"][0]["decisions"], [])
 
     def test_no_token_origin_and_unknown_keys_fail_before_workflow(self):
         payload = {"schemaVersion": 1, "action": "state", "preparationId": "unknown", "expectedClaimVersion": 0}

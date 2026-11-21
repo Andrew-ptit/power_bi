@@ -76,12 +76,13 @@ Luật:
 {"action": "packages", "preparationId": "prep_…", "reviewHash": "sha256:…", "dateSystem": "1900"}
 ```
 
-- `dateSystem` ∈ `{"1900","1904"}`, bắt buộc khi có ít nhất một CSV có cột ngày. Client luôn gửi (probe `workbook.functions.date(1904,1,1)`: `0` → 1904, `1462` → 1900). Thiếu/không hợp lệ khi cần → `DP_DATE_SYSTEM_REQUIRED`. Khi lần nhập không có cột ngày, thiếu `dateSystem` được mặc định `"1900"` để các đường gọi cũ (ví dụ `direct.py`) không gãy.
+- Client gửi `"1900"` hoặc `"1904"` theo kết quả probe `workbook.functions.date(1904,1,1)` (1462 hoặc 0 tương ứng). Giá trị gửi sai trả `INVALID_REQUEST` ở bước kiểm tra request. Nếu thiếu trường này và CSV có cột ngày, API trả `DP_DATE_SYSTEM_REQUIRED`. Khi không có cột ngày, giá trị mặc định là `"1900"`.
 
-**Response** thêm `importReport` (một lần cho cả lần nhập):
+**Response** trả `reviewHash` của bộ dữ liệu đã dựng và một `importReport` cho cả lần nhập. Client gửi `reviewHash` từ response này khi gọi `approve`. Đổi hệ ngày của một CSV có cột ngày hoặc gọi lại `review-import` tạo mã mới; yêu cầu phê duyệt dùng mã cũ trả `DP_REVIEW_STALE`.
 
 ```json
 {
+  "reviewHash": "sha256:…",
   "importReport": {
     "totals": {"files": 8, "sheets": 8, "skipped": 0, "decisions": 12},
     "files": [
@@ -89,7 +90,8 @@ Luật:
         "fileId": "file_…",
         "fileName": "dim_products.csv",
         "status": "imported",
-        "reading": {"encoding": "utf-8", "delimiter": ",", "headerRow": 1, "columns": 8},
+        "reading": {"encoding": "cp1252", "delimiter": ";", "headerRow": 1, "columns": 8},
+        "readingDecisions": [{"reasonCode": "ENCODING_FALLBACK"}, {"reasonCode": "DELIMITER_INFERRED"}],
         "sheets": [{"sourceSheetId": "sheet_…", "targetName": "dim_products"}],
         "decisions": [
           {"column": "unit_price", "columnIndex": 3, "kind": "number", "numberFormat": "General",
@@ -100,7 +102,7 @@ Luật:
       {
         "fileId": "file_…", "fileName": "broken.csv", "status": "skipped",
         "reading": {"encoding": "utf-8", "delimiter": ",", "headerRow": 1, "columns": 4},
-        "sheets": [], "decisions": [],
+        "readingDecisions": [], "sheets": [], "decisions": [],
         "issues": [{"code": "CSV_COLUMN_COUNT", "message": "3 dòng lệch số cột — chưa nhập"}]
       }
     ]
@@ -115,12 +117,15 @@ Luật frame CSV:
 |---|---|---|---|
 | number | JS number (int nếu nguyên) | `"General"` | không bao giờ là chuỗi |
 | date | serial số theo `dateSystem` | `"yyyy-mm-dd"` | 1900: gốc 1899-12-31 (trước 1900-03-01) / 1899-12-30; 1904: gốc 1904-01-01 |
-| text / identifier / formula-like / header / empty | string | `"@"` | giữ nguyên sau trim |
+| text / identifier / formula-like / header | string | `"@"` | giữ nguyên sau trim |
+| empty | `null` | `"General"` | ô để trống; không sinh quyết định theo cột, cột toàn rỗng vẫn `EMPTY_COLUMN` |
 
 - `formulas` = bản sao `values` (CSV không có công thức); `formulaCells` rỗng.
 - Tổng ô ≤ `MAX_CELLS` hiện có; nếu vượt, file thành `skipped` với `REQUEST_LIMIT`, không cắt bớt.
 - `decisions` ≤ 200/file; `samples` ≤ 2 phần tử, mỗi phần tử ≤ 40 ký tự, không chứa PII log.
 - Report chỉ chứa metadata; không chứa giá trị ô ngoài `samples`.
+- Mỗi file có mảng `readingDecisions` cho quyết định cách đọc CSV. Mỗi phần tử chỉ có `reasonCode`. Ghi `ENCODING_FALLBACK` khi phải chuyển sang bảng mã dự phòng, rồi `DELIMITER_INFERRED` khi tự chọn dấu phân cách khác dấu phẩy mặc định. Mỗi mã xuất hiện tối đa một lần. Bảng mã và dấu phân cách thực tế lấy từ `reading`. Dùng mảng rỗng cho XLSX và khi không có quyết định cách đọc để báo.
+- `decisions` chứa quyết định theo cột; `issues` chứa vấn đề khi nhập file. `totals.decisions` là tổng số phần tử của `readingDecisions` và `decisions` trên tất cả file.
 
 ## 4. `reasonCode` (đóng)
 

@@ -9,6 +9,18 @@
       return {workbookName: workbook.name, sheetId: sheet.id};
     });
   }
+  async function probeDateSystem({Excel}) {
+    if (!Excel) throw failure("OFFICE_NOT_READY", "Hãy mở add-in trong Excel.");
+    return Excel.run(async context => {
+      const probe = context.workbook.functions.date(1904, 1, 1);
+      probe.load("value,error");
+      await context.sync();
+      if (probe.error) throw failure("DP_DATE_SYSTEM_REQUIRED", "Không xác định được hệ ngày 1900/1904 của workbook.");
+      if (probe.value === 0) return "1904";
+      if (probe.value === 1462) return "1900";
+      throw failure("DP_DATE_SYSTEM_REQUIRED", "Workbook trả hệ ngày không nhận diện được; kiểm tra Excel Options → Advanced.");
+    });
+  }
   async function readSelection(environment, dateSystem) {
     const {Office, Excel} = environment;
     if (!Office || !Excel || !Office.context.requirements.isSetSupported("ExcelApi", "1.9")) {
@@ -355,7 +367,14 @@
           for(const s of pkg.sheets) {
             if(typeof s.targetName!=="string" || !s.targetName || s.targetName.length>31 || /[\x00-\x1f\[\]:*?/\\]/.test(s.targetName) || /^'|'$/.test(s.targetName) || s.targetName.toLowerCase()==="history" || used.has(s.targetName.toLowerCase())) throw unsupported("Reviewed target sheet name conflicts or is invalid.");
             used.add(s.targetName.toLowerCase());
-            if(pkg.kind==="csv" && (!Array.isArray(s.values)||!s.values.length||!s.values[0].length||s.values.length*s.values[0].length>400000||s.values.some(r=>r.length!==s.values[0].length||r.some(v=>typeof v!=="string")))) throw unsupported("CSV requires rectangular bounded literal text.");
+            if(pkg.kind==="csv") {
+              const formats=s.numberFormats;
+              if(!Array.isArray(s.values)||!s.values.length||!s.values[0].length||s.values.length*s.values[0].length>400000
+                ||s.values.some(r=>r.length!==s.values[0].length||r.some(v=>v!==null&&typeof v!=="string"&&typeof v!=="number"))
+                ||!Array.isArray(formats)||formats.length!==s.values.length
+                ||formats.some((row,index)=>!Array.isArray(row)||row.length!==s.values[index].length||row.some(f=>typeof f!=="string"||!f))
+              ) throw unsupported("CSV requires rectangular bounded typed rows with per-cell number formats.");
+            }
           }
           plans.push(pkg);
         }
@@ -367,7 +386,7 @@
             if(pkg.kind==="csv") for(const s of pkg.sheets) {
               started=true;const sheet=context.workbook.worksheets.add(s.targetName);
               const range=sheet.getRangeByIndexes(0,0,s.values.length,s.values[0].length);
-              range.numberFormat=s.values.map(r=>r.map(()=>"@"));await context.sync();
+              range.numberFormat=clone(s.numberFormats);await context.sync();
               range.values=clone(s.values);sheet.load("id");
               await context.sync();created.push(sheet.id);group.push(sheet.id);
             } else {
@@ -487,7 +506,7 @@
     }
     return {captureAffectedScope,importReviewedSources,copyPersonalResult,applyCleanup,restoreAffectedScope,verifyAffectedScope};
   }
-  const api = {readSelection, describeWorkbook, selectActiveSource,readWorkbookSources,createMutationRuntime,imageFingerprint,imageFullFingerprint,exportWorkbookPackage};
+  const api = {readSelection, describeWorkbook, selectActiveSource,readWorkbookSources,probeDateSystem,createMutationRuntime,imageFingerprint,imageFullFingerprint,exportWorkbookPackage};
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.ReqwisePreparationRuntime = api;
 })(typeof window !== "undefined" ? window : globalThis);
