@@ -85,3 +85,15 @@ Reconcile baseline 001 US2 write verification and US8 clarification without dupl
 ## Execution Handoff
 
 Exact commands in [quickstart.md](quickstart.md). All runtime acceptance starts Not run. Recommend native execution in one session because journal/session/IO interfaces are tightly coupled; choose execution method after reviewing plan. Use isolation workflow before implementation; never reset/stash or include unrelated dirty changes. This plan does not implement or verify any production capability.
+
+
+## Resumed implementation batch - 2026-11-15
+
+Reuse T004-T011; do not reset completed T001/T003 or equate partial T002 with qualification. The user now explicitly requests delegated implementation. Assign non-overlapping runtime adapter, Python mutation owner and source/wizard UI files; the controller owns taskpane composition, business handoff and integration. Freeze DTOs before dependent edits and review the combined boundary once integrated. Existing baseline feature-only review base remains `7e8c5b5`.
+
+Complete file selection and actual bounded package import before advancing to all-sheet scan. Reuse exact review/backup/write-ready/read-back handshake; unsupported preservation structures fail before writes. Implement operation-specific delta recovery rather than the known-broken generic staging restore. Keep production write qualification separate from simulation. Extend the existing Assistant session to workbook-only sources so a personal workbook does not require choosing a meaningless folder for the later business prompt.
+
+
+## Manual acceptance handoff - explicit user instruction
+
+The user requested completing and integrating the actual three-stage flow and explicitly taking over hands-on testing. This supersedes the earlier implementer-driven live acceptance scheduling, not deterministic data/security constraints. Complete code and automated checks, integrate into the official taskpane, expose supported actions in manual-acceptance mode with qualification user_pending, and retain all hard rejection rules. Do not operate Excel UI or restart native qualification experiments. Release metadata remains unchanged until qualification. Existing task IDs and acceptance criteria remain; native criteria stay pending rather than falsely checked complete.

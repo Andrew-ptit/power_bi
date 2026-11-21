@@ -54,7 +54,7 @@ SHA-256 manifest hiện tại: `9e156b065a913943ee6d5d63b2eeac92075ab9e47efde89b
 | `pbip_assistant/schemas/` | Schema canonical |
 | `pbip_assistant/excel_addin/`, `web/` | Office.js task pane và source-only web UI |
 | `tests/` | Unit/contracts/integration/journeys/taskpane/runtime/live, support và fixtures |
-| `examples/` | Ví dụ chạy và generator fixture; một số test hiện import generator từ đây |
+| `examples/` | Lệnh/dữ liệu mẫu chạy lại được; generator chỉ dùng cho test đã chuyển sang `tests/support/` |
 | `tools/` | Gate runner, Excel PowerShell helper, add-in setup, TMDL bridge |
 | `third_party/lucide/` | License của icon SVG đang dùng |
 | `docs/current/` | Hợp đồng, kiến trúc và trạng thái hiện hành |
@@ -69,10 +69,10 @@ Python runtime dùng standard library. Có Node cho kiểm tra JS/sideload, Powe
 
 Chưa nên gọi toàn repo là đã clean/tối ưu hết:
 
-- Typed store vẫn gộp preview/approval/apply/cache/diagnostics; history store còn nhiều orchestration trong một module.
-- Typed/history Codex planner classes còn nằm trong store dù đã dùng transport chung. Tách tiếp phải giữ import/monkeypatch seams và public errors.
+- Typed store vẫn gộp preview/approval/apply/cache; **diagnostics đã tách** sang `powerquery/typed/diagnostics_service.py` (163 dòng) — service lo dựng context, gọi preview, kiểm giới hạn staging và chiếu payload công khai; store giữ lock, slot staging đơn, cache và **toàn bộ guard** quyết định promote/discard (17 mã/lời nhắn guard trước và sau giống nhau). Store chỉ giảm 1099 → 1055 dòng và tổng hai file tăng ~120 dòng — đây là đánh đổi có chủ ý: sequence đọc được một chỗ, guard nguyên tử không di chuyển. History store còn nhiều orchestration trong một module.
+- Typed/history Codex planner classes **đã rút** sang `adapters/codex/typed.py` và `adapters/codex/problem_chain.py`. Hai store re-export `CodexTypedRunner`, `CodexProblemChainPlanner`, các preflight và failure-code, nên import cũ vẫn chạy; `tests/contracts/test_codex_adapter_seams.py` khoá alias này. **Seam patch đã chuyển**: patch `find_codex_executable`, `subprocess.run` và preflight phải trỏ module adapter — patch qua `pbip_assistant.pq_typed`/`problem_chain` giờ là no-op im lặng.
 - Task pane còn là script lớn; controller/view/state transitions chưa tách thành các module nhỏ.
-- `examples/` đang chứa cả generator được test sử dụng. Có thể chuyển generator chỉ phục vụ test sang `tests/support`, cập nhật mọi caller trước khi xoá path cũ. Giữ demo chạy độc lập khi còn hữu ích.
+- `examples/` đã được dọn: `pbip_fixtures`/`source_fixtures` chuyển sang `tests/support` (7 caller cập nhật), `make_sample.py` sửa import path cũ sang `tests.support.fixtures`. Không còn generator chỉ phục vụ test trong `examples/`; demo `excel_mcp_fixtures`/`w21_excel_smoke`/`pq_clean_orders_with_errors.m` được giữ vì có caller tài liệu.
 - Compiler đã dùng lookup map và tránh dựng lại set trong vòng lặp. Chưa có bằng chứng tăng tốc toàn luồng Excel/Codex. Tối ưu theo profile/đo đạc; không bỏ defensive copy hoặc fingerprint để giảm thời gian.
 
 Hướng duy trì: một ứng dụng modular theo feature/domain với application services và adapter rõ. Skill chỉ phù hợp để chuẩn hoá quy trình làm việc của AI/developer; không chuyển state/approval/runtime logic thành prompt hoặc skill.
@@ -96,16 +96,23 @@ Chi tiết: [history security](HISTORY_SECURITY.md), [UI contract](TASKPANE_UI.m
 
 | Lớp | Trạng thái đã biết |
 |---|---|
-| Fast gate sau cleanup | 375 run: 373 pass, 0 fail/error, 2 skip; 60.591 giây |
+| Fast gate sau cleanup | 375 run: 373 pass, 0 fail/error, 2 skip; 60.591 giây. Hiện tại sau di chuyển fixture + import smoke + rút Codex planner + tách diagnostics: **386 run: 384 pass, 2 skip, 50.504 giây** |
+| Runtime gate (isolated Excel COM) | 16 run, 16 pass, 0 skip; 427.694 giây (đo trên `efe9afe`; chưa chạy lại sau hai lần tách) |
+| Import smoke toàn package | 93 module (`pbip_assistant` 73, `tests.support` 17, `examples` 3), 0 fail; 0.250 giây. Đã kiểm chứng ngược: cố tình tái tạo `from tests.fixtures import ...` thì test fail và nêu đúng tên module |
+| Focused sau rút Codex planner | schema + crosscheck + problem-chain: 40 pass; seam guard mới: 3 pass |
+| Focused sau di chuyển fixture | 50 pass, 0 fail/skip, 5.278 giây; module TMDL bị đổi import: 5 pass, 4.341 giây |
 | Focused fingerprint/cache/Typed/diagnostics/history | 64 pass, 0 fail/skip; 4.446 giây |
-| Discovery lúc bàn giao | 393 case toàn bộ, 375 case fast; chỉ chạy `--list`, không chạy lại test trong lượt bàn giao |
-| Required-case guard | 373 ID bắt buộc trong `tests/required_cases.json`; không được bỏ guard để làm test xanh |
+| Focused sau tách diagnostics | Characterization guard viết **trước** khi tách: 7 case; sau tách vẫn 7/7 pass. So guard trước/sau: 17 mã+lời nhắn, không mất cái nào |
+| Discovery lúc bàn giao | 393 case toàn bộ, 375 case fast; chỉ chạy `--list`, không chạy lại test trong lượt bàn giao. Hiện tại: 404 case toàn bộ, 386 case fast |
+| Required-case guard | 384 ID bắt buộc trong `tests/required_cases.json`; không được bỏ guard để làm test xanh |
 | Live Office.js trước fingerprint fix | Root/child commit, Preview và Confirm đã chạy trên workbook tổng hợp; root 4 hàng x 10 cột, child 2 hàng x 10 cột; nguồn giữ nguyên |
-| Live cache/recovery sau fingerprint fix | Chưa hoàn tất lượt mới; điều khiển máy tính bị dừng bằng Escape |
+| Live cache/recovery sau fingerprint fix | Blocked, không có bằng chứng nào: add-in gate đã nạp và gate server nhận request asset của nó, nhưng cửa sổ Excel đó không phơi ribbon control cho UI Automation nên driver task pane không khởi động được |
 | Advanced M | Tạm hoãn theo yêu cầu người dùng |
 | Exact-current full regression/live Codex/release | Còn mở |
 
 Hai skip của fast gate: quyền symlink không có và thiếu CSV riêng tư tùy chọn. Không chuyển kết quả simulation thành live Excel pass. Không lấy một lượt test của revision trước làm bằng chứng cho code vừa thay đổi.
+
+Di chuyển hoặc xoá một module: cập nhật mọi caller, cập nhật `ANCHOR_MODULES` trong `tests/unit/test_import_smoke.py` nếu đó là module mỏ neo, và không nới lỏng smoke test để làm gate xanh.
 
 Lỗi cache đã sửa: Office.js import sheet kết quả bổ sung/reindex style làm fingerprint nguồn đổi giả. Fix resolve style được nguồn tham chiếu theo nội dung, chuẩn hoá numeric/default style và named-range scope; giữ phát hiện thay đổi format nguồn kể cả khi `include_styles=False`. Không revert về hash style index thô hoặc bỏ kiểm tra format để làm cache hit.
 

@@ -1,9 +1,15 @@
-# Feature Specification: Chuẩn bị dữ liệu Excel có rà soát và hoàn tác
+# Feature specification: Excel data preparation with review
 
 **Feature**: `002-data-preparation`. **Created**: 2026-11-14 (Asia/Saigon).
-**Status**: Phạm vi người dùng đã chốt; kế hoạch chờ review, chưa triển khai/kiểm chứng live.
+**Status**: Implemented for user manual acceptance; native qualification remains pending.
 **Input**: [Thiết kế tổng thể](../../docs/superpowers/specs/2026-11-13-supply-chain-assistant-design.md), prototype đã duyệt và lựa chọn làm nền trước, domain business sau.
 **Git**: giữ branch main và công việc hiện có. Không thay baseline 001. DP/US/S/SC dưới đây là alias feature-local, không cấp lại FR/AC/BPMN IDs. Canonical docs/current sở hữu hợp đồng và CURRENT_STATUS sở hữu release evidence.
+
+## Approved supersession - 2026-11-16
+
+The user removed backup across the entire preparation flow. This decision supersedes US4/S12-S18 and DP09's backup/reopen/Undo/Redo promises. Their IDs below remain for traceability only and are cancelled for the active product. SC05 now requires no recovery journal/images/XML/Undo/Redo in active preparation; session authority TTL still applies. DP10 session limits and non-preparation history policies remain unchanged. References to backup prerequisites elsewhere in earlier requirements are superseded by this section.
+
+Import and cleaning use transient semantic reads and native sheet identities, exact approval, one-use direct write permission and deterministic read-back. The composed application retains no recoverable before/after target images. Partial/unknown is not replayable; an explicit fresh native attachment retires unresolved authority and requires review again. It inherits no imported ownership, answers or approval. Native source-file validation/insertion remains; current-target full package comparison is removed. Personal-sheet result copies still protect the original. This does not promise destination style/structure diff coverage or Excel Ctrl+Z. See [implementation batches](backup-removal-plan.md).
 
 ## User Scenarios & Testing
 
@@ -39,7 +45,7 @@ Sheet do import của phiên được clean trực tiếp sau duyệt/backup. Sh
 - **S10** Sheet có sẵn: tạo tên kết quả không trùng, giữ nguyên nguồn; tên/marker đơn lẻ không chứng minh quyền ghi tại chỗ.
 - **S11** Source/answer/workbook thay đổi hoặc backup thiếu: chặn trước ghi. Write/read-back failure sau consume: partial/unknown, không auto retry.
 
-### US4 — Undo/Redo và mở lại task pane (P1)
+### US4 [Cancelled by the 2026-11-16 decision] — Undo/Redo và mở lại task pane (P1)
 
 ↶/↷ cho thao tác ghi của preparation, không thay Undo Excel cho sửa tay. Đóng/mở task pane còn lịch sử khi logical preparation session chưa hết hạn.
 
@@ -96,3 +102,14 @@ WorkbookBinding, PreparationSession, ImportedSheetOwnership, SourceInventory, Sc
 - Hai tab Trợ lý/PQ_Code-M giữ nguyên; preparation là controller nhỏ trong Trợ lý.
 - Không hỗ trợ mọi cấu trúc Excel ngay. Phạm vi phải được gate xác định công khai, không bỏ mất metadata để báo pass.
 - Privacy và source preservation bao gồm nội dung nguồn, không cấm metadata binding riêng được giải thích rõ; không auto Save để lưu metadata.
+
+
+## Approved journey refinement - 2026-11-15
+
+The open workbook is always the destination, whether new or existing. Source selection opens the native folder browser, then a per-file selection list with Select all. One CSV becomes one sheet; every sheet of a chosen XLSX is selected as a single group. Confirming selection starts actual conversion/import with progress and advances only after verified native read-back. Directory inventory alone never unlocks cleaning.
+
+After import, scan every data-bearing sheet in the destination, reporting empty/non-tabular or unsupported sheets explicitly. Missing date/number interpretation pauses for the relevant question; no locale inference. Loading indicates inspection, not automatic destructive cleaning. Show exact changes before approval, then apply only the approved diff. A verified no-change review can advance to the existing business prompt. Existing personal sheets produce separate results; verified session-owned imports may be cleaned in place.
+
+Add source is available during cleaning and at the business prompt. It returns to the same browser/selection flow and appends sheets. Navigation/cancellation preserves answers and data; verified source changes invalidate dependent previews, approvals and business analysis. Keep independent answers whose source/question identity remains valid.
+
+Execution is delegated at the user's explicit request, with the controller reviewing contracts, integrating and running automated checks. Manual whole-flow testing remains user-owned by their earlier instruction; native gates remain Not run/Blocked until evidence exists. No sample/demo service is introduced.

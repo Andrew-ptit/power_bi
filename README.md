@@ -42,7 +42,7 @@ py -m unittest discover -s tests -v
 | `docs/current/` | Hợp đồng, kiến trúc, trạng thái và hướng dẫn hiện hành |
 | `tests/` | Unit, contracts, integration, journeys, task pane, runtime, support và fixture tổng hợp |
 | `tools/` | Gate kiểm tra, Excel helper, cấu hình add-in và TMDL bridge |
-| `examples/` | Sinh fixture tổng hợp và lệnh mẫu có thể chạy lại |
+| `examples/` | Lệnh mẫu và dữ liệu mẫu chạy lại được; generator fixture chỉ dùng cho test nằm trong `tests/support/` |
 | `third_party/` | License của tài nguyên bên thứ ba đang sử dụng |
 
 Workbook/CSV/ảnh cá nhân và certificate là dữ liệu local riêng. Nguồn Excel/PBIP mặc định chỉ đọc; AI không cấp approval. Typed history dùng Custom XML/CAS. Advanced M đang tạm hoãn kiểm chứng theo yêu cầu người dùng.

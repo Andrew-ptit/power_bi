@@ -1,6 +1,14 @@
-# Validation guide — planned feature 002
+# Kiểm thử luồng chuẩn bị dữ liệu — feature 002
 
-No feature implementation has run. New test modules/flags below become runnable in their owning tasks; do not present today's missing modules as a regression. Current existing commands remain valid.
+Luồng đã được nối để người dùng tự kiểm thử trực tiếp. Trạng thái nghiệm thu Excel thật vẫn là `user_pending`; các phần hướng dẫn live bên dưới là tài liệu kỹ thuật, không phải yêu cầu agent tự điều khiển Excel.
+
+1. Mở workbook mới hoặc workbook có sẵn, đóng rồi mở lại panel **Reqwise-excel-mcp**.
+2. **Nguồn → Chọn thư mục**: tick từng file hoặc **Chọn tất cả**, xem tên sheet dự kiến, bấm **Nhập các file đã chọn**. CSV tạo một sheet; XLSX nhập toàn bộ nhóm sheet, có tiến độ theo file.
+3. **Làm sạch** tự quét các sheet. Trả lời các điểm chưa rõ, xem ngoại lệ và bản xem trước rồi **Áp dụng**; nếu không cần sửa thì **Dùng dữ liệu này**.
+4. Chọn **Đề bài** và nhập bài toán. **+ Thêm nguồn** mở Browse để nhập bổ sung, sau đó quét/duyệt lại dữ liệu liên quan.
+5. Các nút **↶ Khôi phục / ↷ Làm lại** dùng lịch sử trong phiên. Khi phiên hết hạn hoặc workbook khác với binding đã lưu, **Bắt đầu phiên mới với workbook này** tạo phiên mới sau hành động rõ ràng của người dùng.
+
+Không tự Save. File nguồn và sheet hiện có không bị ghi đè; sheet cá nhân được giữ nguyên và có bản kết quả riêng. Cấu trúc không thể bảo toàn, dữ liệu vượt giới hạn hoặc thay đổi sau duyệt sẽ bị chặn rõ ràng. Ghi/đọc lại chưa xác định không được tự chạy lại. Kiểm thử trực tiếp và báo lỗi thuộc người dùng theo chỉ dẫn mới nhất.
 
 ## Readiness and context
 

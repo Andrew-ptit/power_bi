@@ -1,5 +1,11 @@
 # Isolated Excel task-pane gate
 
+## Preparation feasibility scenario (feature 002)
+
+Use `py -m tests.live.create_fixture <ignored-fixture-dir> <run-id> --scenario preparation` and `py tools/live_excel_gate.py --run-id <run-id> --out <fresh-ignored-out> --scenario preparation`. The driver reads only an exact marked synthetic target and receives invented source packages. It probes group import with sheet/name/Table collisions, formulas, date format/font/fill, personal-source copy and native captured-image restore. It does not run preparation production writes or establish its session journal.
+
+A final `partial/native-feasibility-only` event is deliberately not qualification. Redo, external links, protected structure, partial writes and merge geometry still require additional cases. A blocked event or missing actual Office.js execution keeps production write capability disabled. The default gate scenario/driver remain unchanged.
+
 This developer harness runs the unchanged product task-pane scripts in real
 Excel/Office.js. Only the root/continuation planners are deterministic; their
 output is not evidence of a live Codex call. Power Query uses the real isolated
