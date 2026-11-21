@@ -17,11 +17,12 @@ Mọi object đóng: key lạ là lỗi. Mọi mảng có thứ tự tất đị
   "schemaVersion": "1.0",
   "understandHash": "sha256:…",
   "mode": "model",
+  "measuredOn": "full",
   "counts": {"tables": 8, "fact": 1, "dim": 4, "lookup": 2, "bridge": 0, "unclassified": 1,
              "relationships": 7, "needsConfirm": 2, "warnings": 3},
   "tables": [
     {
-      "tableId": "t_…", "name": "orders", "rowCount": 12480,
+      "tableId": "t_…", "name": "orders", "rowCount": 12480, "measuredRows": 12480,
       "structural": "fact", "confidence": 0.75, "roleQuestionId": null,
       "grainKind": "event", "grainEvidence": {"dateColumn": "order_date", "entityColumns": [],
                                                "distinctDates": 181, "repeatedEntities": 0, "entities": 0},
@@ -52,6 +53,9 @@ Mọi object đóng: key lạ là lỗi. Mọi mảng có thứ tự tất đị
 | Trường | Quy tắc |
 |---|---|
 | `mode` | `model` nếu `understand.roles` khác rỗng; ngược lại `per_sheet` |
+| `measuredOn` | `full` nếu mọi bảng được nạp ở chế độ `compute`; `sample` nếu ở `discover` |
+| `rowCount` | Tổng số dòng dữ liệu của nguồn (`totalRows` của bảng) |
+| `measuredRows` | Số dòng engine thực đo (số dòng trong `raw_tables`); bằng `rowCount` khi `measuredOn = full` |
 | `tables` | Mọi bảng của snapshot, sắp theo `tableId` |
 | `structural` | Lấy từ `understand.roles` (`fact`/`dim`/`lookup`/`bridge`); `unclassified` khi không có role cho bảng đó |
 | `confidence` | Từ role; `null` khi `unclassified` |
@@ -62,7 +66,7 @@ Mọi object đóng: key lạ là lỗi. Mọi mảng có thứ tự tất đị
 | `dateRange` | Từ cột ngày đầu tiên theo thứ tự cột; `null` nếu không có cột ngày |
 | `columnCount` | Tổng số cột thật của bảng |
 | `columns` | Tối đa 200 cột đầu theo thứ tự cột nguồn |
-| `columns[].type` | Kiểu suy luận WL1 đang dùng cho planner (`inferredType`) |
+| `columns[].type` | Trường `type` của cột trong snapshot WL1 (cùng giá trị planner đang dùng) |
 | `columns[].role` | Từ `column_roles`: `key`/`date`/`amount`/`percent`/`currency`/`text`/`unknown` |
 | `isKey` | Cột thuộc ít nhất một khóa trong `keys` |
 | `isLink` | Cột thuộc `fromColumns` hoặc `toColumns` của ít nhất một quan hệ trong `relationships` |
@@ -95,7 +99,11 @@ Thêm vào `_questions`, dùng đúng hàm `add` hiện có:
 
 ## 6. Lỗi
 
-Không có mã lỗi mới. Lỗi dựng `modelView` (dữ liệu không nhất quán với snapshot) ánh xạ về `AF_UNDERSTAND_INVALID` hiện có; không trả `understand` mà thiếu `modelView`.
+Một mã lỗi mới: `AF_UNDERSTAND_LIMIT` (HTTP 409). Trả khi `understand` gặp `ValueError` giới hạn tính toán của WL2 (các thông báo "exceeds the bounded …" trong `assistant_keys`). Thông báo cho người dùng: "Dữ liệu vượt giới hạn đo cấu trúc trên toàn bộ dòng." Trạng thái store sau lỗi giống như sau `AF_UNDERSTAND_INVALID` hiện nay: không có kết quả hiểu nửa vời. Mọi `ValueError` khác vẫn là `AF_UNDERSTAND_INVALID`.
+
+Lỗi dựng `modelView` (dữ liệu không nhất quán với snapshot) ánh xạ về `AF_UNDERSTAND_INVALID`; không trả `understand` mà thiếu `modelView`.
+
+Task pane chỉ được nạp lại ở `discover` khi nhận `AF_UNDERSTAND_LIMIT` hoặc `REQUEST_LIMIT` từ lần nạp/đo `compute`, và chỉ một lần.
 
 ## 7. Giao thức hộp thoại
 

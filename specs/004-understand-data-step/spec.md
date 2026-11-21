@@ -4,7 +4,7 @@
 **Status**: Draft — phạm vi đã được người dùng duyệt ở bản thiết kế; spec/plan/tasks chờ người dùng xem. **Chưa sẵn sàng giao agent code** cho tới khi T400 pass (xem §10).
 **Input**: [bản thiết kế 2026-11-21](../../docs/superpowers/specs/2026-11-21-understand-and-suggest-design.md) mục 5.1 và 9.1 (đợt Đ1); mockup tĩnh `.superpowers/brainstorm/1590-1795275786/content/flow-overview-v4.html`.
 **Git**: không reset/stash/checkout toàn repo; không đổi release metadata.
-**ID**: `H*` (yêu cầu), `HS*` (kịch bản), `HC*` (tiêu chí) là alias feature-local; không cấp lại FR/AF/SI/DP của tài liệu khác. Task `T400–T408`.
+**ID**: `H*` (yêu cầu), `HS*` (kịch bản), `HC*` (tiêu chí) là alias feature-local; không cấp lại FR/AF/SI/DP của tài liệu khác. Task `T400–T408`. Rà soát lần 2 ngày 2026-11-22 trên nhánh `integration/source-import-003`: thêm P8, P9, H19–H21, US6, HC09.
 
 ## 1. Vấn đề hiện tại (bằng chứng trong code, đọc ngày 2026-11-21 trên `main` bf26fda + working tree)
 
@@ -16,7 +16,9 @@
 | P4 | Khi không tìm thấy bảng fact, store trả `roles: []` và vẫn sang stage `understood` | Engine không chặn, nhưng UI không có cách trình bày riêng |
 | P5 | `_questions` sinh câu hỏi xác nhận quan hệ (`Xác nhận`/`Không nối`/`Cần làm rõ`), vai trò (`Đúng`/`Cần sửa`), cảnh báo, giả định; câu trả lời vào request lập kế hoạch | Cơ chế xác nhận đã có; chỉ đang hiển thị sai chỗ (sau đề bài) |
 | P6 | Thẻ `flow-understand-section` đứng sau thẻ đề bài, thu gọn, quan hệ là danh sách chữ | Không trực quan; không thấy cột nối |
-| P7 | Feature 003 (chưa merge) rút hành trình còn `1. Nguồn → 2. Đề bài` | Thiếu nhịp hiểu dữ liệu giữa nhập và đề bài |
+| P7 | Feature 003 rút hành trình còn `1. Nguồn → 2. Đề bài` | Thiếu nhịp hiểu dữ liệu giữa nhập và đề bài |
+| P8 | `preparationBusinessHandoff` (`taskpane_flow.js`) nạp nguồn ở chế độ `discover`: mỗi sheet chỉ gửi tối đa 20 dòng mẫu (`flowSampleOrdinals`). `understand` đo khóa, quan hệ, orphan, nhân dòng trên đúng các dòng mẫu đó. Bước quét của 003 đã đọc toàn bộ dòng vào task pane; store cho phép nạp `compute` ngay từ lần đầu | Với bảng lớn, mẫu 20 dòng của hai bảng hầu như không trùng khóa nhau, nên quan hệ đo ra thiếu hoặc sai. Sơ đồ vẽ trên số đo đó sẽ gây hiểu nhầm |
+| P9 | `flowWorkbookCell` đổi ô số có numberFormat ngày thành chuỗi ngày ISO trước khi gửi (rà 2026-11-22) | Phép thử ngày ISO của engine dùng được cho sheet do 003 nhập; rủi ro "ngày dạng serial" nêu ở bản trước không còn là điểm chặn, chỉ cần xác nhận lại ở T400 |
 
 ## 2. Quyết định người dùng đã duyệt (2026-11-21)
 
@@ -98,13 +100,19 @@ Một sheet phẳng hoặc các sheet không nối được: bước Hiểu chuy
 
 - **HS13** Chế độ từng sheet hiện thông báo giải thích; không gọi đó là lỗi.
 
+### US6 — Dữ liệu lớn (P2)
+
+**Independent test**: coordinator giả trả `AF_UNDERSTAND_LIMIT` cho lần đo `compute` → task pane nạp lại đúng một lần ở `discover`, bước Hiểu hiện cảnh báo "đo trên mẫu", mọi dây có nhãn mẫu, `Tiếp tục: Đề bài` vẫn bật.
+
+- **HS14** Đo trên toàn bộ dữ liệu là mặc định; đường lui sang mẫu chỉ xảy ra với lỗi giới hạn, đúng một lần, và luôn được nói rõ trên màn hình.
+
 ### Edge Cases
 
 Bảng 0 dòng; bảng > 200 cột; tên sheet/cột Unicode và dài; hai quan hệ giữa cùng một cặp bảng; quan hệ tự tham chiếu; khóa ghép 2–3 cột; bảng không có cột ngày; cột ngày có ô trống; vượt giới hạn tính toán của WL2 (lỗi rõ); đổi workbook giữa chừng; hai task pane; panel 360px; mất kết nối coordinator khi đang đo; phiên hết hạn khi hộp thoại đang mở.
 
 ## 5. Yêu cầu chức năng
 
-- **H01** Sau khi nguồn được xác minh (nhập xong hoặc chọn dữ liệu trong workbook), task pane tự thực hiện ingest hiện có rồi `POST /api/assistant/understand`, và mở bước `2. Hiểu dữ liệu`. Không yêu cầu đề bài. Không gọi Codex.
+- **H01** Sau khi nguồn được xác minh (nhập xong hoặc chọn dữ liệu trong workbook), task pane tự thực hiện ingest hiện có (chế độ theo H19/H20) rồi `POST /api/assistant/understand`, và mở bước `2. Hiểu dữ liệu`. Không yêu cầu đề bài. Không gọi Codex.
 - **H02** Phản hồi của `understand` và `state` có thêm khóa cấp trên `modelView` theo [contracts/model-view.md](contracts/model-view.md). Đối tượng `understand` và `understandHash` không đổi một byte so với trước feature này trên mọi fixture hiện có.
 - **H03** `modelView.mode` là `model` khi `understand.roles` khác rỗng, `per_sheet` khi rỗng. Chế độ `per_sheet` không phải lỗi và không chặn bước Đề bài.
 - **H04** Mỗi bảng có `grainKind ∈ {event, snapshot, unknown}` theo luật ở §6. Luật tất định, chỉ dùng số đo.
@@ -121,6 +129,9 @@ Bảng 0 dòng; bảng > 200 cột; tên sheet/cột Unicode và dài; hai quan 
 - **H15** Accessibility: bàn phím đi hết danh sách/sơ đồ/hộp thoại; `aria-live` cho tiến độ và kết quả chọn; không tràn ngang ở 360px; hit target ≥ 32px; trạng thái dây có nhãn chữ.
 - **H16** Không gửi dữ liệu ra ngoài máy; không log tên sheet/cột, giá trị ô, đường dẫn. `modelView` không chứa giá trị ô ngoài `dateRange` (xem contract §4).
 - **H17** Giới hạn hiển thị: mỗi bảng tối đa 200 cột trong `modelView`; sơ đồ vẽ tối đa 12 cột mỗi bảng rồi gộp phần còn lại; hộp thoại từ chối payload vượt giới hạn message với thông báo rõ.
+- **H19** Bước Hiểu nạp nguồn ở chế độ `compute` (toàn bộ dòng đã quét) để số đo dựa trên toàn bộ dữ liệu. `modelView.measuredOn` là `full`; mỗi bảng ghi `rowCount` (tổng số dòng) và `measuredRows` (số dòng engine đã đo). Dữ liệu chỉ tới coordinator local như ở bước tính hiện có; ngân sách gửi Codex (tối đa 20 dòng mẫu khi lập kế hoạch) không đổi.
+- **H20** Khi đo trên toàn bộ dữ liệu vượt giới hạn tính toán của WL2 hoặc giới hạn request, server trả `AF_UNDERSTAND_LIMIT` (hoặc `REQUEST_LIMIT` hiện có); task pane nạp lại một lần ở chế độ `discover` và đo trên mẫu. Khi đó `measuredOn = sample`, bước Hiểu hiện cảnh báo cố định rằng khóa và quan hệ được đo trên mẫu và có thể thiếu hoặc sai, và mọi dây trong sơ đồ mang nhãn "đo trên mẫu". Không lặp lại quá một lần; lỗi khác không kích hoạt đường lui này.
+- **H21** Nếu nguồn đã ở chế độ `compute` khi tới bước tính nhánh thì không yêu cầu đọc lại toàn bộ; đường đọc lại hiện có vẫn hoạt động cho trường hợp `sample`.
 - **H18** Mọi hành vi mới có test tự động (Python unittest + Node taskpane script); mọi script task-pane đang có trong gate tiếp tục chạy.
 
 ## 6. Luật phân loại `grainKind` (bắt buộc, tất định)
@@ -152,7 +163,8 @@ Các ngưỡng là đề xuất của người thiết kế, chưa được ki�
 - **HC05** Sơ đồ: mỗi dây nối đúng cặp cột; ba trạng thái đúng; bố cục tất định; dùng được bằng bàn phím ở 360px.
 - **HC06** Hộp thoại: mở/đồng bộ/đóng với Office giả; ẩn nút khi không hỗ trợ; không token trong URL hay message.
 - **HC07** Chế độ `per_sheet` đi tiếp được; không lỗi.
-- **HC08** Gate: `py tools/run_checks.py fast` xanh; `runtime` và full discovery không có lỗi mới so với baseline T400; mọi script task-pane cũ cùng script mới chạy.
+- **HC09** Với fixture có bảng > 20 dòng, quan hệ và orphan trong `modelView` khớp oracle tính trên toàn bộ dòng (không phải trên mẫu); đường lui `sample` hiện đúng cảnh báo.
+- **HC08** Gate: `py tools/run_checks.py fast` xanh (mốc 1.293 test trước feature); `runtime` và full discovery không có lỗi mới so với baseline T400; mọi script task-pane cũ cùng script mới chạy.
 
 ## 9. Supersession
 
@@ -163,7 +175,9 @@ Các ngưỡng là đề xuất của người thiết kế, chưa được ki�
 
 - **Nền chưa chốt.** Tại ngày viết, `main` có nhiều thay đổi chưa commit, feature 003 nằm ở worktree chưa merge, và người dùng đang cho một agent khác dọn lại cấu trúc (ví dụ `taskpane.js` đang được tách). Đường dẫn file trong plan/tasks là đường dẫn tại ngày viết. T400 bắt buộc đối chiếu lại trước khi code; nếu 003 chưa có trên nền thì dừng.
 - Thêm câu hỏi `grain` làm đổi danh sách câu hỏi và do đó `requestHash`/`planningHash` của fixture có bảng `snapshot`. Nếu có test ghim hash cố định bị ảnh hưởng: dừng và báo, không tự sửa golden.
-- Phép thử ngày hiện có trong `assistant_roles` nhận chuỗi ngày ISO. Feature 003 ghi cột ngày CSV thành serial ngày kèm numberFormat. Chưa kiểm chứng giá trị ngày đi vào `raw_tables` ở dạng nào khi nguồn là sheet trong workbook. Nếu là số serial thì mọi bảng sẽ ra `grainKind = unknown`. T400 phải kiểm tra điểm này trên fixture tổng hợp; nếu đúng là serial thì dừng và báo, vì cách nhận biết cột ngày cần được quyết định lại trước T402.
+- Ngày trong sheet: `flowWorkbookCell` đổi serial có numberFormat ngày thành chuỗi ISO (P9). T400 xác nhận lại rằng cột ngày do 003 nhập (`yyyy-mm-dd`) tới `raw_tables` ở dạng chuỗi ISO. Chỉ dừng nếu kết quả khác.
+- H19–H21 đổi một hành vi hiện có (bước đầu nạp `discover`). Đây là đề xuất của người thiết kế sau khi rà code ngày 2026-11-22, **chờ người dùng duyệt** (HANDOFF Q8). Nếu không được duyệt: giữ `discover`, `measuredOn` luôn là `sample`, và cảnh báo ở H20 luôn hiện.
+- Chưa đo thời gian `understand` trên dữ liệu đầy đủ gần trần 400.000 ô. T403 ghi thời gian đo với fixture lớn tổng hợp; nếu quá chậm để dùng tương tác thì báo, không tự hạ hay nâng giới hạn.
 - `DialogApi 1.2` trên Excel Desktop mục tiêu và giới hạn kích thước message chưa được kiểm chứng trong dự án. Nếu không dùng được: US4 ghi `Blocked`, phần còn lại vẫn giao.
 - Windows Excel Desktop, ExcelApi ≥ 1.9 như hiện tại; không nâng manifest floor. Nếu hộp thoại buộc phải sửa manifest: dừng và hỏi người dùng.
 - Mockup ghi "1 dòng = 1 đơn hàng"; spec này dùng cách nói theo cột khóa (HS02) vì tên nghiệp vụ là suy diễn chưa có căn cứ.

@@ -1,0 +1,39 @@
+Bạn là người quản lý và giám sát việc triển khai feature 004 trong workspace C:\Users\COLAIG\Downloads\power_bi. Bạn không tự viết code sản phẩm. Bạn giao từng phần việc cho agent triển khai (subagent), rồi tự kiểm chứng độc lập kết quả trước khi giao phần tiếp theo. Tôi cho phép bạn dùng subagent cho việc này.
+
+Đọc hết trước khi làm gì:
+1. AGENTS.md
+2. specs/004-understand-data-step/SUPERVISOR.md   (vai trò giám sát, cách kiểm chứng, những điều phải bắt được)
+3. specs/004-understand-data-step/HANDOFF.md      (việc được giao, quyết định Q1–Q8, điểm dễ sai R1–R10, điều kiện dừng)
+4. specs/004-understand-data-step/spec.md, plan.md, tasks.md, contracts/model-view.md, data-model.md, acceptance.md
+
+Cách làm việc, lặp cho từng đơn vị công việc:
+
+1. Chọn đơn vị kế tiếp theo đúng thứ tự: giai đoạn A (A0 → A5 của HANDOFF), rồi T400 → T401 → T402 → T405 → T403 → T404 → T406 → T407 → T408. Mỗi lần chỉ giao một đơn vị. Không giao hai subagent cùng sửa file một lúc.
+2. Giao cho một subagent có quyền ghi, chạy ở foreground. Subagent không thấy cuộc trò chuyện này và không hỏi lại được, nên lời giao phải tự đủ:
+   - mục tiêu của đơn vị và vì sao nó tồn tại;
+   - các file phải đọc trước (AGENTS.md, HANDOFF.md, và đúng mục của tasks.md/spec/contract cho task đó);
+   - danh sách file được phép sửa, chép nguyên từ mục Files của task;
+   - test bắt buộc và lệnh kiểm chứng, chép nguyên từ task;
+   - toàn bộ ràng buộc cứng trong specs/004-understand-data-step/PROMPT.txt;
+   - điều kiện dừng: gặp thì dừng và báo, không tự xử lý;
+   - kết quả phải trả về theo mẫu ở HANDOFF mục 9, kèm hash commit và dòng output nguyên văn của lệnh kiểm chứng.
+3. Khi subagent trả về, không tin báo cáo. Tự kiểm theo SUPERVISOR.md mục "Mỗi lần nhận một báo cáo": trạng thái Git, phạm vi file của từng commit so với mục Files, tự chạy lại lệnh kiểm chứng của task, các điểm bất biến. Ở mốc A5 và T407 tự chạy `py tools/run_checks.py fast` (khoảng 4 phút; chạy nền, ghi log vào .artifacts/, đọc dòng gate= cuối). Mốc trước feature: run=1293 failed=0 errors=0 skipped=3; số test không được giảm.
+4. Nếu kiểm chứng đạt: ghi một dòng ngắn cho tôi (đơn vị nào, commit nào, lệnh nào, kết quả nào) và sang đơn vị kế tiếp mà không cần chờ tôi.
+5. Nếu kiểm chứng không đạt vì lỗi sửa được trong phạm vi task: giao lại cho subagent đúng lỗi đó kèm bằng chứng, tối đa hai lần cho một đơn vị. Vẫn không đạt thì dừng và báo tôi.
+
+Bạn được tự quyết: thứ tự chi tiết trong một đơn vị, cách diễn đạt lời giao, chạy lại lệnh đọc và test bao nhiêu lần tùy ý, và cập nhật dòng evidence trong acceptance.md khi subagent quên.
+
+Bạn phải dừng và hỏi tôi, không tự quyết, khi:
+- gặp bất kỳ điều kiện dừng nào ở HANDOFF mục 8;
+- cần đổi spec/contract, mở rộng danh sách file của task, hoặc đổi một quyết định Q1–Q8;
+- trạng thái Git thật khác HANDOFF mục 3 theo cách ảnh hưởng tới bước đang làm;
+- một thao tác có thể làm mất thay đổi chưa commit, ghi vào workbook của tôi, ghi vào C:\AddinManifests\, hoặc gửi dữ liệu ra ngoài;
+- T406 cần sửa manifest, hoặc T403 làm test cũ fail vì hash đổi.
+
+Giới hạn cứng cho cả bạn và subagent: không push, không tạo PR, không xóa nhánh/worktree, không merge nhánh feature/004-understand-data-step vào main, không git add -A / add . / add -u / stash / reset / clean / checkout -- . / restore ., không add docs/proposals/ hay file nul, không gỡ test hay sửa golden để gate xanh, không làm mục [HOÃN-K], không khởi động lại coordinator đang chạy.
+
+Nếu không tạo được subagent có quyền ghi trong phiên này: nói ngay cho tôi, rồi chuyển sang cách thủ công — bạn soạn lời giao cho từng đơn vị để tôi dán sang phiên của agent triển khai, và kiểm chứng báo cáo tôi dán lại.
+
+Phần chưa chạy được (live Excel, hộp thoại trên Excel thật) ghi Not run hoặc Blocked. Không tuyên bố hoàn tất khi còn mục như vậy.
+
+Bắt đầu: đọc tài liệu, đọc lại trạng thái Git và acceptance.md, cho tôi biết công việc đang ở bước nào và bạn sẽ giao đơn vị nào trước, rồi tiến hành.

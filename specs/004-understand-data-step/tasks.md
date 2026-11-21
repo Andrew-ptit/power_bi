@@ -3,16 +3,17 @@
 Input: [spec.md](spec.md), [plan.md](plan.md), [contracts/model-view.md](contracts/model-view.md), [data-model.md](data-model.md).
 ID `T400–T408` thuộc feature 004. Mỗi task là một đơn vị bàn giao cho **một agent**, có test đỏ trước, commit riêng mang ID task.
 
-## Trạng thái (cập nhật 2026-11-21)
+## Trạng thái (cập nhật 2026-11-22)
 
 | Task | Trạng thái | Ghi chú |
 |---|---|---|
-| T400 | Chưa làm | **Chặn mọi task khác.** Chờ người dùng báo nền đã sẵn sàng |
+| T400 | Chưa làm | **Chặn mọi task khác.** Chỉ bắt đầu sau khi giai đoạn A của [HANDOFF.md](HANDOFF.md) xong (nhánh tích hợp 003 đã vào `main`, gate fast xanh) |
 | T401–T408 | Chưa làm | — |
 
 ## Quy ước chung cho mọi agent
 
 - Đọc `AGENTS.md` ở root trước. Quy tắc ở đó thắng file này.
+- Script task pane là classic script có thứ tự nạp cố định. Mỗi file JS/HTML mới phải được thêm vào `taskpane.html` (đúng vị trí), bảng asset của `coordinator/server.py`, và hai test `tests/contracts/test_taskpane_asset_order.py`, `tests/contracts/test_taskpane_asset_routes.py` trong cùng task; ba chỗ này nằm trong allowlist của T404, T405, T406.
 - Chỉ sửa file trong mục **Files** của task (sau khi đã ánh xạ theo T400). Cần ra ngoài → dừng, báo lý do, không tự mở rộng.
 - TDD: viết test → chạy thấy đỏ **đúng lý do** → implement tối thiểu → xanh → chạy lại lệnh của task.
 - Không thêm dependency; không đổi manifest/version; không `git reset/stash/checkout` toàn repo; không merge/rebase branch khác.
@@ -51,17 +52,18 @@ T402 ∥ T405. T404 → T406 cùng một agent (chung `taskpane.html`, CSS, bả
 
 **Việc phải làm**
 1. Ghi `git rev-parse HEAD`, branch, số path chưa commit. Không thay đổi trạng thái Git.
-2. Xác nhận nền có feature 003: hành trình hai bước trong `assistant_entry.js`, có `assistant_browser.js`, không còn bước `clean`. Thiếu → dừng (§1).
-3. Lập bảng ánh xạ cho từng dòng của plan §4: trách nhiệm → đường dẫn thực tế hiện tại. Đặc biệt: file chứa `flowUnderstand`, `flowPlanDraft`, `flow.answers`, hàm handoff nguồn sang luồng Trợ lý, và bảng asset tĩnh của coordinator.
+2. Xác nhận nền có feature 003: `taskpane.html` chỉ có `assistant-step-source` và `assistant-step-problem`, có `assistant_browser.js`, không còn bước `clean`; `git merge-base --is-ancestor codex/source-import-003 HEAD` thành công. Thiếu → dừng (§1).
+3. Lập bảng ánh xạ cho từng dòng của plan §4: trách nhiệm → đường dẫn thực tế hiện tại. Mốc đối chiếu ngày 2026-11-22 trên nhánh tích hợp: `flowUnderstand`, `flowPlanDraft`, `preparationBusinessHandoff`, `renderFlowQuestions`, `state.flow.answers` ở `taskpane_flow.js`; mount hành trình ở `taskpane.js`; `businessSourcesFromScan` ở `preparation_bridge.js`; bảng asset ở `coordinator/server.py`. Ghi lại nếu khác.
 4. Xác nhận các sự kiện ở spec §1 (P1–P6) còn đúng; sai điểm nào ghi rõ.
 5. Chạy và ghi kết quả baseline (run/fail/error/skip/thời gian):
    ```
-   py tools/run_checks.py fast
+   py tools/run_checks.py fast          # mốc kỳ vọng: run=1293 failed=0 errors=0 skipped=3
    py -m unittest tests.unit.test_assistant_understand tests.unit.test_assistant_keys tests.unit.test_assistant_roles tests.contracts.test_assistant_wl2 tests.integration.test_assistant_flow_api -v
    py -m unittest tests.taskpane.test_taskpane_js -v
    ```
-6. Kiểm tra dạng giá trị ngày trong `raw_tables` khi nguồn là sheet workbook do 003 nhập (chuỗi ISO hay số serial), bằng fixture tổng hợp và test/HTTP hiện có, không dùng workbook người dùng. Nếu là serial → dừng (§1), xem spec §10.
-7. Ghi `understandHash` và danh sách `id` câu hỏi của TP-FIN, TP-SALES, TP-UNKNOWN (chỉ hash/id, không nội dung ô) để T403 so sánh.
+6. Xác nhận bằng test hiện có hoặc một phép thử Node tạm (không commit) rằng `flowWorkbookCell` đổi ô số có numberFormat `yyyy-mm-dd` thành chuỗi ngày ISO, tức cột ngày do 003 nhập tới `raw_tables` ở dạng chuỗi ISO. Kết quả khác → dừng (§1).
+7. Xác nhận `preparationBusinessHandoff` hiện nạp `discover` và store nhận `compute` ở lần nạp đầu (không có `expectedPlanningHash`). Ghi lại; đây là tiền đề của H19.
+8. Ghi `understandHash` và danh sách `id` câu hỏi của TP-FIN, TP-SALES, TP-UNKNOWN (chỉ hash/id, không nội dung ô) để T403 so sánh.
 
 **Done**: acceptance có bảng ánh xạ, baseline, hash; hoặc `Blocked` kèm lý do. Không file sản phẩm nào đổi.
 
@@ -133,6 +135,8 @@ def model_view_hash(model_view: dict) -> str: ...
 - `test_no_cell_values_except_date_range` (fixture có sentinel trong ô)
 - `test_inputs_not_mutated` / `test_deterministic_twice_identical_hash`
 - `test_output_validates_against_schema`
+- `test_measured_on_full_vs_sample_and_measured_rows` (cùng một bảng 500 dòng nạp `compute`, rồi nạp `discover` 20 dòng)
+- `test_relationship_orphans_on_full_rows_match_oracle` (bảng > 20 dòng; oracle tính trên toàn bộ dòng)
 
 **Kiểm chứng**
 ```
@@ -150,6 +154,7 @@ py -m unittest tests.unit.test_assistant_keys tests.unit.test_assistant_roles te
 
 **Files**
 - `pbip_assistant/sources/assistant_session.py`
+- `pbip_assistant/coordinator/endpoints/assistant.py` (chỉ thêm `AF_UNDERSTAND_LIMIT` vào `_ASSISTANT_STATUS`)
 - `tests/integration/test_assistant_model_view_api.py` (mới)
 - `tests/contracts/test_assistant_model_view_contract.py` (bổ sung case API)
 
@@ -158,7 +163,9 @@ py -m unittest tests.unit.test_assistant_keys tests.unit.test_assistant_roles te
 2. `understand()`: sau khi có `model` và `questions`, dựng `modelView` dưới cùng lock; lỗi dựng → `AF_UNDERSTAND_INVALID`, không để lại trạng thái nửa vời. Áp dụng cho cả nhánh `roles: []`.
 3. `state()`: trả `modelView` (deepcopy) hoặc `null`.
 4. Mọi nơi đặt `_understand = None` phải xóa `modelView` cùng lúc (reset, ingest lại, bind lại, đóng).
-5. Không thêm route, không đổi request.
+5. `understand()`: `ValueError` giới hạn của WL2 ("exceeds the bounded …") → `AF_UNDERSTAND_LIMIT`; mọi `ValueError` khác giữ nguyên xử lý hiện có. Nhận diện bằng một tập thông báo/hằng đặt ở một chỗ, không so chuỗi rải rác; không sửa `assistant_keys.py` trừ khi chỉ để xuất hằng đó.
+6. Không thêm route, không đổi request.
+7. Đo và ghi thời gian `understand` với fixture tổng hợp lớn (ví dụ 3 bảng, tổng khoảng 300.000 ô, nạp `compute`). Chỉ ghi số đo vào acceptance; không đặt ngưỡng fail theo thời gian.
 
 **Test bắt buộc**
 - `test_understand_returns_model_view_bound_to_understand_hash`
@@ -169,6 +176,10 @@ py -m unittest tests.unit.test_assistant_keys tests.unit.test_assistant_roles te
 - `test_no_fact_graph_returns_per_sheet_without_error`
 - `test_model_view_absent_from_plan_request_payload` (payload planner không chứa `dateRange`, `modelView`)
 - `test_http_understand_and_state_shapes` (qua coordinator test server hiện có)
+- `test_compute_first_ingest_then_understand_measures_all_rows`
+- `test_wl2_limit_maps_to_af_understand_limit_409_and_leaves_no_partial_state`
+- `test_other_value_errors_still_af_understand_invalid`
+- `test_plan_request_still_has_at_most_20_sample_rows_after_compute_ingest`
 
 **Kiểm chứng**
 ```
@@ -189,7 +200,8 @@ py -m unittest tests.integration.test_assistant_smoke_script -v
 - `pbip_assistant/excel_addin/assistant_model_diagram.js` (mới)
 - `tests/taskpane/taskpane_model_diagram.js` (mới)
 - `tests/taskpane/test_taskpane_js.py`, `tests/required_cases.json` (đăng ký)
-- `pbip_assistant/coordinator/server.py` (chỉ thêm một dòng asset)
+- `pbip_assistant/coordinator/server.py` (chỉ thêm một dòng asset), `pbip_assistant/excel_addin/taskpane.html` (chỉ thêm một thẻ script, trước `assistant_entry.js`)
+- `tests/contracts/test_taskpane_asset_order.py`, `tests/contracts/test_taskpane_asset_routes.py`
 
 **API bắt buộc** (UMD như các module `assistant_*.js` hiện có)
 ```js
@@ -207,6 +219,7 @@ describeWire(modelView, relationshipId) → {text, marks}                       
 - `wire endpoints nằm đúng dòng cột from/to`
 - `marks theo cardinality (N:1, 1:N, 1:1, N:N)`
 - `wireState → lớp safe/fanout/orphan và nhãn chữ`
+- `measuredOn sample → mọi dây và câu describeWire có nhãn "đo trên mẫu"`
 - `layout tất định: hai lần gọi cho JSON giống nhau`
 - `bảng > 12 cột gộp phần còn lại; cột nối luôn được hiện`
 - `describeWire nêu orphan / rowsBefore→rowsAfter đúng số`
@@ -232,14 +245,16 @@ py -m unittest tests.taskpane.test_taskpane_js -v
 - `pbip_assistant/excel_addin/assistant_entry.js`
 - `pbip_assistant/excel_addin/assistant_understand.js` (mới)
 - `pbip_assistant/excel_addin/taskpane.html`, `taskpane.css`
-- file script luồng Trợ lý chứa `flowUnderstand`/`flowPlanDraft`/handoff nguồn
+- `pbip_assistant/excel_addin/taskpane_flow.js` (`flowUnderstand`, `flowPlanDraft`, `preparationBusinessHandoff`, `renderFlowQuestions`, `renderFlow`), `pbip_assistant/excel_addin/taskpane.js` (mount hành trình)
+- `tests/contracts/test_taskpane_asset_order.py`, `tests/contracts/test_taskpane_asset_routes.py`
 - `pbip_assistant/coordinator/server.py` (chỉ dòng asset)
 - `tests/taskpane/taskpane_assistant_understand.js` (mới), `taskpane_assistant_journey.js`, `taskpane_assistant_entry.js`, `taskpane_assistant_flow.js` (cập nhật)
 - `tests/taskpane/test_taskpane_js.py`, `tests/required_cases.json`
 
 **Việc phải làm**
 1. Hành trình: ba nút bước; `understand` chỉ bật khi nguồn đã xác minh; `problem` chỉ bật khi bước Hiểu `ready` (spec H08).
-2. Khi nguồn xác minh: chạy handoff ingest hiện có rồi gọi understand; hiện tiến độ; lỗi → trạng thái lỗi với `Đo lại` và `Về Nguồn`, không sang Đề bài.
+2. Khi nguồn xác minh: chạy `preparationBusinessHandoff` ở chế độ `compute` rồi gọi understand; hiện tiến độ. `AF_UNDERSTAND_LIMIT` hoặc `REQUEST_LIMIT` → chạy lại handoff đúng một lần ở `discover` rồi understand; khi `modelView.measuredOn = sample` hiện cảnh báo cố định và truyền cờ mẫu cho sơ đồ (spec H20). Lỗi khác → trạng thái lỗi với `Đo lại` và `Về Nguồn`, không sang Đề bài.
+   Bước tính nhánh: nếu `flow.mode` đã là `compute` thì không yêu cầu đọc lại toàn bộ; đường đọc lại hiện có cho trường hợp `sample` giữ nguyên (spec H21).
 3. `assistant_understand.js`: `mount({document, getState, setAnswer, onContinue, diagram})`; render từ `modelView` + `questions` + `answers`. Khối: tổng quan (đếm), sheet (vai trò, số dòng, câu khóa theo HS02, `grainKind`), quan hệ (Danh sách | Sơ đồ — sơ đồ gọi module T405 ở chế độ focus), cảnh báo, chân trang.
 4. Mục có `*QuestionId` chưa trả lời: nền "cần xác nhận" + nút là đúng các `options` của câu hỏi đó. Bấm → `setAnswer(questionId, option)` vào trạng thái câu trả lời hiện có.
 5. `mode = per_sheet`: thông báo giải thích, không coi là lỗi (HS13).
@@ -249,6 +264,9 @@ py -m unittest tests.taskpane.test_taskpane_js -v
 
 **Test bắt buộc**
 - `journey: nguồn xác minh → tự ingest + understand → bước Hiểu; ô đề bài rỗng; không request plan-draft`
+- `journey: handoff nạp compute; request ingest có mode compute và đủ số dòng`
+- `journey: AF_UNDERSTAND_LIMIT → nạp lại discover đúng một lần → cảnh báo "đo trên mẫu" hiện; lỗi giới hạn lần hai → trạng thái lỗi, không lặp`
+- `journey: mode compute → bước tính nhánh không đọc lại toàn bộ`
 - `journey: understand lỗi → không bật Đề bài; Đo lại gọi lại đúng một lần`
 - `journey: nguồn đổi ở bước Hiểu/Đề bài → về Nguồn, modelView cũ không hiện`
 - `understand: đếm tổng quan khớp modelView`
@@ -280,7 +298,7 @@ py -m unittest tests.taskpane.test_taskpane_js -v
 **Files**
 - `pbip_assistant/excel_addin/model_dialog.html`, `model_dialog.js` (mới)
 - `pbip_assistant/excel_addin/assistant_understand.js`, `taskpane.css`
-- `pbip_assistant/coordinator/server.py` (chỉ dòng asset)
+- `pbip_assistant/coordinator/server.py` (chỉ dòng asset), `tests/contracts/test_taskpane_asset_routes.py`
 - `tests/taskpane/taskpane_model_dialog.js` (mới); `tests/taskpane/test_taskpane_js.py`, `tests/required_cases.json`
 - `tests/integration/` — một case xác nhận asset hộp thoại được phục vụ và không cần/không lộ token
 
@@ -361,6 +379,7 @@ Kèm trong báo cáo cho người dùng: file đã đổi, thay đổi hành vi,
 - [ ] Sơ đồ nối đúng cặp cột, ba trạng thái dây, tất định, dùng được bằng bàn phím ở 360px.
 - [ ] Cửa sổ 1 : 3 hoạt động với Office giả; kết quả khả năng trên host thật được ghi trung thực.
 - [ ] Chế độ từng sheet đi tiếp được.
+- [ ] Số đo dựa trên toàn bộ dòng; đường lui sang mẫu chỉ khi vượt giới hạn và luôn có cảnh báo.
 - [ ] Không lời gọi AI mới; không dữ liệu rời máy; không log tên sheet/cột/giá trị.
 - [ ] Gate fast xanh; không lỗi mới ở runtime/discovery; mọi script task-pane cũ còn trong gate.
 - [ ] `acceptance.md` có evidence từng task và `Not run`/`Blocked` trung thực.

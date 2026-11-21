@@ -1,0 +1,30 @@
+Bạn tiếp quản workspace C:\Users\COLAIG\Downloads\power_bi để làm trọn hai giai đoạn, theo đúng tài liệu bàn giao.
+
+Đọc theo thứ tự, đọc hết trước khi chạy lệnh nào có ghi:
+1. AGENTS.md
+2. specs/004-understand-data-step/HANDOFF.md
+3. specs/004-understand-data-step/spec.md, plan.md, tasks.md, contracts/model-view.md, data-model.md
+
+Việc phải làm:
+- Giai đoạn A (HANDOFF mục 5): đọc lại trạng thái Git thật, tạo nhánh mốc backup/main-before-004, thêm /docs/proposals/ vào .gitignore, commit phần còn dở trên main bằng cách add từng đường dẫn cụ thể theo các nhóm ở HANDOFF mục 3, merge integration/source-import-003 vào main bằng --no-ff, rồi chạy `py tools/run_checks.py fast`. Kỳ vọng run >= 1293, failed=0, errors=0, skipped=3. Gate chưa xanh thì không sang giai đoạn B.
+- Giai đoạn B (HANDOFF mục 6): tạo nhánh feature/004-understand-data-step từ main, làm T400 → T401 → (T402 song song T405) → T403 → T404 → T406 → T407 → T408 đúng như tasks.md. Mỗi task: viết test trước và thấy nó fail đúng lý do, implement tối thiểu, chạy lệnh kiểm chứng của task, một commit mang ID task, một dòng evidence trong acceptance.md.
+
+Ràng buộc cứng:
+- Không push, không tạo PR, không xóa nhánh/worktree, không merge nhánh feature 004 vào main.
+- Không dùng git add -A, git add ., git add -u, git stash, git reset, git clean, git checkout -- ., git restore .
+- Không bao giờ add docs/proposals/, .superpowers/, .vscode/, reports/, .agents/, .specify/, file nul ở thư mục gốc. Không tự xóa file nul.
+- Manifest: giữ bản local của main (SHA-256 334c165060a43372d50064c0fab0b147d7069f5c9bf88d54dc557fad52424a86). Không ghi vào C:\AddinManifests\.
+- understand và understandHash không đổi một byte. modelView là khóa cấp trên của phản hồi.
+- Bước Hiểu nạp nguồn ở chế độ compute (toàn bộ dòng). Chỉ lùi về discover khi nhận AF_UNDERSTAND_LIMIT hoặc REQUEST_LIMIT, đúng một lần, và luôn hiện cảnh báo "đo trên mẫu". Số dòng gửi Codex khi lập kế hoạch vẫn tối đa 20.
+- Mã lỗi mới duy nhất là AF_UNDERSTAND_LIMIT. Không thêm route. Không nâng hay hạ giới hạn tính toán hiện có.
+- Feature 004 không gọi AI/Codex và không gửi dữ liệu ra ngoài.
+- File JS/HTML mới của task pane phải được thêm vào taskpane.html đúng thứ tự nạp, bảng asset của coordinator/server.py, và hai test tests/contracts/test_taskpane_asset_order.py, test_taskpane_asset_routes.py.
+- Không gỡ test, không nới assert, không sửa golden/hash ghim để gate xanh.
+- Không triển khai mục mang thẻ [HOÃN-K] hay mục "Không làm trong feature 004".
+- Chỉ sửa file trong mục Files của task đang làm.
+
+Dừng và hỏi khi gặp bất kỳ điều kiện nào ở HANDOFF mục 8, đặc biệt: trạng thái Git thật khác HANDOFF mục 3; test cũ fail vì hash đổi do câu hỏi grain (T403); hộp thoại cần sửa manifest (T406); xung đột trong AGENTS.md; hoặc một thao tác Git có thể làm mất thay đổi chưa commit.
+
+Báo cáo cuối mỗi giai đoạn theo đúng mẫu ở HANDOFF mục 9: commit, dòng gate nguyên văn, file đã đổi, phần chưa kiểm chứng, sai khác so với tài liệu, và điều cần người dùng quyết định. Phần chưa chạy được ghi Not run hoặc Blocked; không tuyên bố hoàn tất khi còn mục như vậy.
+
+Bắt đầu bằng bước A0: chỉ đọc trạng thái và báo lại nếu nó khác mục 3 của HANDOFF.

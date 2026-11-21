@@ -6,13 +6,14 @@
 
 ## 0. Trạng thái nền (đọc trước khi làm bất cứ việc gì)
 
-Tại ngày viết:
+Cập nhật 2026-11-22, kiểm bằng lệnh chỉ đọc và một lần chạy gate:
 
-- `main` (HEAD `bf26fda`) có nhiều thay đổi chưa commit, gồm toàn bộ Trợ lý v2 và preparation.
-- Feature 003 nằm ở branch `codex/source-import-003` (worktree `.artifacts/worktrees/source-import-003`), chưa merge. Plan này **giả định 003 đã có trên nền**: hành trình hai bước, `assistant_browser.js`, không còn bước Làm sạch.
-- Một agent khác đang dọn cấu trúc theo yêu cầu người dùng; `coordinator/server.py` đã tham chiếu `taskpane_core.js`, `taskpane_flow.js`, `taskpane_workspace.js`. Mọi đường dẫn UI bên dưới có thể đã đổi.
+- `main` ở `4a20bb4`, đi trước `origin/main` 7 commit, chưa push; còn 37 file sửa chưa commit và 3 file test bị xóa chưa commit.
+- Nhánh `integration/source-import-003` (worktree `.artifacts/worktrees/integration-source-import-003`, HEAD `3e84b17`) chứa `main` + toàn bộ feature 003 trên cấu trúc đã tách; gate fast tại đó: 1.293 run, 0 fail, 0 error, 3 skip. **Chưa merge vào `main`.**
+- Plan này **giả định nền là `main` sau khi đã merge nhánh tích hợp**: hành trình hai bước, `assistant_browser.js`, không còn bước Làm sạch. Các bước đưa nền về trạng thái đó nằm ở [HANDOFF.md](HANDOFF.md) giai đoạn A.
+- Script task pane đã tách thành các classic script có thứ tự nạp cố định: `taskpane_core.js` → `taskpane_flow.js` → `taskpane_workspace.js` → `taskpane_problem_chain.js` → `taskpane_typed_pq.js` → `taskpane.js`. Thứ tự và danh sách asset được khóa bởi `tests/contracts/test_taskpane_asset_order.py` và `tests/contracts/test_taskpane_asset_routes.py`.
 
-Vì vậy cột "Đường dẫn" ở §4 ghi **trách nhiệm** trước, đường dẫn tại ngày viết sau. T400 lập bảng ánh xạ thực tế và là điều kiện bắt buộc.
+Đường dẫn ở §4 đã được đối chiếu với nhánh tích hợp ngày 2026-11-22. T400 vẫn bắt buộc: xác nhận lại trên nền thực tế lúc bắt đầu.
 
 ## 1. Global constraints
 
@@ -68,6 +69,7 @@ nguồn xác minh ─► ingest (hiện có) ─► POST /understand ─► {und
 | M8 | Hộp thoại là view thuần, nhận dữ liệu qua message | Hộp thoại tự gọi coordinator (phải chia sẻ token, thêm bề mặt tấn công) |
 | M9 | Không hỗ trợ `DialogApi 1.2` thì ẩn nút, ghi `Blocked` | Giả lập cửa sổ bằng overlay trong 360px (không đạt mục tiêu) |
 | M10 | Người dùng tự thêm/sửa quan hệ: không làm ở 004 | Làm ngay (cần đường đo mới và đổi request planner) |
+| M11 | Bước Hiểu đo trên toàn bộ dòng (`compute`); vượt giới hạn thì lùi về mẫu có cảnh báo (chờ duyệt, HANDOFF Q8) | Giữ `discover` 20 dòng (quan hệ giữa bảng lớn đo ra thiếu/sai, sơ đồ gây hiểu nhầm); nâng giới hạn WL2 (chưa có số đo hiệu năng) |
 
 ## 4. Cấu trúc file
 
@@ -78,12 +80,15 @@ nguồn xác minh ─► ingest (hiện có) ─► POST /understand ─► {und
 | Unit test engine | `tests/unit/test_assistant_model_view.py` (mới) | T402 |
 | Schema đóng | `pbip_assistant/schemas/assistant_model_view.schema.json` (mới) | T401 |
 | Contract test | `tests/contracts/test_assistant_model_view_contract.py` (mới) | T401, T403 |
-| Câu hỏi `grain`; store trả/xóa `modelView` | `pbip_assistant/sources/assistant_session.py` | T403 |
+| Câu hỏi `grain`; store trả/xóa `modelView`; phân biệt lỗi giới hạn | `pbip_assistant/sources/assistant_session.py` | T403 |
+| Ánh xạ `AF_UNDERSTAND_LIMIT` → 409 | `pbip_assistant/coordinator/endpoints/assistant.py` (`_ASSISTANT_STATUS`) | T403 |
 | Test API/store | `tests/integration/test_assistant_model_view_api.py` (mới) | T403 |
 | Hành trình 3 bước | `pbip_assistant/excel_addin/assistant_entry.js` | T404 |
 | UI bước Hiểu (danh sách) | `pbip_assistant/excel_addin/assistant_understand.js` (mới) | T404 |
 | Markup/style bước Hiểu | `pbip_assistant/excel_addin/taskpane.html`, `taskpane.css` | T404, T405 |
-| Nối luồng Trợ lý | `pbip_assistant/excel_addin/taskpane.js` (hoặc file đã tách) | T404 |
+| Nối luồng Trợ lý: `preparationBusinessHandoff`, `flowUnderstand`, `flowPlanDraft`, `renderFlowQuestions`, `renderFlow`, `state.flow.answers` | `pbip_assistant/excel_addin/taskpane_flow.js` | T404 |
+| Mount hành trình (`showProblem`, `onStepChange`, `businessSourcesFromScan`) | `pbip_assistant/excel_addin/taskpane.js`, `preparation_bridge.js` (chỉ đọc nếu không cần sửa) | T404 |
+| Thứ tự nạp script và danh sách asset | `taskpane.html` (thẻ `<script defer>`), bảng asset trong `coordinator/server.py`, `tests/contracts/test_taskpane_asset_order.py`, `tests/contracts/test_taskpane_asset_routes.py` | T404, T405, T406 |
 | Layout + render sơ đồ | `pbip_assistant/excel_addin/assistant_model_diagram.js` (mới) | T405 |
 | Hộp thoại 1 : 3 | `pbip_assistant/excel_addin/model_dialog.html`, `model_dialog.js` (mới) | T406 |
 | Đăng ký asset | `pbip_assistant/coordinator/server.py` (bảng asset) | T404, T405, T406 |
@@ -112,7 +117,8 @@ T400 ── T401 ──┬── T402 ── T403 ──┐
 | Phát hiện snapshot sai | Oracle lệch trên fixture | Sửa luật theo spec §6, không nới test; ngưỡng đổi phải ghi "Approved requirement change" |
 | Vượt giới hạn tính toán WL2 | `ValueError` giới hạn | Giữ lỗi rõ hiện có; `modelView` không tự tính thêm tổ hợp |
 | Hộp thoại không dùng được | `isSetSupported("DialogApi", 1.2)` false, hoặc message bị cắt | Ẩn nút; US4 `Blocked`; không giả lập |
-| Xung đột với agent đang dọn cấu trúc | File bị đổi trong lúc làm | Mỗi task commit riêng; trước mỗi task chạy lại bước đối chiếu của T400 cho file sẽ sửa |
+| Script mới sai thứ tự nạp hoặc thiếu trong allowlist | `test_taskpane_asset_order` / `test_taskpane_asset_routes` fail, hoặc `ASSET_MISSING` | Thêm thẻ script, dòng asset và cập nhật hai test đó trong cùng task; module mới phải nạp trước file dùng nó |
+| File bị đổi ngoài task trong lúc làm | `git status` có thay đổi không thuộc task | Mỗi task commit riêng; trước mỗi task kiểm lại file sẽ sửa |
 
 ## 7. Kiểm chứng
 
