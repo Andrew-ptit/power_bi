@@ -535,6 +535,7 @@
 "tests.taskpane.test_taskpane_js.TaskpaneJavaScriptTests.test_assistant_flow_sources_sampling_and_feature_gate",
   "tests.taskpane.test_taskpane_js.TaskpaneJavaScriptTests.test_assistant_record_metadata_xml_hash_cas_and_privacy",
   "tests.taskpane.test_taskpane_js.TaskpaneJavaScriptTests.test_diagnostic_capability_workbook_switch_and_error_recovery",
+  "tests.taskpane.test_taskpane_js.TaskpaneJavaScriptTests.test_model_diagram_layout_and_render",
   "tests.taskpane.test_taskpane_js.TaskpaneJavaScriptTests.test_pq_preview_copies_result_and_source_apply_is_separately_confirmed",
   "tests.taskpane.test_taskpane_js.TaskpaneJavaScriptTests.test_pq_writer_imports_values_and_reuses_marked_sheet",
   "tests.taskpane.test_taskpane_js.TaskpaneJavaScriptTests.test_preparation_read_guards_and_wizard_revisions",

@@ -437,6 +437,7 @@ class ExcelAddinRequestHandler(
             "/assets/preparation_session.js": ("preparation_session.js", "text/javascript; charset=utf-8"),
             "/assets/preparation_controller.js": ("preparation_controller.js", "text/javascript; charset=utf-8"),
             "/assets/assistant_entry.js": ("assistant_entry.js", "text/javascript; charset=utf-8"),
+"/assets/assistant_model_diagram.js": ("assistant_model_diagram.js", "text/javascript; charset=utf-8"),
 "/assets/assistant_browser.js": ("assistant_browser.js", "text/javascript; charset=utf-8"),
             "/assets/assistant_custom_xml.js": ("assistant_custom_xml.js", "text/javascript; charset=utf-8"),
         }
