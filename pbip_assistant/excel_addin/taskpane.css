@@ -329,6 +329,7 @@ textarea:focus, select:focus-visible, button:focus-visible, input:focus-visible 
   border: 1px solid var(--line-strong);
   border-radius: 7px;
   padding: 7px 12px;
+  min-height: 32px;
   font: inherit;
   font-size: 11.5px;
   font-weight: 600;
@@ -788,3 +789,18 @@ footer { padding: 4px 14px 18px; color: var(--muted); text-align: center; font-s
 #assistant-import-report h3 { margin: .4rem 0 .2rem; font-size: .9rem; }
 #assistant-import-exceptions ul, #assistant-import-skipped ul { margin: 0; padding-left: 1.1rem; font-size: .8rem; overflow-wrap: anywhere; }
 #assistant-browser button, #assistant-import-report { max-width: 100%; }
+
+/* Understand-data step (feature 004): overview, tables, relationships, warnings. */
+#assistant-understand-section { display: grid; gap: .5rem; min-width: 0; }
+#assistant-understand-section h3 { margin: .5rem 0 .25rem; font-size: .9rem; }
+#assistant-understand-message:empty { display: none; }
+.understand-item { border: 1px solid var(--border, #d4d9d6); border-radius: 8px; padding: .6rem .75rem; margin-block: .4rem; min-width: 0; overflow-wrap: anywhere; }
+.understand-item p { margin: .2rem 0; }
+.understand-title { font-weight: 600; }
+.understand-needs-confirm { border-left: 4px solid #c9821d; }
+.understand-options { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .4rem; }
+.understand-options .button { min-height: 32px; }
+.understand-center-select { max-width: 100%; margin-left: .35rem; }
+.understand-diagram-host { overflow-x: auto; max-width: 100%; }
+.understand-diagram-host svg { max-width: 100%; height: auto; }
+#assistant-understand-diagram[hidden], #assistant-understand-relationships[hidden] { display: none; }

@@ -421,6 +421,24 @@ function writeHost({corrupt = false, formula = false, collision = false} = {}) {
   assert.match(element("flow-understand-summary").textContent, /0 bảng, 0 quan hệ/);
   assert.equal(element("flow-understand-section").dataset.state, "understood");
 
+  // T404: an answer changed after a plan exists invalidates the plan (H07/H10).
+  const invalidatedAnswers = readyFlow();
+  invalidatedAnswers.snapshot = {snapshotId: "snap_answer"};
+  invalidatedAnswers.understand = {roles: [], relationships: [], assumptions: []};
+  invalidatedAnswers.stage = "planning";
+  invalidatedAnswers.planningHash = "plan-before-answer";
+  invalidatedAnswers.branches = [{id: "A"}];
+  responseHandler = async () => ({stage: "understood", understand: {roles: [], relationships: [], assumptions: []},
+    questions: [{id: "q_ans", question: "?", whyItMatters: "w", kind: "single_choice", options: ["A", "B"], evidence: []}]});
+  await sandbox.__flowUnderstand();
+  assert.equal(invalidatedAnswers.stage, "understood");
+  const laterAnswer = element("flow-questions").children[0].children[0];
+  laterAnswer.value = "B";
+  await laterAnswer.emit("change");
+  assert.equal(invalidatedAnswers.answers.q_ans, "B", "the understand-step answer lands in flow.answers");
+  assert.equal(invalidatedAnswers.planningHash, null, "a later answer invalidates the existing plan");
+  assert.deepEqual(plain(invalidatedAnswers.branches), []);
+
   let completeAfterWorkbookSwitch;
   responseHandler = () => new Promise((resolve) => { completeAfterWorkbookSwitch = resolve; });
   const changedWorkbook = sandbox.__flowUnderstand();

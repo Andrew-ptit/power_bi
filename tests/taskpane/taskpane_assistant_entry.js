@@ -1,4 +1,5 @@
 "use strict";
+// T404: single entry guards for the three-step assistant journey.
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
@@ -21,6 +22,7 @@ function harness(overrides = {}) {
     document,
     selectWorkbook: async () => { calls.push("workbook"); return true; },
     scanWorkbook: async request => { calls.push("scan"); request?.onProgress?.({message: "Đang đọc lại nguồn…"}); return {state: {sourceHash: "hash", sources: [{sheetId: "s1"}, {sheetId: "s2"}]}}; },
+    onUnderstand: async () => { calls.push("measure"); return {modelView: {mode: "model", counts: {tables: 2, relationships: 1, needsConfirm: 1, warnings: 0}}}; },
     showProblem: async () => { calls.push("problem"); },
     onBrowse: options => calls.push(["browse", options]),
     onImported: () => calls.push("imported"),
@@ -34,14 +36,16 @@ function harness(overrides = {}) {
 (async () => {
   const html = fs.readFileSync(path.join(__dirname, "../../pbip_assistant/excel_addin/taskpane.html"), "utf8");
 
-  // 1. The journey has two steps and no cleaning step.
+  // 1. The journey has three steps and no cleaning step.
   {
     assert(html.includes('id="assistant-step-source"'));
+    assert(html.includes('id="assistant-step-understand"'));
     assert(html.includes('id="assistant-step-problem"'));
     assert(!html.includes('id="assistant-step-clean"'), "the cleaning journey step is removed");
-    assert(html.includes(">2. Đề bài<"), "the problem step is labelled 2");
+    assert(html.includes(">2. Hiểu dữ liệu<") && html.includes(">3. Đề bài<"), "the understand step is labelled 2");
     const {entry, get} = harness();
     assert.equal(entry.state().step, "source");
+    assert(get("assistant-step-understand").disabled);
     assert(get("assistant-step-problem").disabled);
     assert.deepEqual(get("assistant-step-source").attrs["aria-current"], "step");
   }
@@ -54,15 +58,21 @@ function harness(overrides = {}) {
     assert(!html.includes(">2. Làm sạch<"), "no cleaning step label");
   }
 
-  // 3. Reading the workbook enables Đề bài and advances automatically.
+  // 3. Reading the workbook measures automatically and lands on the understand step.
   {
     const {entry, get, calls} = harness();
     await get("assistant-choose-workbook").click();
-    assert.deepEqual(calls.filter(value => typeof value === "string"), ["workbook", "scan", "invalidated", "problem"]);
+    assert.deepEqual(calls.filter(value => typeof value === "string"), ["workbook", "scan", "invalidated", "measure"]);
+    assert.equal(entry.state().step, "understand");
+    assert.equal(entry.state().understandReady, true);
+    assert.equal(get("assistant-understand-section").hidden, false);
     assert.equal(get("assistant-step-problem").disabled, false);
-    assert.equal(entry.state().step, "problem");
+    assert.equal(get("assistant-understand-continue").disabled, false);
+    // No plan-draft request exists anywhere in this flow.
+    assert.equal(calls.filter(value => value === "problem").length, 0);
     entry.updateWorkbook({name: "Orders", hasData: true});
     assert.equal(entry.state().step, "source");
+    assert(get("assistant-step-understand").disabled);
     assert(get("assistant-step-problem").disabled);
   }
 
@@ -76,11 +86,15 @@ function harness(overrides = {}) {
     await get("assistant-choose-workbook").click();
     assert.deepEqual(calls.filter(value => value === "scan-only"), ["scan-only"]);
     assert.deepEqual(writes, [], "choosing workbook data must not import files");
+    assert.equal(calls.filter(value => value === "measure").length, 1);
+    assert.equal(entry.state().step, "understand");
+    // Continue moves to Đề bài exactly once.
+    await get("assistant-understand-continue").click();
     assert.equal(calls.filter(value => value === "problem").length, 1);
     assert.equal(entry.state().step, "problem");
   }
 
-  // 5. A failed re-read keeps Đề bài disabled and offers a retry.
+  // 5. A failed re-read keeps both gates disabled and offers a retry.
   {
     let fail = true, reads = 0;
     const {entry, get, calls} = harness({scanWorkbook: async () => {
@@ -90,6 +104,7 @@ function harness(overrides = {}) {
     }});
     await get("assistant-choose-workbook").click();
     assert.equal(reads, 1);
+    assert(get("assistant-step-understand").disabled);
     assert(get("assistant-step-problem").disabled);
     assert.equal(get("assistant-retry-scan").hidden, false);
     assert.match(get("assistant-source-message").textContent, /Workbook read failed/);
@@ -97,13 +112,12 @@ function harness(overrides = {}) {
     fail = false;
     await get("assistant-retry-scan").click();
     assert.equal(reads, 2);
+    assert.equal(calls.filter(value => value === "measure").length, 1);
     assert.equal(get("assistant-step-problem").disabled, false);
-    assert.equal(get("assistant-retry-scan").hidden, true);
-    assert.equal(entry.state().canProblem, true);
-    assert.equal(entry.state().step, "problem");
+    assert.equal(entry.state().step, "understand");
   }
 
-  // 6. An import hands the receipt to the journey, which re-reads and advances.
+  // 6. An import hands the receipt to the journey, which re-reads and measures.
   {
     let scans = 0;
     const {entry, get} = harness({scanWorkbook: async () => {
@@ -112,8 +126,8 @@ function harness(overrides = {}) {
     }});
     await entry.imported({status: "verified"});
     assert.equal(scans, 1);
-    assert.equal(entry.state().step, "problem");
-    assert.equal(entry.state().canProblem, true);
+    assert.equal(entry.state().step, "understand");
+    assert.equal(entry.state().understandReady, true);
   }
 
   // 7. + Thêm nguồn returns to the browser without losing the folder.
@@ -129,11 +143,12 @@ function harness(overrides = {}) {
     entry.setBusy(true);
     assert(get("assistant-choose-folder").disabled);
     assert(get("assistant-choose-workbook").disabled);
+    assert(get("assistant-step-understand").disabled);
     entry.setBusy(false);
     assert.equal(get("assistant-choose-folder").disabled, false);
   }
 
-  // 9. No usable workbook data keeps Đề bài off and explains why (S13).
+  // 9. No usable workbook data keeps the gates off and explains why (S13).
   {
     const {entry, get, calls} = harness({
       selectWorkbook: async () => { calls.push("workbook"); return false; },
@@ -141,10 +156,32 @@ function harness(overrides = {}) {
     });
     await get("assistant-choose-workbook").click();
     assert.deepEqual(calls.filter(value => typeof value === "string"), ["workbook"]);
+    assert(get("assistant-step-understand").disabled);
     assert(get("assistant-step-problem").disabled);
     assert.equal(get("assistant-retry-scan").hidden, true, "missing data is not a scan failure");
     assert.match(get("assistant-source-message").textContent, /Workbook chưa có dữ liệu phù hợp/);
-    assert.equal(entry.state().canProblem, false);
+    assert.equal(entry.state().canUnderstand, false);
+  }
+
+  // 10. A failed measure leaves Đề bài off; Đo lại retries and Về Nguồn returns.
+  {
+    let fail = true;
+    const {entry, get, calls} = harness({onUnderstand: async () => {
+      calls.push("measure");
+      if (fail) throw Object.assign(new Error("Chưa đo được cấu trúc."), {code: "AF_UNDERSTAND_INVALID"});
+      return {modelView: {mode: "model"}};
+    }});
+    await get("assistant-choose-workbook").click();
+    assert.equal(entry.state().step, "understand");
+    assert.equal(entry.state().understandReady, false);
+    assert(get("assistant-step-problem").disabled);
+    assert.equal(get("assistant-understand-continue").disabled, true);
+    fail = false;
+    await get("assistant-understand-retry").click();
+    assert.equal(entry.state().understandReady, true);
+    assert.equal(get("assistant-step-problem").disabled, false);
+    await get("assistant-understand-back").click();
+    assert.equal(entry.state().step, "source");
   }
 
   console.log("Assistant single entry guards passed");

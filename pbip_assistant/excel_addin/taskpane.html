@@ -13,6 +13,7 @@
 <script src="/assets/assistant_browser.js" defer></script>
   <script src="/assets/preparation_controller.js" defer></script>
   <script src="/assets/assistant_model_diagram.js" defer></script>
+  <script src="/assets/assistant_understand.js" defer></script>
   <script src="/assets/assistant_entry.js" defer></script>
   <script src="/assets/taskpane_core.js" defer></script>
   <script src="/assets/taskpane_flow.js" defer></script>
@@ -67,7 +68,9 @@
     <nav class="assistant-journey" aria-label="Quy trình trợ lý">
       <button id="assistant-step-source" type="button" aria-current="step">1. Nguồn</button>
       <span aria-hidden="true">→</span>
-<button id="assistant-step-problem" type="button" disabled>2. Đề bài</button>
+      <button id="assistant-step-understand" type="button" disabled>2. Hiểu dữ liệu</button>
+      <span aria-hidden="true">→</span>
+      <button id="assistant-step-problem" type="button" disabled>3. Đề bài</button>
     </nav>
     <button id="assistant-add-source" class="button button-ghost" type="button" hidden>+ Thêm nguồn</button>
 
@@ -133,6 +136,30 @@
         <button id="flow-ingest-full" class="button button-ghost" type="button" disabled>Đọc toàn bộ để tính</button>
         <button id="flow-reset-button" class="button button-ghost" type="button" disabled>Bắt đầu lại</button>
       </div>
+      </div>
+    </section>
+
+    <section id="assistant-understand-section" class="card hidden" aria-labelledby="assistant-understand-title">
+      <span id="assistant-understand-status" class="sr-only" role="status" aria-live="polite"></span>
+      <p class="step">02 · Hiểu dữ liệu</p>
+      <h2 id="assistant-understand-title">Dữ liệu của bạn trông như thế nào?</h2>
+      <p id="assistant-understand-message" class="hint" role="status" aria-live="polite"></p>
+      <div id="assistant-understand-overview" class="hint" aria-live="polite"></div>
+      <h3>Bảng</h3>
+      <div id="assistant-understand-tables"></div>
+      <h3>Quan hệ</h3>
+      <div class="flow-actions">
+        <button id="assistant-rel-list-button" class="button button-ghost" type="button" aria-pressed="true">Danh sách</button>
+        <button id="assistant-rel-diagram-button" class="button button-ghost" type="button" aria-pressed="false">Sơ đồ</button>
+      </div>
+      <div id="assistant-understand-relationships"></div>
+      <div id="assistant-understand-diagram" hidden></div>
+      <h3>Cảnh báo</h3>
+      <div id="assistant-understand-warnings"></div>
+      <div class="flow-actions">
+        <button id="assistant-understand-back" class="button button-ghost" type="button">Về Nguồn</button>
+        <button id="assistant-understand-retry" class="button button-ghost" type="button" hidden>Đo lại</button>
+        <button id="assistant-understand-continue" class="button button-primary" type="button" disabled>Tiếp tục: Đề bài</button>
       </div>
     </section>
 

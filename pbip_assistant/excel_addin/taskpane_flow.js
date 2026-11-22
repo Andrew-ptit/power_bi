@@ -359,7 +359,7 @@ async function flowPreparedWorkbookSources(review, mode = "compute") {
   return selections;
 }
 
-async function preparationBusinessHandoff(review) {
+async function preparationBusinessHandoff(review, mode = "compute") {
   if (!state.officeReady || !flowCapabilityAvailable() || state.flow.busy)
     throw flowFailure("COORDINATOR_BUSY", "Chờ Excel và phiên hiện tại sẵn sàng.");
   const binding = flowBinding();
@@ -367,13 +367,13 @@ async function preparationBusinessHandoff(review) {
   binding.flow.preparationReview = null;
   binding.flow.busy = true;
   try {
-    const sources = await flowPreparedWorkbookSources(review, "discover");
+    const sources = await flowPreparedWorkbookSources(review, mode);
     flowAssertCurrent(binding);
     await api("/api/assistant/session", {sourceMode: "workbook"});
     flowAssertCurrent(binding);
     await review.validate();
     flowAssertCurrent(binding);
-    const result = await api("/api/assistant/ingest", {requests: sources.map(({key, ...payload}) => ({kind: "workbook", mode: "discover", payload}))});
+    const result = await api("/api/assistant/ingest", {requests: sources.map(({key, ...payload}) => ({kind: "workbook", mode, payload}))});
     flowAssertCurrent(binding);
     await review.validate();
     flowAssertCurrent(binding);
@@ -438,6 +438,8 @@ async function flowIngest(mode, source = null) {
     flow.snapshot = null;
     flow.freshSnapshotHash = null;
     flow.understand = null;
+    flow.modelView = null;
+    flow.measuredOn = null;
     flow.questions = [];
     flow.stage = "new";
     const expectedPlanningHash = mode === "compute" ? flow.planningHash : null;
@@ -469,6 +471,7 @@ async function flowIngest(mode, source = null) {
 
 function flowInvalidateSourceAuthority(flow) {
   flow.snapshot = flow.understand = flow.planningHash = flow.draftInputs = flow.freshSnapshotHash = null;
+  flow.modelView = null; flow.measuredOn = null;
   flow.branches = []; flow.questions = []; flow.delta = flow.engine = flow.chosenBranch = null;
   flow.planSummary = ""; flow.planQuestions = []; flow.planAssumptions = []; flow.allBlocked = false;
   flow.planningGeneration += 1;
@@ -479,7 +482,7 @@ function flowInvalidateSourceAuthority(flow) {
 async function flowUnderstand() {
   return flowAction(async (binding) => {
     const flow = binding.flow;
-    if (!flow.snapshot || flow.stage === "ingest_blocked" || !(byId("prompt")?.value || "").trim()) return;
+    if (!flow.snapshot || flow.stage === "ingest_blocked") return;
     if (flow.workbookSourceSelections?.length) {
       let fresh;
       try { fresh = await flowFreshWorkbookSources(flow); }
@@ -506,6 +509,8 @@ async function flowUnderstand() {
     }
     const result = await api("/api/assistant/understand", {});
     flowAssertCurrent(binding); flowAccept(result);
+    flow.modelView = result.modelView || null;
+    flow.measuredOn = result.modelView?.measuredOn || "full";
     return result;
   });
 }
@@ -1182,7 +1187,8 @@ function updateFlowButtons() {
   for (const id of ["flow-add-csv", "flow-add-xlsx", "flow-add-folder"]) set(id, blocked || !flow.rootLabel);
   set("flow-add-workbook", blocked || !flow.rootLabel || !state.officeReady);
   for (const id of ["flow-ingest-sample", "flow-ingest-full"]) set(id, blocked || !flow.rootLabel || !flow.selectedTableIds.size);
-  set("flow-analyze-button", blocked || !flow.snapshot || flow.stage === "ingest_blocked" || !(byId("prompt")?.value || "").trim());
+  set("flow-analyze-button", blocked || !flow.snapshot || flow.stage === "ingest_blocked" || !(byId("prompt")?.value || "").trim()
+    || !!flow.understand);
   set("flow-reset-button", blocked);
   set("flow-disclosure", blocked);
   set("flow-plan-button", blocked || !flow.understand || !["understood", "planning", "branched"].includes(flow.stage)
@@ -1389,8 +1395,9 @@ function renderFlow() {
   updateFlowButtons();
   if (state.preparationJourneyStep !== null) {
     const business = state.preparationJourneyStep === "problem";
-    flowSetHidden("flow-source-section", business);
-    for (const id of ["flow-prompt-section", "flow-understand-section", "flow-branches-section", "flow-spec-section", "flow-apply-section", "flow-result-section"]) {
+    const understanding = state.preparationJourneyStep === "understand";
+    flowSetHidden("flow-source-section", business || understanding);
+    for (const id of ["flow-understand-section", "flow-branches-section", "flow-spec-section", "flow-apply-section", "flow-result-section"]) {
       if (!business) flowSetHidden(id, true);
     }
     if (business) flowSetHidden("flow-prompt-section", false);

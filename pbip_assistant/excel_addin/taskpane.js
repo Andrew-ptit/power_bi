@@ -179,6 +179,24 @@ async function connectTaskpane() {
         state.preparationDetach = () => preparation.wizard.state ? bridge.detach() : null;
       }
       if (window.ReqwiseAssistantEntry && preparation) {
+        const measureUnderstand = async (mode) => {
+          window.ReqwiseAssistantEntryUI.setBusy(true);
+          try {
+            const review = await bridge.businessSourcesFromScan();
+            const handoff = await preparationBusinessHandoff(review, mode);
+            // H21: a compute ingest measures every scanned row; the existing
+            // full re-read path still serves the sample fallback.
+            const result = await flowUnderstand();
+            return {...handoff, ...result, modelView: state.flow.modelView,
+              measuredOn: state.flow.measuredOn || result.modelView?.measuredOn || "full"};
+          } catch (error) {
+            renderFlow();
+            throw error;
+          } finally {
+            window.ReqwiseAssistantEntryUI.setBusy(false);
+            renderFlow();
+          }
+        };
         window.ReqwiseAssistantEntryUI = window.ReqwiseAssistantEntry.mount({document,
           onBrowse: options => options?.reopen ? browser?.reopen() : browser?.open(),
           // Scan every worksheet; a blank active sheet does not exclude data on other sheets.
@@ -186,14 +204,40 @@ async function connectTaskpane() {
           restartSession: () => bridge ? bridge.restart() : unavailable(),
           canRestartAfterPartial: state.preparationBackupEnabled === false,
           scanWorkbook: options => bridge ? bridge.scanWorkbook(options) : unavailable(),
+          onUnderstand: async () => {
+            // H19/H20: measure on compute by default; a bounded limit falls
+            // back to discover exactly once and keeps the sample warning.
+            try {
+              return await measureUnderstand("compute");
+            } catch (error) {
+              if ((error.code === "AF_UNDERSTAND_LIMIT" || error.code === "REQUEST_LIMIT")
+                  && !window.ReqwiseAssistantEntryUI.state().measureFailed) {
+                return await measureUnderstand("discover");
+              }
+              throw error;
+            }
+          },
           showProblem: async () => {
-            window.ReqwiseAssistantEntryUI.setBusy(true);
-            try { await preparationBusinessHandoff(await bridge.businessSourcesFromScan()); }
-            catch (error) { showError(error.code || "AF_INGEST_FAILED", error.message); throw error; }
-            finally { window.ReqwiseAssistantEntryUI.setBusy(false); renderFlow(); }
+            if (!state.flow.modelView || !state.flow.understand) {
+              throw flowFailure("AF_STAGE_INVALID", "Đo cấu trúc dữ liệu trước khi sang Đề bài.");
+            }
           },
           invalidateBusiness: () => { flowInvalidateSourceAuthority(state.flow); renderFlow(); },
           onStepChange: step => { state.preparationJourneyStep = step; renderFlow(); }});
+        if (window.ReqwiseAssistantUnderstand && window.ReqwiseAssistantModelDiagram) {
+          state.understandView = window.ReqwiseAssistantUnderstand.mount({document,
+            getState: () => ({modelView: state.flow.modelView, questions: state.flow.questions,
+              answers: state.flow.answers, message: ""}),
+            setAnswer: (questionId, option) => {
+              if (state.flow.busy) return;
+              state.flow.answers[questionId] = option;
+              flowInvalidatePlans();
+              state.understandView?.render();
+              renderFlow();
+            },
+            onContinue: () => window.ReqwiseAssistantEntryUI?.stepToProblem?.(),
+            diagram: window.ReqwiseAssistantModelDiagram});
+        }
         if (window.ReqwiseAssistantBrowser && bridge) {
           browser = window.ReqwiseAssistantBrowser.create({document, bridge,
             onImported: receipt => window.ReqwiseAssistantEntryUI?.imported(receipt)});

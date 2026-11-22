@@ -1,4 +1,5 @@
 "use strict";
+// T404: the three-step journey (Nguồn → Hiểu dữ liệu → Đề bài) wired to the browser.
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
@@ -17,10 +18,10 @@ class Node {
 
 function files(list) { return list.children.filter(row => row.children[0]?.type === "checkbox"); }
 
-function harness({scanFails = false} = {}) {
+function harness({scanFails = false, measureFails = false} = {}) {
   const nodes = new Map();
   const document = {body: new Node(), getElementById: id => { if (!nodes.has(id)) nodes.set(id, new Node()); return nodes.get(id); }, createElement: () => new Node()};
-  const calls = {browse: [], pick: 0, probe: 0, imports: 0, scans: 0, reopen: 0};
+  const calls = {browse: [], pick: 0, probe: 0, imports: 0, scans: 0, reopen: 0, measures: 0, problems: 0};
   const bridge = {
     pickRoot: async () => { calls.pick++; return {cancelled: false, rootName: "dataset"}; },
     browse: async relativePath => {
@@ -47,7 +48,12 @@ function harness({scanFails = false} = {}) {
     document,
     selectWorkbook: async () => true,
     scanWorkbook: options => bridge.scanWorkbook(options),
-    showProblem: async () => { calls.problem = true; },
+    onUnderstand: async () => {
+      calls.measures++;
+      if (measureFails && calls.measures === 1) throw Object.assign(new Error("Không đo được cấu trúc."), {code: "AF_UNDERSTAND_INVALID"});
+      return {modelView: {mode: "model", counts: {tables: 1, relationships: 1, needsConfirm: 1, warnings: 0}}};
+    },
+    showProblem: async () => { calls.problems++; },
     onBrowse: options => {
       if (options?.reopen) { calls.reopen++; return browser.reopen(); }
       return browser.open();
@@ -61,11 +67,14 @@ function harness({scanFails = false} = {}) {
 (async () => {
   const html = fs.readFileSync(path.join(__dirname, "../../pbip_assistant/excel_addin/taskpane.html"), "utf8");
 
-  // 1. Journey has exactly two steps.
+  // 1. Journey has exactly three steps: Nguồn → Hiểu dữ liệu → Đề bài.
   {
-    assert(html.includes('id="assistant-step-source"') && html.includes('id="assistant-step-problem"'));
+    assert(html.includes('id="assistant-step-source"'));
+    assert(html.includes('id="assistant-step-understand"'));
+    assert(html.includes('id="assistant-step-problem"'));
     assert(!html.includes('id="assistant-step-clean"'));
-    assert(!html.includes(">2. Làm sạch<") && !html.includes(">3. Đề bài<"));
+    assert(html.includes(">2. Hiểu dữ liệu<") && html.includes(">3. Đề bài<"));
+    assert(!html.includes(">2. Làm sạch<"));
   }
 
   // 2. No cleaning wizard DOM anywhere in the page.
@@ -75,7 +84,7 @@ function harness({scanFails = false} = {}) {
     }
   }
 
-  // 3. Import → re-read → automatic advance to Đề bài.
+  // 3. Import → re-read → automatic measure → understand step; Đề bài stays off.
   {
     const {get, calls} = harness();
     await get("assistant-choose-folder").click();
@@ -84,33 +93,61 @@ function harness({scanFails = false} = {}) {
     await get("assistant-import-selected").click();
     assert.equal(calls.imports, 1);
     assert.equal(calls.scans, 1, "the import triggers a verified re-read");
-    assert.equal(calls.problem, true, "a successful re-read advances automatically");
+    assert.equal(calls.measures, 1, "a successful re-read measures automatically");
+    assert.equal(calls.problems, 0, "Đề bài is not opened before the understand step");
+    assert.equal(get("assistant-understand-section").hidden, false, "the understand step is shown");
+    assert.equal(get("flow-source-title").textContent, "Dữ liệu của bạn trông như thế nào?");
+    assert.equal(get("assistant-step-problem").disabled, false, "a measured modelView enables Đề bài");
+    assert.equal(get("assistant-step-understand").disabled, false);
+    // Continue opens Đề bài.
+    await get("assistant-understand-continue").click();
+    assert.equal(calls.problems, 1);
     assert.equal(get("flow-source-title").textContent, "Đề bài");
-    assert.equal(get("assistant-step-problem").disabled, false);
   }
 
-  // 4. Workbook choice re-reads, never imports, then advances.
+  // 4. Workbook choice re-reads, never imports, then measures.
   {
-    const {get, browser, calls} = harness();
-    await browser.open();
+    const {get, calls} = harness();
     await get("assistant-choose-workbook").click();
     assert.equal(calls.imports, 0, "choosing workbook data must not import files");
     assert.equal(calls.scans, 1);
-    assert.equal(calls.problem, true);
+    assert.equal(calls.measures, 1);
+    assert.equal(get("assistant-step-problem").disabled, false);
+    await get("assistant-step-problem").click();
+    assert.equal(calls.problems, 1);
     assert.equal(get("flow-source-title").textContent, "Đề bài");
   }
 
-  // 5. A failed re-read disables Đề bài and offers a retry without advancing.
+  // 5. A failed re-read keeps the steps disabled and offers a retry without advancing.
   {
     const {get, calls} = harness({scanFails: true});
     await get("assistant-choose-workbook").click();
+    assert(get("assistant-step-understand").disabled);
     assert(get("assistant-step-problem").disabled);
     assert.equal(get("assistant-retry-scan").hidden, false);
-    assert.equal(calls.problem, undefined);
+    assert.equal(calls.measures, 0);
     assert.match(get("assistant-source-message").textContent, /Workbook read failed/);
   }
 
-  // 6. + Thêm nguồn reopens the browser on the same folder and keeps the pending selection.
+  // 6. A failed measure shows Đo lại/Về Nguồn and never enables Đề bài; retry succeeds.
+  {
+    const {get, calls} = harness({measureFails: true});
+    await get("assistant-choose-workbook").click();
+    assert.equal(calls.measures, 1);
+    assert(get("assistant-step-problem").disabled, "a failed measure never enables Đề bài");
+    assert.equal(get("assistant-understand-retry").hidden, false, "Đo lại is offered");
+    assert.equal(get("assistant-understand-continue").disabled, true);
+    assert.match(get("assistant-source-message").textContent, /Không đo được cấu trúc/);
+    await get("assistant-understand-retry").click();
+    assert.equal(calls.measures, 2, "Đo lại re-measures exactly once");
+    assert.equal(get("assistant-step-problem").disabled, false, "a successful retry enables Đề bài");
+    // Về Nguồn returns to the source step.
+    await get("assistant-understand-back").click();
+    assert.equal(get("assistant-understand-section").hidden, true);
+    assert.equal(get("assistant-source-choice").hidden, false);
+  }
+
+  // 7. + Thêm nguồn reopens the browser on the same folder and keeps the pending selection.
   {
     const {get, calls} = harness();
     await get("assistant-choose-folder").click();
@@ -127,5 +164,16 @@ function harness({scanFails = false} = {}) {
     assert.deepEqual(calls.browse.at(-1), "sales", "the previous folder is retained");
   }
 
-  console.log("assistant journey: 6 cases passed");
+  // 8. A changed workbook returns to Nguồn and drops the measured modelView.
+  {
+    const {get, entry} = harness();
+    await get("assistant-choose-workbook").click();
+    assert.equal(entry.state().step, "understand");
+    entry.updateWorkbook({name: "Other.xlsx", hasData: true});
+    assert.equal(entry.state().step, "source");
+    assert.equal(entry.state().understandReady, false);
+    assert(get("assistant-step-problem").disabled);
+  }
+
+  console.log("assistant journey: 8 cases passed");
 })().catch(error => { console.error(error); process.exit(1); });
