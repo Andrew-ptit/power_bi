@@ -175,5 +175,60 @@ function harness({scanFails = false, measureFails = false} = {}) {
     assert(get("assistant-step-problem").disabled);
   }
 
-  console.log("assistant journey: 8 cases passed");
+  // 9. AF_UNDERSTAND_LIMIT: the handoff falls back to discover exactly once
+  // and the step completes on the sample (measuredOn sample shows the warning).
+  {
+    const nodes = new Map();
+    const document = {body: new Node(), getElementById: id => { if (!nodes.has(id)) nodes.set(id, new Node()); return nodes.get(id); }, createElement: () => new Node()};
+    let attempts = 0;
+    const entry = entryApi.mount({document,
+      selectWorkbook: async () => true,
+      scanWorkbook: async () => ({state: {sourceHash: "hash", sources: [{sheetId: "s1"}]}}),
+      onUnderstand: async () => {
+        attempts++; // compute attempt
+        if (attempts === 1) {
+          attempts++; // one discover fallback inside the handler
+          return {modelView: {mode: "model", measuredOn: "sample", counts: {tables: 1, relationships: 0, needsConfirm: 0, warnings: 0}}};
+        }
+        return {modelView: {mode: "model", measuredOn: "full", counts: {tables: 1, relationships: 0, needsConfirm: 0, warnings: 0}}};
+      },
+      showProblem: async () => {},
+      onBrowse: () => {},
+      onImported: () => {}});
+    const get = id => document.getElementById(id);
+    await get("assistant-choose-workbook").click();
+    assert.equal(attempts, 2, "compute + one discover fallback");
+    assert.equal(entry.state().understandReady, true, "the sample fallback still completes the step");
+    assert.equal(entry.state().step, "understand");
+    assert.equal(get("assistant-step-problem").disabled, false);
+  }
+
+  // 10. A second limit failure stays an error state and never loops.
+  {
+    const nodes = new Map();
+    const document = {body: new Node(), getElementById: id => { if (!nodes.has(id)) nodes.set(id, new Node()); return nodes.get(id); }, createElement: () => new Node()};
+    let attempts = 0;
+    const entry = entryApi.mount({document,
+      selectWorkbook: async () => true,
+      scanWorkbook: async () => ({state: {sourceHash: "hash", sources: [{sheetId: "s1"}]}}),
+      onUnderstand: async () => {
+        attempts++;
+        throw Object.assign(new Error("giới hạn"), {code: "AF_UNDERSTAND_LIMIT"});
+      },
+      showProblem: async () => {},
+      onBrowse: () => {},
+      onImported: () => {}});
+    const get = id => document.getElementById(id);
+    await get("assistant-choose-workbook").click();
+    assert.equal(attempts, 1, "no automatic retry on limit");
+    assert.equal(entry.state().understandReady, false);
+    assert(get("assistant-step-problem").disabled);
+    assert.equal(get("assistant-understand-retry").hidden, false, "Đo lại is offered");
+    await get("assistant-understand-retry").click();
+    assert.equal(attempts, 2, "retry re-measures exactly once on click");
+    assert.equal(entry.state().understandReady, false);
+    assert(get("assistant-step-problem").disabled);
+  }
+
+  console.log("assistant journey: 10 cases passed");
 })().catch(error => { console.error(error); process.exit(1); });

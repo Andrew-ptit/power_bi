@@ -1110,9 +1110,16 @@ function writeHost({corrupt = false, formula = false, collision = false} = {}) {
   const preparedFlow=handoffReady();
   await sandbox.__preparationBusinessHandoff(handoff());
   const ingested=handoffCalls.find(request=>request.url.endsWith('/ingest'));
+  assert.equal(ingested.payload.requests[0].mode, "compute", "the understand step ingests in compute mode");
+  assert.equal(ingested.payload.requests[0].payload.rows.length, 2, "compute keeps every scanned row");
   assert.deepEqual(plain(ingested.payload.requests[0].payload.rows),[['table','1904-01-02'],['outside','1904-01-03']]);
   assert.equal(ingested.payload.requests[0].payload.table,false);
   assert.equal(ingested.payload.requests[0].payload.range,'C4:D6');
+  // The discover fallback (H20) re-runs the handoff on the 20-row sample mode.
+  handoffCalls=[];
+  await sandbox.__preparationBusinessHandoff(handoff(), "discover");
+  const discoverIngest=handoffCalls.find(request=>request.url.endsWith('/ingest'));
+  assert.equal(discoverIngest.payload.requests[0].mode, "discover", "the fallback ingests in discover mode");
   const freshPrepared=await sandbox.__flowFreshWorkbookSources(preparedFlow);
   assert.deepEqual(plain(freshPrepared[0].payload.rows),[['table','1904-01-02'],['outside','1904-01-03']]);
   await sandbox.__flowIngest('compute');
