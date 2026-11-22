@@ -73,9 +73,26 @@ Mọi dòng `Pass` phải kèm lệnh, output và revision thật.
 
 | ID | Test chứng minh | Kết quả |
 |---|---|---|
-| HS01–HS13 | | |
-| H01–H18 | | |
-| HC01–HC08 | | |
+| HS01–HS04 | taskpane_assistant_journey (case 3–4, 10), taskpane_assistant_entry (case 3, 5), taskpane_assistant_understand (case 1–2, 5), T403 test_understand_returns_model_view | Pass |
+| HS05–HS07 | taskpane_assistant_flow (case q_ans/invalidatedAnswers), T403 test_existing_question_ids, T404 understand test (setAnswer), taskpane_assistant_entry (case 4) | Pass |
+| HS08–HS10 | taskpane_model_diagram (marks, wireState, endpoints, keyboard), taskpane_assistant_understand (case 10 a11y) | Pass |
+| HS11–HS12 | taskpane_model_dialog (case 7 pure-view, case 5 stale), tests/integration/test_excel_addin_server.test_model_dialog_assets… | Pass (live Not run) |
+| HS13 | taskpane_assistant_understand (case 5), T403 test_no_fact_graph | Pass |
+| H01–H02 | journey/entry tests (tự measure, không plan-draft), T403 test_understand_hash_unchanged, contract test (modelView ngoài understand) | Pass |
+| H03–H05 | T402 test_per_sheet, T402 6 luật grainKind, T403 test_existing_question_ids | Pass |
+| H06–H08 | taskpane_assistant_understand (case 1–8), taskpane_assistant_entry (case 4 continue), flow test answers | Pass |
+| H09–H10 | journey (case 8), entry (case 3 updateWorkbook), flow (changedWorkbook AF_SPEC_STALE), updateFlowButtons (analyze disabled khi understand còn hiệu lực) | Pass |
+| H11–H12 | taskpane_model_diagram (focus/full/deterministic) | Pass |
+| H13–H15 | taskpane_model_dialog (case 2 protocol), taskpane_model_diagram (textContent, keyboard), understand (case 7, 10) | Pass (H13 live Not run) |
+| H16–H17 | T402 test_no_cell_values, contract test (no sample/evidence, 200 cap), taskpane_model_diagram (>12 cột), taskpane_model_dialog (case 6 limit) | Pass |
+| H18 | toàn bộ suite feature (T401–T406) + gate fast | Pass |
+| H19–H21 | T402 test_measured_on_full_vs_sample, T403 test_compute_first_ingest, journey (case 9 limit→discover 1 lần), flow (handoff mode compute/discover) | Pass |
+| HC01–HC02 | T403 test_understand_hash_unchanged, T402 oracle TP-FIN/TP-SALES, contract fixtures | Pass |
+| HC03–HC04 | journey/entry (ô đề bài rỗng, không plan-draft), T403 test_grain_answer_reaches_plan_request | Pass |
+| HC05–HC06 | taskpane_model_diagram, taskpane_model_dialog (8 case) | Pass (live Not run) |
+| HC07 | T403 test_no_fact_graph, understand case 5 | Pass |
+| HC09 | T402 test_relationship_orphans_on_full_rows, journey case 9 (sample fallback cảnh báo) | Pass |
+| HC08 | `py tools/run_checks.py fast` (T407), runtime + discovery (T407) | Pass/đang chạy T407 |
 
 ## Thay đổi được duyệt trong lúc làm
 

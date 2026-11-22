@@ -1,6 +1,14 @@
 # Current implementation status
 
-Updated: 2026-11-21 (Asia/Saigon). This page is a current status summary; historical reports are available through Git.
+Updated: 2026-11-22 (Asia/Saigon). This page is a current status summary; historical reports are available through Git.
+
+## Understand-data step and wire diagram (feature 004) - automated pass, live Not run
+
+Approved 2026-11-22: the assistant source journey is three steps, `1. Nguồn → 2. Hiểu dữ liệu → 3. Đề bài`. After a verified source the pane automatically ingests in `compute` mode and measures structure; `2. Hiểu dữ liệu` shows overview counts, per-table role/rows/key sentence/`grainKind`, relationships (Danh sách | Sơ đồ focus diagram) and warnings, with in-place answers using the existing `flow.answers` state. `AF_UNDERSTAND_LIMIT`/`REQUEST_LIMIT` falls back to `discover` exactly once with a fixed "đo trên mẫu" warning; `Đề bài` is gated on a ready `modelView` (server stage `understood`), so the old measure button only re-measures after invalidation. The `Mở rộng` button opens a 1:3 same-origin dialog (only with `DialogApi 1.2`) that is a pure view (no fetch/token/workbook API) and syncs answers and stale state. `understand`/`understandHash` are byte-identical; the derived `modelView` (closed schema `pbip_assistant/schemas/assistant_model_view.schema.json`) rides along on `understand`/`state` responses only.
+
+Automated evidence: `py tools/run_checks.py fast` passed 1,338 cases (0 failure/error, 3 skips, 204.893 s, exit 0; log `.artifacts/gate_t407b.log`), baseline before feature was 1,293 on `main` 592e1d3. `py -m unittest discover -s tests` and `py tools/run_checks.py runtime` results are recorded in `.artifacts/discovery_t407.log` / `.artifacts/runtime_t407.log`; the pre-existing `tests.runtime.test_typed_local_parity` `PARITY_FIXTURE_TIMEOUT` is not feature 004. Task-pane gate: 18 tests green, including the understand view, three-step journey, wire diagram and dialog scripts. Exact per-ID matrix: [feature 004 acceptance](../../specs/004-understand-data-step/acceptance.md). Feature branch `feature/004-understand-data-step`; not merged, not pushed.
+
+Live Excel end-to-end (dialog capability probe `DialogApi 1.2`, message-size budget, synthetic journey T408) is **Not run**: no Excel Desktop or live harness was used in this environment. Native qualification remains `user_pending`. No application, npm, HTTP or Office manifest version changed (application/npm/HTTP 1.2.0, manifest 1.2.0.0).
 
 ## Codebase consolidation - structure only, no behaviour change
 
