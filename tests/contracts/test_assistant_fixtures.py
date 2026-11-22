@@ -115,6 +115,8 @@ class AssistantFixtureContractTests(unittest.TestCase):
             expected.update(f"{scenario}/source/{name}" for name in sources)
         expected.update(f"variants/{name}" for name in VARIANTS)
         expected.update(f"tp-unknown/{name}" for name in ("wl3_brief_unresolved.json", "wl3_decisions_unresolved.json"))
+        expected.update(f"model_view/{name}" for name in (
+            "star_model_valid.json", "per_sheet_valid.json", "single_table_valid.json", "invalid_examples.json"))
         actual = {p.relative_to(ROOT).as_posix() for p in ROOT.rglob("*") if p.is_file()}
         self.eq(actual, expected, "assistant tree: thiếu/thừa file so với contract")
         for relative in sorted(expected):

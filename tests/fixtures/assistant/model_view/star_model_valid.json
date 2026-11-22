@@ -1,198 +1,370 @@
 {
-  "schemaVersion": "1.0",
-  "mode": "model",
-  "measuredOn": "full",
   "counts": {
-    "tables": 8,
-    "fact": 3,
-    "dim": 3,
-    "lookup": 1,
     "bridge": 1,
-    "unclassified": 0,
-    "relationships": 7,
+    "dim": 3,
+    "fact": 3,
+    "lookup": 1,
     "needsConfirm": 3,
+    "relationships": 7,
+    "tables": 8,
+    "unclassified": 0,
     "warnings": 2
   },
+  "measuredOn": "full",
+  "mode": "model",
+  "modelViewHash": "sha256:d811a95a7e49c6be9ae9824f52a16f67e27e9930431c58896069cc1dc963319f",
+  "relationships": [
+    {
+      "cardinality": "N:1",
+      "fanOutRisk": "none",
+      "fromColumns": [
+        "customer_id"
+      ],
+      "fromTable": "t_orders",
+      "id": "rel_orders_customers",
+      "orphan": 0,
+      "overlap": 1.0,
+      "questionId": null,
+      "rowsAfter": null,
+      "rowsBefore": null,
+      "status": "auto",
+      "toColumns": [
+        "customer_id"
+      ],
+      "toTable": "t_customers",
+      "wireState": "safe"
+    },
+    {
+      "cardinality": "N:1",
+      "fanOutRisk": "none",
+      "fromColumns": [
+        "territory_id"
+      ],
+      "fromTable": "t_orders",
+      "id": "rel_orders_territory",
+      "orphan": 0,
+      "overlap": 0.99,
+      "questionId": null,
+      "rowsAfter": null,
+      "rowsBefore": null,
+      "status": "auto",
+      "toColumns": [
+        "territory_id"
+      ],
+      "toTable": "t_territory",
+      "wireState": "safe"
+    },
+    {
+      "cardinality": "N:1",
+      "fanOutRisk": "none",
+      "fromColumns": [
+        "order_id"
+      ],
+      "fromTable": "t_order_items",
+      "id": "rel_items_orders",
+      "orphan": 0,
+      "overlap": 1.0,
+      "questionId": null,
+      "rowsAfter": null,
+      "rowsBefore": null,
+      "status": "auto",
+      "toColumns": [
+        "order_id"
+      ],
+      "toTable": "t_orders",
+      "wireState": "safe"
+    },
+    {
+      "cardinality": "N:1",
+      "fanOutRisk": "none",
+      "fromColumns": [
+        "product_id"
+      ],
+      "fromTable": "t_order_items",
+      "id": "rel_items_products",
+      "orphan": 740,
+      "overlap": 0.94,
+      "questionId": "q_rel_orphan",
+      "rowsAfter": null,
+      "rowsBefore": null,
+      "status": "needs_confirm",
+      "toColumns": [
+        "product_id"
+      ],
+      "toTable": "t_products",
+      "wireState": "orphan"
+    },
+    {
+      "cardinality": "N:1",
+      "fanOutRisk": "none",
+      "fromColumns": [
+        "category_id"
+      ],
+      "fromTable": "t_order_items",
+      "id": "rel_items_categories",
+      "orphan": 0,
+      "overlap": 0.97,
+      "questionId": null,
+      "rowsAfter": null,
+      "rowsBefore": null,
+      "status": "auto",
+      "toColumns": [
+        "category_id"
+      ],
+      "toTable": "t_categories",
+      "wireState": "safe"
+    },
+    {
+      "cardinality": "N:1",
+      "fanOutRisk": "none",
+      "fromColumns": [
+        "product_id"
+      ],
+      "fromTable": "t_inventory",
+      "id": "rel_inventory_products",
+      "orphan": 0,
+      "overlap": 1.0,
+      "questionId": null,
+      "rowsAfter": null,
+      "rowsBefore": null,
+      "status": "auto",
+      "toColumns": [
+        "product_id"
+      ],
+      "toTable": "t_products",
+      "wireState": "safe"
+    },
+    {
+      "cardinality": "N:N",
+      "fanOutRisk": "high",
+      "fromColumns": [
+        "product_id"
+      ],
+      "fromTable": "t_bridge",
+      "id": "rel_bridge_products",
+      "orphan": 0,
+      "overlap": 0.85,
+      "questionId": "q_rel_fanout",
+      "rowsAfter": 35800,
+      "rowsBefore": 12480,
+      "status": "needs_confirm",
+      "toColumns": [
+        "product_id"
+      ],
+      "toTable": "t_products",
+      "wireState": "fanout"
+    }
+  ],
+  "schemaVersion": "1.0",
   "tables": [
     {
-      "tableId": "t_orders",
-      "name": "orders",
-      "rowCount": 12480,
-      "measuredRows": 12480,
-      "structural": "fact",
+      "columnCount": 6,
+      "columns": [
+        {
+          "distinctCount": 12480,
+          "isKey": true,
+          "isLink": true,
+          "name": "order_id",
+          "nullRate": 0,
+          "role": "key",
+          "type": "text"
+        },
+        {
+          "distinctCount": 12480,
+          "isKey": false,
+          "isLink": true,
+          "name": "customer_id",
+          "nullRate": 0,
+          "role": "text",
+          "type": "text"
+        },
+        {
+          "distinctCount": 512,
+          "isKey": false,
+          "isLink": true,
+          "name": "territory_id",
+          "nullRate": 0,
+          "role": "text",
+          "type": "text"
+        },
+        {
+          "distinctCount": 96,
+          "isKey": false,
+          "isLink": true,
+          "name": "category_id",
+          "nullRate": 0,
+          "role": "text",
+          "type": "text"
+        },
+        {
+          "distinctCount": 181,
+          "isKey": false,
+          "isLink": false,
+          "name": "order_date",
+          "nullRate": 0,
+          "role": "date",
+          "type": "date"
+        },
+        {
+          "distinctCount": 12480,
+          "isKey": false,
+          "isLink": false,
+          "name": "amount",
+          "nullRate": 0,
+          "role": "amount",
+          "type": "decimal"
+        }
+      ],
       "confidence": 0.95,
-      "roleQuestionId": null,
-      "grainKind": "event",
+      "dateRange": {
+        "column": "order_date",
+        "max": "2026-06-30",
+        "min": "2026-01-02"
+      },
       "grainEvidence": {
         "dateColumn": "order_date",
-        "entityColumns": [],
         "distinctDates": 181,
-        "repeatedEntities": 0,
-        "entities": 0
+        "entities": 0,
+        "entityColumns": [],
+        "repeatedEntities": 0
       },
+      "grainKind": "event",
       "grainQuestionId": null,
       "keys": [
         [
           "order_id"
         ]
       ],
-      "dateRange": {
-        "column": "order_date",
-        "min": "2026-01-02",
-        "max": "2026-06-30"
-      },
-      "columnCount": 6,
-      "columns": [
-        {
-          "name": "order_id",
-          "type": "text",
-          "role": "key",
-          "isKey": true,
-          "isLink": true,
-          "nullRate": 0,
-          "distinctCount": 12480
-        },
-        {
-          "name": "customer_id",
-          "type": "text",
-          "role": "text",
-          "isKey": false,
-          "isLink": true,
-          "nullRate": 0,
-          "distinctCount": 12480
-        },
-        {
-          "name": "territory_id",
-          "type": "text",
-          "role": "text",
-          "isKey": false,
-          "isLink": true,
-          "nullRate": 0,
-          "distinctCount": 512
-        },
-        {
-          "name": "category_id",
-          "type": "text",
-          "role": "text",
-          "isKey": false,
-          "isLink": true,
-          "nullRate": 0,
-          "distinctCount": 96
-        },
-        {
-          "name": "order_date",
-          "type": "date",
-          "role": "date",
-          "isKey": false,
-          "isLink": false,
-          "nullRate": 0,
-          "distinctCount": 181
-        },
-        {
-          "name": "amount",
-          "type": "decimal",
-          "role": "amount",
-          "isKey": false,
-          "isLink": false,
-          "nullRate": 0,
-          "distinctCount": 12480
-        }
-      ]
+      "measuredRows": 12480,
+      "name": "orders",
+      "roleQuestionId": null,
+      "rowCount": 12480,
+      "structural": "fact",
+      "tableId": "t_orders"
     },
     {
-      "tableId": "t_order_items",
-      "name": "order_items",
-      "rowCount": 29850,
-      "measuredRows": 29850,
-      "structural": "fact",
+      "columnCount": 5,
+      "columns": [
+        {
+          "distinctCount": 29850,
+          "isKey": true,
+          "isLink": false,
+          "name": "order_item_id",
+          "nullRate": 0,
+          "role": "key",
+          "type": "text"
+        },
+        {
+          "distinctCount": 12480,
+          "isKey": false,
+          "isLink": true,
+          "name": "order_id",
+          "nullRate": 0,
+          "role": "text",
+          "type": "text"
+        },
+        {
+          "distinctCount": 640,
+          "isKey": false,
+          "isLink": true,
+          "name": "product_id",
+          "nullRate": 0,
+          "role": "text",
+          "type": "text"
+        },
+        {
+          "distinctCount": 48,
+          "isKey": false,
+          "isLink": false,
+          "name": "quantity",
+          "nullRate": 0,
+          "role": "amount",
+          "type": "integer"
+        },
+        {
+          "distinctCount": 162,
+          "isKey": false,
+          "isLink": false,
+          "name": "ship_date",
+          "nullRate": 0,
+          "role": "date",
+          "type": "date"
+        }
+      ],
       "confidence": 0.95,
-      "roleQuestionId": null,
-      "grainKind": "event",
+      "dateRange": {
+        "column": "ship_date",
+        "max": "2026-06-30",
+        "min": "2026-01-03"
+      },
       "grainEvidence": {
         "dateColumn": "ship_date",
-        "entityColumns": [],
         "distinctDates": 162,
-        "repeatedEntities": 0,
-        "entities": 0
+        "entities": 0,
+        "entityColumns": [],
+        "repeatedEntities": 0
       },
+      "grainKind": "event",
       "grainQuestionId": null,
       "keys": [
         [
           "order_item_id"
         ]
       ],
-      "dateRange": {
-        "column": "ship_date",
-        "min": "2026-01-03",
-        "max": "2026-06-30"
-      },
-      "columnCount": 5,
-      "columns": [
-        {
-          "name": "order_item_id",
-          "type": "text",
-          "role": "key",
-          "isKey": true,
-          "isLink": false,
-          "nullRate": 0,
-          "distinctCount": 29850
-        },
-        {
-          "name": "order_id",
-          "type": "text",
-          "role": "text",
-          "isKey": false,
-          "isLink": true,
-          "nullRate": 0,
-          "distinctCount": 12480
-        },
-        {
-          "name": "product_id",
-          "type": "text",
-          "role": "text",
-          "isKey": false,
-          "isLink": true,
-          "nullRate": 0,
-          "distinctCount": 640
-        },
-        {
-          "name": "quantity",
-          "type": "integer",
-          "role": "amount",
-          "isKey": false,
-          "isLink": false,
-          "nullRate": 0,
-          "distinctCount": 48
-        },
-        {
-          "name": "ship_date",
-          "type": "date",
-          "role": "date",
-          "isKey": false,
-          "isLink": false,
-          "nullRate": 0,
-          "distinctCount": 162
-        }
-      ]
+      "measuredRows": 29850,
+      "name": "order_items",
+      "roleQuestionId": null,
+      "rowCount": 29850,
+      "structural": "fact",
+      "tableId": "t_order_items"
     },
     {
-      "tableId": "t_inventory",
-      "name": "inventory",
-      "rowCount": 3844,
-      "measuredRows": 3844,
-      "structural": "fact",
+      "columnCount": 3,
+      "columns": [
+        {
+          "distinctCount": 62,
+          "isKey": true,
+          "isLink": true,
+          "name": "product_id",
+          "nullRate": 0,
+          "role": "key",
+          "type": "text"
+        },
+        {
+          "distinctCount": 61,
+          "isKey": true,
+          "isLink": false,
+          "name": "inventory_date",
+          "nullRate": 0,
+          "role": "date",
+          "type": "date"
+        },
+        {
+          "distinctCount": 3844,
+          "isKey": false,
+          "isLink": false,
+          "name": "qty_on_hand",
+          "nullRate": 0,
+          "role": "amount",
+          "type": "integer"
+        }
+      ],
       "confidence": 0.8,
-      "roleQuestionId": null,
-      "grainKind": "snapshot",
+      "dateRange": {
+        "column": "inventory_date",
+        "max": "2026-07-31",
+        "min": "2026-06-01"
+      },
       "grainEvidence": {
         "dateColumn": "inventory_date",
+        "distinctDates": 61,
+        "entities": 62,
         "entityColumns": [
           "product_id"
         ],
-        "distinctDates": 61,
-        "repeatedEntities": 18,
-        "entities": 62
+        "repeatedEntities": 18
       },
+      "grainKind": "snapshot",
       "grainQuestionId": "q_grain_inventory",
       "keys": [
         [
@@ -200,226 +372,213 @@
           "inventory_date"
         ]
       ],
-      "dateRange": {
-        "column": "inventory_date",
-        "min": "2026-06-01",
-        "max": "2026-07-31"
-      },
+      "measuredRows": 3844,
+      "name": "inventory",
+      "roleQuestionId": null,
+      "rowCount": 3844,
+      "structural": "fact",
+      "tableId": "t_inventory"
+    },
+    {
       "columnCount": 3,
       "columns": [
         {
-          "name": "product_id",
-          "type": "text",
-          "role": "key",
+          "distinctCount": 512,
           "isKey": true,
           "isLink": true,
+          "name": "customer_id",
           "nullRate": 0,
-          "distinctCount": 62
+          "role": "key",
+          "type": "text"
         },
         {
-          "name": "inventory_date",
-          "type": "date",
-          "role": "date",
-          "isKey": true,
-          "isLink": false,
-          "nullRate": 0,
-          "distinctCount": 61
-        },
-        {
-          "name": "qty_on_hand",
-          "type": "integer",
-          "role": "amount",
+          "distinctCount": 512,
           "isKey": false,
           "isLink": false,
+          "name": "name",
           "nullRate": 0,
-          "distinctCount": 3844
+          "role": "text",
+          "type": "text"
+        },
+        {
+          "distinctCount": 24,
+          "isKey": false,
+          "isLink": false,
+          "name": "country",
+          "nullRate": 0.01,
+          "role": "text",
+          "type": "text"
         }
-      ]
-    },
-    {
-      "tableId": "t_customers",
-      "name": "customers",
-      "rowCount": 512,
-      "measuredRows": 512,
-      "structural": "dim",
+      ],
       "confidence": 0.9,
-      "roleQuestionId": null,
-      "grainKind": "unknown",
+      "dateRange": null,
       "grainEvidence": null,
+      "grainKind": "unknown",
       "grainQuestionId": null,
       "keys": [
         [
           "customer_id"
         ]
       ],
-      "dateRange": null,
+      "measuredRows": 512,
+      "name": "customers",
+      "roleQuestionId": null,
+      "rowCount": 512,
+      "structural": "dim",
+      "tableId": "t_customers"
+    },
+    {
       "columnCount": 3,
       "columns": [
         {
-          "name": "customer_id",
-          "type": "text",
-          "role": "key",
+          "distinctCount": 640,
           "isKey": true,
           "isLink": true,
+          "name": "product_id",
           "nullRate": 0,
-          "distinctCount": 512
+          "role": "key",
+          "type": "text"
         },
         {
+          "distinctCount": 640,
+          "isKey": false,
+          "isLink": false,
           "name": "name",
-          "type": "text",
-          "role": "text",
-          "isKey": false,
-          "isLink": false,
           "nullRate": 0,
-          "distinctCount": 512
+          "role": "text",
+          "type": "text"
         },
         {
-          "name": "country",
-          "type": "text",
-          "role": "text",
+          "distinctCount": 540,
           "isKey": false,
           "isLink": false,
+          "name": "unit_price",
           "nullRate": 0.01,
-          "distinctCount": 24
+          "role": "amount",
+          "type": "decimal"
         }
-      ]
-    },
-    {
-      "tableId": "t_products",
-      "name": "products",
-      "rowCount": 640,
-      "measuredRows": 640,
-      "structural": "dim",
+      ],
       "confidence": 0.9,
-      "roleQuestionId": null,
-      "grainKind": "unknown",
+      "dateRange": null,
       "grainEvidence": null,
+      "grainKind": "unknown",
       "grainQuestionId": null,
       "keys": [
         [
           "product_id"
         ]
       ],
-      "dateRange": null,
-      "columnCount": 3,
-      "columns": [
-        {
-          "name": "product_id",
-          "type": "text",
-          "role": "key",
-          "isKey": true,
-          "isLink": true,
-          "nullRate": 0,
-          "distinctCount": 640
-        },
-        {
-          "name": "name",
-          "type": "text",
-          "role": "text",
-          "isKey": false,
-          "isLink": false,
-          "nullRate": 0,
-          "distinctCount": 640
-        },
-        {
-          "name": "unit_price",
-          "type": "decimal",
-          "role": "amount",
-          "isKey": false,
-          "isLink": false,
-          "nullRate": 0.01,
-          "distinctCount": 540
-        }
-      ]
+      "measuredRows": 640,
+      "name": "products",
+      "roleQuestionId": null,
+      "rowCount": 640,
+      "structural": "dim",
+      "tableId": "t_products"
     },
     {
-      "tableId": "t_territory",
-      "name": "territory",
-      "rowCount": 48,
-      "measuredRows": 48,
-      "structural": "dim",
+      "columnCount": 2,
+      "columns": [
+        {
+          "distinctCount": 48,
+          "isKey": true,
+          "isLink": true,
+          "name": "territory_id",
+          "nullRate": 0,
+          "role": "key",
+          "type": "text"
+        },
+        {
+          "distinctCount": 6,
+          "isKey": false,
+          "isLink": false,
+          "name": "region",
+          "nullRate": 0,
+          "role": "text",
+          "type": "text"
+        }
+      ],
       "confidence": 0.9,
-      "roleQuestionId": null,
-      "grainKind": "unknown",
+      "dateRange": null,
       "grainEvidence": null,
+      "grainKind": "unknown",
       "grainQuestionId": null,
       "keys": [
         [
           "territory_id"
         ]
       ],
-      "dateRange": null,
+      "measuredRows": 48,
+      "name": "territory",
+      "roleQuestionId": null,
+      "rowCount": 48,
+      "structural": "dim",
+      "tableId": "t_territory"
+    },
+    {
       "columnCount": 2,
       "columns": [
         {
-          "name": "territory_id",
-          "type": "text",
-          "role": "key",
+          "distinctCount": 96,
           "isKey": true,
           "isLink": true,
+          "name": "category_id",
           "nullRate": 0,
-          "distinctCount": 48
+          "role": "key",
+          "type": "text"
         },
         {
-          "name": "region",
-          "type": "text",
-          "role": "text",
+          "distinctCount": 96,
           "isKey": false,
           "isLink": false,
+          "name": "name",
           "nullRate": 0,
-          "distinctCount": 6
+          "role": "text",
+          "type": "text"
         }
-      ]
-    },
-    {
-      "tableId": "t_categories",
-      "name": "categories",
-      "rowCount": 96,
-      "measuredRows": 96,
-      "structural": "lookup",
+      ],
       "confidence": 0.75,
-      "roleQuestionId": null,
-      "grainKind": "unknown",
+      "dateRange": null,
       "grainEvidence": null,
+      "grainKind": "unknown",
       "grainQuestionId": null,
       "keys": [
         [
           "category_id"
         ]
       ],
-      "dateRange": null,
+      "measuredRows": 96,
+      "name": "categories",
+      "roleQuestionId": null,
+      "rowCount": 96,
+      "structural": "lookup",
+      "tableId": "t_categories"
+    },
+    {
       "columnCount": 2,
       "columns": [
         {
-          "name": "category_id",
-          "type": "text",
-          "role": "key",
+          "distinctCount": 640,
           "isKey": true,
           "isLink": true,
+          "name": "product_id",
           "nullRate": 0,
-          "distinctCount": 96
+          "role": "key",
+          "type": "text"
         },
         {
-          "name": "name",
-          "type": "text",
-          "role": "text",
-          "isKey": false,
+          "distinctCount": 48,
+          "isKey": true,
           "isLink": false,
+          "name": "region_id",
           "nullRate": 0,
-          "distinctCount": 96
+          "role": "key",
+          "type": "text"
         }
-      ]
-    },
-    {
-      "tableId": "t_bridge",
-      "name": "product_region_bridge",
-      "rowCount": 35800,
-      "measuredRows": 35800,
-      "structural": "bridge",
+      ],
       "confidence": 0.7,
-      "roleQuestionId": null,
-      "grainKind": "unknown",
+      "dateRange": null,
       "grainEvidence": null,
+      "grainKind": "unknown",
       "grainQuestionId": null,
       "keys": [
         [
@@ -427,184 +586,25 @@
           "region_id"
         ]
       ],
-      "dateRange": null,
-      "columnCount": 2,
-      "columns": [
-        {
-          "name": "product_id",
-          "type": "text",
-          "role": "key",
-          "isKey": true,
-          "isLink": true,
-          "nullRate": 0,
-          "distinctCount": 640
-        },
-        {
-          "name": "region_id",
-          "type": "text",
-          "role": "key",
-          "isKey": true,
-          "isLink": false,
-          "nullRate": 0,
-          "distinctCount": 48
-        }
-      ]
-    }
-  ],
-  "relationships": [
-    {
-      "id": "rel_orders_customers",
-      "fromTable": "t_orders",
-      "fromColumns": [
-        "customer_id"
-      ],
-      "toTable": "t_customers",
-      "toColumns": [
-        "customer_id"
-      ],
-      "cardinality": "N:1",
-      "status": "auto",
-      "fanOutRisk": "none",
-      "overlap": 1.0,
-      "orphan": 0,
-      "rowsBefore": null,
-      "rowsAfter": null,
-      "wireState": "safe",
-      "questionId": null
-    },
-    {
-      "id": "rel_orders_territory",
-      "fromTable": "t_orders",
-      "fromColumns": [
-        "territory_id"
-      ],
-      "toTable": "t_territory",
-      "toColumns": [
-        "territory_id"
-      ],
-      "cardinality": "N:1",
-      "status": "auto",
-      "fanOutRisk": "none",
-      "overlap": 0.99,
-      "orphan": 0,
-      "rowsBefore": null,
-      "rowsAfter": null,
-      "wireState": "safe",
-      "questionId": null
-    },
-    {
-      "id": "rel_items_orders",
-      "fromTable": "t_order_items",
-      "fromColumns": [
-        "order_id"
-      ],
-      "toTable": "t_orders",
-      "toColumns": [
-        "order_id"
-      ],
-      "cardinality": "N:1",
-      "status": "auto",
-      "fanOutRisk": "none",
-      "overlap": 1.0,
-      "orphan": 0,
-      "rowsBefore": null,
-      "rowsAfter": null,
-      "wireState": "safe",
-      "questionId": null
-    },
-    {
-      "id": "rel_items_products",
-      "fromTable": "t_order_items",
-      "fromColumns": [
-        "product_id"
-      ],
-      "toTable": "t_products",
-      "toColumns": [
-        "product_id"
-      ],
-      "cardinality": "N:1",
-      "status": "needs_confirm",
-      "fanOutRisk": "none",
-      "overlap": 0.94,
-      "orphan": 740,
-      "rowsBefore": null,
-      "rowsAfter": null,
-      "wireState": "orphan",
-      "questionId": "q_rel_orphan"
-    },
-    {
-      "id": "rel_items_categories",
-      "fromTable": "t_order_items",
-      "fromColumns": [
-        "category_id"
-      ],
-      "toTable": "t_categories",
-      "toColumns": [
-        "category_id"
-      ],
-      "cardinality": "N:1",
-      "status": "auto",
-      "fanOutRisk": "none",
-      "overlap": 0.97,
-      "orphan": 0,
-      "rowsBefore": null,
-      "rowsAfter": null,
-      "wireState": "safe",
-      "questionId": null
-    },
-    {
-      "id": "rel_inventory_products",
-      "fromTable": "t_inventory",
-      "fromColumns": [
-        "product_id"
-      ],
-      "toTable": "t_products",
-      "toColumns": [
-        "product_id"
-      ],
-      "cardinality": "N:1",
-      "status": "auto",
-      "fanOutRisk": "none",
-      "overlap": 1.0,
-      "orphan": 0,
-      "rowsBefore": null,
-      "rowsAfter": null,
-      "wireState": "safe",
-      "questionId": null
-    },
-    {
-      "id": "rel_bridge_products",
-      "fromTable": "t_bridge",
-      "fromColumns": [
-        "product_id"
-      ],
-      "toTable": "t_products",
-      "toColumns": [
-        "product_id"
-      ],
-      "cardinality": "N:N",
-      "status": "needs_confirm",
-      "fanOutRisk": "high",
-      "overlap": 0.85,
-      "orphan": 0,
-      "rowsBefore": 12480,
-      "rowsAfter": 35800,
-      "wireState": "fanout",
-      "questionId": "q_rel_fanout"
-    }
-  ],
-  "warnings": [
-    {
-      "code": "AF_ORPHAN_ROWS",
-      "severity": "warning",
-      "questionId": null
-    },
-    {
-      "code": "AF_FANOUT_RISK",
-      "severity": "warning",
-      "questionId": "q_rel_fanout"
+      "measuredRows": 35800,
+      "name": "product_region_bridge",
+      "roleQuestionId": null,
+      "rowCount": 35800,
+      "structural": "bridge",
+      "tableId": "t_bridge"
     }
   ],
   "understandHash": "sha256:f651c12c8c9cfd470d6d49a269a1a133e012c681e4beb5546b4af9309e8db2f0",
-  "modelViewHash": "sha256:d811a95a7e49c6be9ae9824f52a16f67e27e9930431c58896069cc1dc963319f"
+  "warnings": [
+    {
+      "code": "AF_ORPHAN_ROWS",
+      "questionId": null,
+      "severity": "warning"
+    },
+    {
+      "code": "AF_FANOUT_RISK",
+      "questionId": "q_rel_fanout",
+      "severity": "warning"
+    }
+  ]
 }

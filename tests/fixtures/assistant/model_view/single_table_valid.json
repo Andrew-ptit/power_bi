@@ -1,80 +1,80 @@
 {
-  "schemaVersion": "1.0",
-  "mode": "model",
-  "measuredOn": "full",
   "counts": {
-    "tables": 1,
-    "fact": 1,
-    "dim": 0,
-    "lookup": 0,
     "bridge": 0,
-    "unclassified": 0,
-    "relationships": 0,
+    "dim": 0,
+    "fact": 1,
+    "lookup": 0,
     "needsConfirm": 0,
+    "relationships": 0,
+    "tables": 1,
+    "unclassified": 0,
     "warnings": 0
   },
+  "measuredOn": "full",
+  "mode": "model",
+  "modelViewHash": "sha256:462a1d6d560f2531894fcf3f7a94de0b9dd3a8850bf23edabc8fbaaff6a4c68d",
+  "relationships": [],
+  "schemaVersion": "1.0",
   "tables": [
     {
-      "tableId": "t_events",
-      "name": "Events",
-      "rowCount": 500,
-      "measuredRows": 500,
-      "structural": "fact",
+      "columnCount": 3,
+      "columns": [
+        {
+          "distinctCount": 500,
+          "isKey": true,
+          "isLink": false,
+          "name": "event_id",
+          "nullRate": 0,
+          "role": "key",
+          "type": "text"
+        },
+        {
+          "distinctCount": 31,
+          "isKey": false,
+          "isLink": false,
+          "name": "event_date",
+          "nullRate": 0,
+          "role": "date",
+          "type": "date"
+        },
+        {
+          "distinctCount": 500,
+          "isKey": false,
+          "isLink": false,
+          "name": "value",
+          "nullRate": 0,
+          "role": "amount",
+          "type": "decimal"
+        }
+      ],
       "confidence": 0.9,
-      "roleQuestionId": null,
-      "grainKind": "event",
+      "dateRange": {
+        "column": "event_date",
+        "max": "2026-01-31",
+        "min": "2026-01-01"
+      },
       "grainEvidence": {
         "dateColumn": "event_date",
-        "entityColumns": [],
         "distinctDates": 31,
-        "repeatedEntities": 0,
-        "entities": 0
+        "entities": 0,
+        "entityColumns": [],
+        "repeatedEntities": 0
       },
+      "grainKind": "event",
       "grainQuestionId": null,
       "keys": [
         [
           "event_id"
         ]
       ],
-      "dateRange": {
-        "column": "event_date",
-        "min": "2026-01-01",
-        "max": "2026-01-31"
-      },
-      "columnCount": 3,
-      "columns": [
-        {
-          "name": "event_id",
-          "type": "text",
-          "role": "key",
-          "isKey": true,
-          "isLink": false,
-          "nullRate": 0,
-          "distinctCount": 500
-        },
-        {
-          "name": "event_date",
-          "type": "date",
-          "role": "date",
-          "isKey": false,
-          "isLink": false,
-          "nullRate": 0,
-          "distinctCount": 31
-        },
-        {
-          "name": "value",
-          "type": "decimal",
-          "role": "amount",
-          "isKey": false,
-          "isLink": false,
-          "nullRate": 0,
-          "distinctCount": 500
-        }
-      ]
+      "measuredRows": 500,
+      "name": "Events",
+      "roleQuestionId": null,
+      "rowCount": 500,
+      "structural": "fact",
+      "tableId": "t_events"
     }
   ],
-  "relationships": [],
-  "warnings": [],
   "understandHash": "sha256:f69a0af99541de3e7904f8a4a581a4815ee0dba7b501f5632877eb7025d96372",
-  "modelViewHash": "sha256:462a1d6d560f2531894fcf3f7a94de0b9dd3a8850bf23edabc8fbaaff6a4c68d"
+  "warnings": []
 }
