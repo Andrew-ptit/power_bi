@@ -7,6 +7,7 @@ Mọi dòng `Pass` phải kèm lệnh, output và revision thật.
 | Task | Status | Command | Output | Revision |
 |---|---|---|---|---|
 | T400 | Pass | `py tools/run_checks.py fast`; `py -m unittest tests.unit.test_assistant_understand tests.unit.test_assistant_keys tests.unit.test_assistant_roles tests.contracts.test_assistant_wl2 tests.integration.test_assistant_flow_api -v`; `py -m unittest tests.taskpane.test_taskpane_js -v` | fast: run=1293 failed=0 errors=0 skipped=3 elapsed=203.881s (EXIT=0); understand/keys/roles/wl2/flow-api: Ran 82 tests OK (18.628s); taskpane_js: Ran 15 tests OK (4.527s); gate log `.artifacts/gate_a5.log` | `3f1c607` (working tree chỉ sửa `acceptance.md`; baseline fast chạy trên `main` 592e1d3 — xem Ghi chú T400) |
+| T401 | Pass | `py -m unittest tests.contracts.test_assistant_model_view_contract -v`; `py -m unittest tests.unit.test_import_smoke -v` | contract: Ran 7 tests OK (0.396s, EXIT=0); import_smoke: Ran 1 test OK (0.328s, EXIT=0); schema đóng + 4 fixture `model_view` (8 bảng star, per_sheet, bảng đơn, 22 ví dụ sai); docs ghi supersession có ngày; không đụng code runtime/UI | `29c6869` (schema, contract test, fixtures, 4 owner docs) |
 
 ## Bảng ánh xạ đường dẫn (T400 điền)
 
