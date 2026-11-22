@@ -425,6 +425,7 @@ class ExcelAddinRequestHandler(
             "/": ("taskpane.html", "text/html; charset=utf-8"),
             "/taskpane.html": ("taskpane.html", "text/html; charset=utf-8"),
             "/commands.html": ("commands.html", "text/html; charset=utf-8"),
+            "/model_dialog.html": ("model_dialog.html", "text/html; charset=utf-8"),
             "/assets/taskpane.css": ("taskpane.css", "text/css; charset=utf-8"),
             "/assets/taskpane.js": ("taskpane.js", "text/javascript; charset=utf-8"),
 "/assets/taskpane_core.js": ("taskpane_core.js", "text/javascript; charset=utf-8"),
@@ -439,6 +440,8 @@ class ExcelAddinRequestHandler(
             "/assets/assistant_entry.js": ("assistant_entry.js", "text/javascript; charset=utf-8"),
 "/assets/assistant_model_diagram.js": ("assistant_model_diagram.js", "text/javascript; charset=utf-8"),
 "/assets/assistant_understand.js": ("assistant_understand.js", "text/javascript; charset=utf-8"),
+"/assets/model_dialog.html": ("model_dialog.html", "text/html; charset=utf-8"),
+"/assets/model_dialog.js": ("model_dialog.js", "text/javascript; charset=utf-8"),
 "/assets/assistant_browser.js": ("assistant_browser.js", "text/javascript; charset=utf-8"),
             "/assets/assistant_custom_xml.js": ("assistant_custom_xml.js", "text/javascript; charset=utf-8"),
         }

@@ -119,6 +119,23 @@ class ExcelAddinServerTests(unittest.TestCase):
         self.assertTrue(bootstrap["capabilities"]["pqTypedStepsV2"])
         self.assertTrue(bootstrap["capabilities"]["pqTypedStepDiagnostics"])
 
+    def test_model_dialog_assets_are_served_without_token_and_never_expose_it(self) -> None:
+        """T406: the expanded dialog is a static same-origin asset (view only)."""
+        status, _, page = self.request("GET", "/model_dialog.html")
+        self.assertEqual(status, 200)
+        self.assertIn("Mô hình dữ liệu", page)
+        self.assertIn('id="model-dialog-collapse"', page)
+        self.assertIn('/assets/model_dialog.js', page)
+        self.assertNotIn(self.token, page, "the dialog page must not embed the token")
+        status, _, script = self.request("GET", "/assets/model_dialog.js")
+        self.assertEqual(status, 200)
+        for forbidden in ("fetch(", "XMLHttpRequest", "Excel.run"):
+            self.assertNotIn(forbidden, script, "dialog stays a pure view")
+        self.assertNotIn(self.token, script)
+        # No auth is required to load either asset.
+        status, _, _ = self.request("GET", "/model_dialog.html", headers={"Origin": f"http://127.0.0.1:{self.port}"})
+        self.assertEqual(status, 200)
+
     def test_step_diagnostic_sample_profiles_once_then_uses_cache(self) -> None:
         request = {
             "workbook": self.workbook,

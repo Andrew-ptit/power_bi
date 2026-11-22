@@ -15,8 +15,9 @@
   const SAMPLE_WARNING = "Khóa và quan hệ được đo trên mẫu và có thể thiếu hoặc sai.";
   const NO_KEY = "Chưa tìm thấy khóa duy nhất";
   const PER_SHEET_NOTE = "Chưa đủ bằng chứng để dựng mô hình quan hệ giữa các bảng; xem từng sheet. Không phải lỗi — bạn vẫn có thể sang Đề bài.";
+  const MODEL_DIALOG_MAX_BYTES = 1_000_000;
 
-  function mount({document, getState, setAnswer, onContinue, diagram}) {
+  function mount({document, getState, setAnswer, onContinue, diagram, office}) {
     if (!document || typeof getState !== "function" || typeof setAnswer !== "function") {
       throw new Error("Bước Hiểu cần document, getState và setAnswer.");
     }
@@ -24,6 +25,82 @@
     const element = (tag, text) => { const node = document.createElement(tag); if (text !== undefined) node.textContent = text; return node; };
     let view = "list";
     let centerTableId = null;
+    let dialogs = new Set();
+    let sentHash = null;
+
+    function dialogSupported() {
+      return office?.context?.requirements?.isSetSupported?.("DialogApi", "1.2") === true;
+    }
+
+    function dialogPayload(state) {
+      const questions = (state.questions || []).map(question => ({
+        id: question.id, topic: question.topic, question: question.question, options: question.options || [],
+      }));
+      return {type: "model", modelView: state.modelView, answers: state.answers || {}, questions};
+    }
+
+    function sendToDialogs(message) {
+      for (const dialog of dialogs) {
+        if (typeof dialog.messageChild === "function") {
+          try { dialog.messageChild(JSON.stringify(message)); } catch { /* closed mid-send */ }
+        }
+      }
+    }
+
+    function dialogClosed(dialog) {
+      dialogs.delete(dialog);
+    }
+
+    function handleDialogMessage(dialog, raw) {
+      let message;
+      try { message = JSON.parse(raw); } catch { return; }
+      if (!message || typeof message !== "object" || typeof message.type !== "string") return;
+      if (message.type === "ready") {
+        const state = getState() || {};
+        const payload = dialogPayload(state);
+        const size = JSON.stringify(payload).length;
+        if (!state.modelView || size > MODEL_DIALOG_MAX_BYTES) {
+          get("assistant-understand-message").textContent = size > MODEL_DIALOG_MAX_BYTES
+            ? "Dữ liệu vượt giới hạn message hộp thoại; không mở được sơ đồ mở rộng."
+            : "";
+          return;
+        }
+        sentHash = state.modelView.modelViewHash;
+        if (typeof dialog.messageChild === "function") dialog.messageChild(JSON.stringify(payload));
+        return;
+      }
+      if (message.type === "close") { dialogClosed(dialog); return; }
+      if (message.type === "answer") {
+        const state = getState() || {};
+        if (!state.modelView || message.modelViewHash !== state.modelView.modelViewHash) return;
+        const question = (state.questions || []).find(item => item.id === message.questionId);
+        if (!question || !(question.options || []).includes(message.answer)) return;
+        setAnswer(message.questionId, message.answer);
+        const payload = dialogPayload({modelView: state.modelView, questions: state.questions, answers: {}});
+        const current = getState() || {};
+        payload.answers = current.answers || {};
+        if (typeof dialog.messageChild === "function") dialog.messageChild(JSON.stringify(payload));
+      }
+    }
+
+    function openDialog() {
+      if (!dialogSupported() || !office?.context?.ui?.displayDialogAsync) return;
+      office.context.ui.displayDialogAsync("/model_dialog.html", {height: 70, width: 45, displayInIframe: true},
+        (result) => {
+          const dialog = result?.value;
+          if (!dialog) return;
+          dialogs.add(dialog);
+          const onMessage = event => handleDialogMessage(dialog, event?.message);
+          const onEvent = () => dialogClosed(dialog);
+          if (office.context.ui.addHandler) {
+            office.context.ui.addHandler("dialogMessageReceived", onMessage);
+            office.context.ui.addHandler("dialogEventReceived", onEvent);
+          } else if (typeof dialog.addEventListener === "function") {
+            dialog.addEventListener("dialogMessageReceived", onMessage);
+            dialog.addEventListener("dialogEventReceived", onEvent);
+          }
+        });
+    }
 
     function keySentence(table) {
       const key = (table.keys || [])[0];
@@ -195,6 +272,9 @@
       const modelView = state.modelView;
       const answers = state.answers || {};
       const questions = state.questions || [];
+      const expand = get("assistant-understand-expand");
+      expand.hidden = !dialogSupported();
+      expand.disabled = !modelView;
       if (!modelView) {
         get("assistant-understand-message").textContent = state.message || "Đang đo cấu trúc dữ liệu…";
         for (const id of ["assistant-understand-overview", "assistant-understand-tables",
@@ -202,6 +282,11 @@
                            "assistant-understand-warnings"]) get(id).replaceChildren();
         get("assistant-understand-continue").disabled = true;
         return;
+      }
+      // A changed modelView invalidates any open dialog (H09/H12).
+      if (dialogs.size && sentHash !== null && sentHash !== modelView.modelViewHash) {
+        sendToDialogs({type: "stale"});
+        sentHash = null;
       }
       const onClick = (questionId, option) => { setAnswer(questionId, option); render(); };
       const message = get("assistant-understand-message");
@@ -219,8 +304,9 @@
     get("assistant-rel-list-button").addEventListener("click", () => switchView(getState()?.modelView, "list"));
     get("assistant-rel-diagram-button").addEventListener("click", () => switchView(getState()?.modelView, "diagram"));
     get("assistant-understand-continue").addEventListener("click", () => { if (typeof onContinue === "function") onContinue(); });
+    get("assistant-understand-expand").addEventListener("click", () => openDialog());
     render();
-    return {render, keySentence, view: () => view};
+    return {render, keySentence, view: () => view, dialogs: () => dialogs.size};
   }
 
   const api = {mount};
