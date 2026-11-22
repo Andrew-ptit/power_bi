@@ -25,6 +25,7 @@ from .assistant_profile import build_snapshot, snapshot_hash
 from .assistant_understand import build_understand, _bind_raw, _HASH_BASIS, understand_hash
 from .assistant_keys import has_finance_schema, key_report
 from .assistant_roles import assumption_ledger, warning_classification
+from .assistant_model_view import build_model_view, grain_kind
 from pbip_assistant.powerquery.typed_local import execute_plan
 from .assistant_reconcile_v2 import (ENGINE, build_preview, reconcile_v2, build_ab_delta,
                                      bind_ab_identity, ab_identity_passed)
@@ -40,6 +41,8 @@ _STAGES = ("new", "ingested", "understood", "planning", "branched", "frozen", "a
 _MODES = (MODE_DISCOVER, MODE_COMPUTE)
 _CACHE_MAX_BYTES = 64 * 1024 * 1024
 _PREVIEW_MAX_BYTES = 1024 * 1024
+# The single place that recognises bounded WL2 limit errors (task 403 item 5).
+_WL2_LIMIT_MARKERS = ("exceeds the bounded",)
 
 
 def _capture_apply_error_authority(*, may_prove_preconsume):
@@ -70,8 +73,12 @@ def _table_content_hash(raw: dict) -> str:
     return canonical_hash({key: raw[key] for key in ("header", "rows", "mode", "totalRows", "sampleOrdinals")})
 
 
-def _questions(snapshot: dict, understand: dict) -> list[dict]:
-    """Produce deterministic review questions from measured, non-AI evidence."""
+def _questions(snapshot: dict, understand: dict, grain_proposals: dict | None = None) -> list[dict]:
+    """Produce deterministic review questions from measured, non-AI evidence.
+
+    `grain_proposals` maps tableId → (grainKind, grainEvidence) per spec 004 §6;
+    when provided, snapshot tables get a `grain` confirmation question (contract §5).
+    """
     result = []
 
     def add(topic, question, evidence, options=None):
@@ -107,6 +114,19 @@ def _questions(snapshot: dict, understand: dict) -> list[dict]:
     for assumption in understand["assumptions"]:
         add("assumption", "Xác nhận giả định: " + assumption["statement"],
             [{"kind": "assumption", "value": deepcopy(assumption)}], ["Đúng", "Không đúng", "Chưa rõ"])
+    if grain_proposals:
+        roles_by_table = {role["tableId"]: role for role in understand["roles"]}
+        for table in snapshot["tables"]:
+            kind, evidence = grain_proposals.get(table["id"], ("unknown", None))
+            if kind != "snapshot":
+                continue
+            role = roles_by_table.get(table["id"])
+            structural = role["structural"] if role else "unclassified"
+            if structural in ("dim", "lookup"):
+                continue
+            add("grain", f"Bảng {table['name']} là ảnh chụp theo ngày (không cộng dồn số liệu qua các ngày)?",
+                [{"kind": "grain", "ref": table["id"], "value": evidence}],
+                ["Đúng, là ảnh chụp", "Không, là sự kiện", "Chưa rõ"])
     return sorted(result, key=lambda item: item["id"])
 
 
@@ -126,6 +146,7 @@ class AssistantSessionStore:
             self._raw_tables = []
             self._snapshot = None
             self._understand = None
+            self._model_view = None
             self._questions = []
             self._planning = None
             self._branch_results = {}
@@ -214,7 +235,7 @@ class AssistantSessionStore:
             self._session["_assistant_ingest"] = deepcopy(result)
             self._ingested = result
             self._raw_tables = deepcopy(result["tables"])
-            self._snapshot = self._understand = None
+            self._snapshot = self._understand = self._model_view = None
             self._questions = []
             self._planning = None
             self._branch_results = {}
@@ -326,6 +347,9 @@ class AssistantSessionStore:
                 self._verify_source_binding()
                 model = build_understand(self._raw_tables, self._snapshot)
             except ValueError as exc:
+                if any(marker in str(exc) for marker in _WL2_LIMIT_MARKERS):
+                    raise InputError("AF_UNDERSTAND_LIMIT", "understand",
+                                     "Dữ liệu vượt giới hạn đo cấu trúc trên toàn bộ dòng.") from None
                 if str(exc) != "No largest table has repeated foreign keys and at least two targets":
                     raise InputError("AF_UNDERSTAND_INVALID", "understand", "Nguồn không khớp snapshot hoặc cấu trúc chưa hợp lệ.") from None
                 # v2 treats the absence of a fact/lookup graph as uncertainty,
@@ -344,10 +368,32 @@ class AssistantSessionStore:
                              "warnings": warning_classification(context, bound),
                              "variantOf": None, "variantReason": None, "hashBasis": list(_HASH_BASIS)}
                     model["understandHash"] = understand_hash(model)
-                except ValueError:
+                except ValueError as exc:
+                    if any(marker in str(exc) for marker in _WL2_LIMIT_MARKERS):
+                        raise InputError("AF_UNDERSTAND_LIMIT", "understand",
+                                         "Dữ liệu vượt giới hạn đo cấu trúc trên toàn bộ dòng.") from None
                     raise InputError("AF_UNDERSTAND_INVALID", "understand", "Nguồn không khớp snapshot hoặc cấu trúc chưa hợp lệ.") from None
+            # Derived modelView and grain questions, built under the same lock;
+            # nothing is stored until every piece succeeded (no half state).
+            try:
+                bound = _bind_raw(self._raw_tables, self._snapshot)
+                report = key_report(bound)
+                bound_by_name = {raw["name"]: raw for raw in bound}
+                grain_proposals = {}
+                for table in self._snapshot["tables"]:
+                    raw = bound_by_name[table["name"]]
+                    keys = [key for key in report["keys"] if key["tableId"] == table["id"]]
+                    grain_proposals[table["id"]] = grain_kind(raw, keys)
+                questions = _questions(self._snapshot, model, grain_proposals)
+                model_view = build_model_view(self._raw_tables, self._snapshot, model, questions)
+            except ValueError as exc:
+                if any(marker in str(exc) for marker in _WL2_LIMIT_MARKERS):
+                    raise InputError("AF_UNDERSTAND_LIMIT", "understand",
+                                     "Dữ liệu vượt giới hạn đo cấu trúc trên toàn bộ dòng.") from None
+                raise InputError("AF_UNDERSTAND_INVALID", "understand", "Nguồn không khớp snapshot hoặc cấu trúc chưa hợp lệ.") from None
             self._understand = model
-            self._questions = _questions(self._snapshot, model)
+            self._model_view = model_view
+            self._questions = questions
             self._stage = "understood"
             return {**self.state(), "snapshot": deepcopy(self._snapshot),
                     "understand": deepcopy(model), "questions": deepcopy(self._questions)}
@@ -774,6 +820,7 @@ class AssistantSessionStore:
                     "rootLabel": "Workbook" if self._workbook_only else self._root.name if self._root else None,
                     "snapshotHash": self._snapshot["snapshotHash"] if self._snapshot else None,
                     "understandHash": self._understand["understandHash"] if self._understand else None,
+                    "modelView": deepcopy(self._model_view) if self._model_view else None,
                     "chosenBranch": self._chosen_branch, "recordHash": self._record["hash"] if self._record else None,
                     "recordId": self._record["id"] if self._record else None,
                     "record": deepcopy(self._record), "node": deepcopy(self._record_node),

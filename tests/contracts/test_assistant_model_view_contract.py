@@ -151,6 +151,30 @@ class AssistantModelViewContractTests(unittest.TestCase):
         self.assertIn("additionalProperties", resolved)
         self.assertFalse(resolved.get("additionalProperties"))
 
+    def test_store_understand_and_state_return_valid_model_view(self) -> None:
+        """API case (T403): understand/state carry a schema-valid modelView."""
+        from tempfile import TemporaryDirectory
+
+        from pbip_assistant.sources.assistant_session import AssistantSessionStore
+        selection = {"kind": "workbook", "mode": "compute", "payload": {
+            "header": ["ID", "Amount"], "rows": [[str(n), str(n * 10)] for n in range(8)],
+            "sampleOrdinals": list(range(8)), "totalRows": 8, "totalColumns": 2,
+            "name": "Transactions", "origin": "Workbook!Data", "sheet": "Data", "table": True}}
+        with TemporaryDirectory() as tmp:
+            store = AssistantSessionStore()
+            try:
+                store.bind_root(tmp)
+                store.ingest([selection])
+                result = store.understand()
+                model = result["modelView"]
+                self.assertEqual(validate(model, self.schema), [])
+                self.assertEqual(model["understandHash"], result["understand"]["understandHash"])
+                self.assertEqual(store.state()["modelView"], model)
+                store.reset()
+                self.assertIsNone(store.state()["modelView"])
+            finally:
+                store.close()
+
 
 if __name__ == "__main__":
     unittest.main()
