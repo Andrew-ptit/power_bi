@@ -376,7 +376,7 @@ DecisionRecord{ id, snapshot, brief, decisions[], assumptions[], steps[],
 ### 16.1 Ràng buộc & nguyên tắc
 
 - Task pane **dọc**, rộng hiệu dụng ~300–320px, cuộn dọc; không cuộn ngang.
-- **AI-first:** mặc định chỉ 2 khối mở: **Nguồn** + **Đề bài**. Các khối khác thu gọn.
+- **AI-first:** mặc định 3 khối mở: **Nguồn** + **Hiểu dữ liệu** + **Đề bài** (feature 004, 2026-11-22). Các khối khác thu gọn.
 - **Exception-based:** người dùng chỉ mở "AI đã hiểu" / giả định **khi cần sửa**.
 - **Không giấu nhãn:** status chip luôn có **icon + chữ + màu** (không chỉ màu).
 - **Không nhảy layout:** slot trạng thái cố định chiều cao; không đẩy thẻ khi đổi trạng thái.
@@ -389,12 +389,14 @@ DecisionRecord{ id, snapshot, brief, decisions[], assumptions[], steps[],
 | Màn | Tab | Kích hoạt khi | Mục đích |
 |---|---|---|---|
 | S0 · Get Data | Trợ lý | mở pane | thêm nguồn, chọn bảng |
-| S1 · AI đã hiểu | Trợ lý | sau snapshot | xem/sửa cách hiểu (thu gọn) |
+| S1 · Hiểu dữ liệu | Trợ lý | sau snapshot (bước 2 của hành trình) | tổng quan, danh sách sheet (vai trò, khóa, `grainKind`), quan hệ (danh sách | sơ đồ), cảnh báo, xác nhận tại chỗ |
 | S2 · Decision Brief | Trợ lý | sau S1 | phát hiện + SP A/B + insight + ledger + chốt |
-| S3 · Sơ đồ quan hệ | Trợ lý (panel/modal) | từ S1/S2 | xem/sửa dây nối |
+| S3 · Sơ đồ quan hệ | Trợ lý (panel/modal) | từ S1 | xem dây nối; nút `Mở rộng` mở cửa sổ 1 : 3 (mọi sheet) khi `DialogApi 1.2` được hỗ trợ |
 | S4 · Execution | PQ_Code-M | sau freeze | step list |
 | S5 · Preview | PQ_Code-M | sau compile | before/after + reconcile |
 | S6 · Result | PQ_Code-M | sau apply | delta + Decision Record |
+
+Ghi chú 2026-11-22 (feature 004): thẻ cấu trúc và nút đo cấu trúc đứng sau thẻ đề bài (S1/S3 cũ) được thay bởi bước `2. Hiểu dữ liệu` của hành trình; state machine (`new → ingested → understood → …`) không đổi — bước Hiểu tương ứng stage `understood`. Chi tiết: `specs/004-understand-data-step/spec.md`.
 
 ### 16.3 Wireframe từng màn
 
@@ -571,7 +573,7 @@ DecisionRecord{ id, snapshot, brief, decisions[], assumptions[], steps[],
 
 ### 16.7 Interaction rules
 
-- Panel "AI đã hiểu" **thu gọn mặc định**, chỉ mở khi người dùng bấm.
+- Panel "AI đã hiểu" **thu gọn mặc định**, chỉ mở khi người dùng bấm — đến đây được thay bởi bước `2. Hiểu dữ liệu` (feature 004, 2026-11-22): bước này là bước chính của hành trình (không thu gọn), hiện tổng quan/sheet/quan hệ/cảnh báo và cho trả lời tại chỗ; sơ đồ quan hệ nằm trong bước này.
 - Mỗi giả định sửa **1 click**, không mở form dài.
 - `Freeze` chỉ bật khi **không còn** blocker (unknown/conflict chưa xử lý).
 - `Approve` chỉ bật khi **reconcile pass**; fail thì hiện banner + lý do.

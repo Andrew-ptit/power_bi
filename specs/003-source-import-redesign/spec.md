@@ -112,6 +112,8 @@ Tên sheet trùng/Unicode/31 ký tự; CSV BOM; delimiter `, ; \t |`; encoding W
 - **SI14** Accessibility: keyboard đi hết browser/selection/report, `aria-live` cho tiến độ, không tràn ngang ở 360px, hit target ≥ 32px.
 - **SI15** Mọi hành vi mới có test tự động (Python unittest + Node taskpane script) và không làm hỏng bất kỳ script taskpane nào đang có trong gate.
 
+> Ghi chú 2026-11-22 (feature 004): SI01 và SC04 — journey đúng hai bước `1. Nguồn → 2. Đề bài` — được thay bằng hành trình ba bước `1. Nguồn → 2. Hiểu dữ liệu → 3. Đề bài`. Phần còn lại của feature 003 giữ nguyên; xem §9.
+
 ## 6. Bảng luật suy luận kiểu (bắt buộc, tất định)
 
 Áp dụng cho từng cột CSV sau khi trim hai đầu; chỉ xét ô không rỗng.
@@ -161,6 +163,8 @@ Tên sheet trùng/Unicode/31 ký tự; CSV BOM; delimiter `, ; \t |`; encoding W
 ## 9. Supersession (feature 002)
 
 Được duyệt bỏ khỏi hành trình: S05–S11, DP05–DP09 (preview/answer/apply/undo của làm sạch), phần `scan/question/preview` trong UI của T008/T009/T010. Backend `cleaning.py`, `mutation.py`, `store.preview/answer/begin_mutation` **giữ nguyên như compatibility code đã test**, không bị xoá, nhưng không còn được mount trong tab Trợ lý và không còn là đường đi của người dùng. Import vẫn dùng cổng approval/permit/read-back hiện có; không nới lỏng cổng ghi.
+
+**Feature 004 (2026-11-22):** SI01 và SC04 (journey đúng hai bước `1. Nguồn → 2. Đề bài`) được thay bằng hành trình ba bước `1. Nguồn → 2. Hiểu dữ liệu → 3. Đề bài` theo `specs/004-understand-data-step/spec.md` (đã duyệt). Phần còn lại của feature 003 giữ nguyên.
 
 ## 10. Assumptions & open points
 

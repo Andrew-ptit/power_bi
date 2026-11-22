@@ -57,3 +57,13 @@ Hồi quy: py tools/run_checks.py fast
 Chưa làm WL3+, Decision Brief, UI, HTTP/Office wiring hoặc ghi workbook.
 Không gọi AI/LLM/Codex/network; không xác nhận policy nghiệp vụ hoặc KPI.
 Các test synthetic và engine không thay cho kiểm chứng Excel/Power BI Desktop.
+
+## modelView và grainKind (feature 004 — đang triển khai T401–T408)
+
+- `sources/assistant_model_view.py` (mới, T402): `grain_kind`, `build_model_view`, `model_view_hash` — thuần, không I/O, không import coordinator/Office/Codex adapter.
+- `modelView` là khung nhìn dẫn xuất cấp trên trả kèm `understand`/`state`; không đổi `understand`/`understandHash`, không tham gia `planningHash`, `specFingerprint` hay Record. Schema đóng: `pbip_assistant/schemas/assistant_model_view.schema.json`.
+- `grainKind` theo spec 004 §6: `snapshot` khi có khóa ứng viên ≥ 2 cột gồm đúng 1 cột ngày, ≥ 3 ngày khác nhau và ≥ 50% tổ hợp thực thể lặp lại; `event` khi có cột ngày mà không thỏa snapshot; `unknown` khi không có cột ngày hoặc bảng 0 dòng. Ngưỡng 95% / 3 / 50% là hằng số có tên, test ở biên.
+- Bảng `snapshot` không phải `dim`/`lookup` sinh câu hỏi `topic: "grain"`; id các câu hỏi hiện có không đổi.
+- `measuredOn = full` khi nạp `compute`, `sample` khi `discover`; `rowCount` là tổng dòng nguồn, `measuredRows` là số dòng engine đo.
+- Vượt giới hạn tính toán WL2 ("exceeds the bounded …") hoặc giới hạn request → `AF_UNDERSTAND_LIMIT` (HTTP 409, mã mới duy nhất của feature); task pane lùi về `discover` đúng một lần và hiện cảnh báo "đo trên mẫu".
+- `modelView` không chứa giá trị ô hay evidence thô; ngoại lệ duy nhất là `dateRange.min/max` (hai ngày ISO, chỉ hiển thị local, không log, không đưa vào request Codex).

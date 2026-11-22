@@ -2,11 +2,25 @@
 
 ## Preparation source import (feature 003 contract)
 
-The source journey has two steps, `1. Nguồn → 2. Đề bài`. The entry screen shows compact workbook context and keeps workbook details collapsed. `Đề bài` becomes available after a successful read-back of imported sheets or validation of existing workbook data. See [CURRENT_STATUS.md](CURRENT_STATUS.md) for verification status.
+The source journey has three steps, `1. Nguồn → 2. Hiểu dữ liệu → 3. Đề bài` (feature 004, 2026-11-22; the two-step journey of 003 is superseded — see §9 of `specs/003-source-import-redesign/spec.md`). The entry screen shows compact workbook context and keeps workbook details collapsed. `Đề bài` becomes available after a successful read-back of imported sheets or validation of existing workbook data, with the understand step measured on the current snapshot. See [CURRENT_STATUS.md](CURRENT_STATUS.md) for verification status.
 
 Import uses the existing review, one-use write permit and read-back checks. With `preparationBackups: false`, these checks use transient semantic and native sheet identity evidence. A partial or unknown write requires explicit fresh attachment and review before another attempt. Preparation cleanup, journal and recovery modules serve legacy callers.
 
+## Understand data step (feature 004 contract)
+
+Feature 004 (2026-11-22) inserts `2. Hiểu dữ liệu` between `1. Nguồn` and `3. Đề bài`. The step is a gate: `Tiếp tục: Đề bài` becomes available when measurement is done on the current snapshot (server stage `understood`), even while confirmations remain unanswered. The problem box stays empty during the step; no AI call is made and no data leaves the machine.
+
+- `POST /api/assistant/understand` and `POST /api/assistant/state` additionally return a top-level derived `modelView` (closed schema `pbip_assistant/schemas/assistant_model_view.schema.json`). It never changes `understand`/`understandHash` and is not part of `planningHash`, `specFingerprint` or the Record.
+- The step shows an overview (counts), one row per sheet (proposed role, row count, key sentence per HS02, `grainKind`), the relationship block (Danh sách | Sơ đồ) and warnings. Items with an unanswered question carry a "cần xác nhận" state and an in-place answer button using the existing `flow.answers` state — the same `questionId` and option strings the problem step uses.
+- `grainKind` ∈ {event, snapshot, unknown} is deterministic per spec 004 §6; tables proposed as `snapshot` that are not dim/lookup get a `grain` confirmation question.
+- `mode = per_sheet` when no fact graph exists; it is not an error and does not block `Đề bài`.
+- Measurement defaults to `compute` (all scanned rows; `measuredOn = "full"`). Only `AF_UNDERSTAND_LIMIT` (HTTP 409, the single new error code) or the existing `REQUEST_LIMIT` triggers one fallback reload at `discover`; the step then shows a fixed "đo trên mẫu" warning and every wire carries the sample label. No other error triggers the fallback.
+- The `Mở rộng` dialog (shown only when `DialogApi 1.2` is supported) is a pure view: it receives `modelView`/`answers`/`questions` via `messageChild` and replies via `messageParent`; no fetch, no token, no workbook API, no data in the URL.
+- This feature is being implemented (T401–T408); the UI wiring lands in T404–T406, so the interactive step is not yet live in the task pane.
+
 ## Preparation active extension
+
+> Superseded 2026-11-22 (feature 004): the first sentence below describes the old `Source -> Cleaning -> Problem` journey. Feature 003 removed the cleaning step (2026-11-21) and feature 004 reordered the journey to `1. Nguồn → 2. Hiểu dữ liệu → 3. Đề bài`. Kept for history; the rest of this section (tabs, cards, bounds) remains in effect.
 
 Current preparation is Source -> Cleaning -> Problem, with Browse/file selection, native sheet import, automatic all-sheet scan, grouped questions and exact preview/Apply. The user removed backup across the flow on 2026-11-16. `preparationBackups: false` selects transient semantic/native-ID validation and direct begin/one-use permit/read-back completion. Active composition creates no target package evidence, recovery images/journal or preparation recovery XML; UI shows no preparation Undo/Redo. Historical session/journal modules remain isolated compatibility code. Imported in-place cleanup needs current-session verified ownership; existing personal sheets receive separate results. Unsupported personal-copy dependencies block before writing. Uncertain writes cannot replay; explicit fresh attachment revokes old authority and requires review again. No full target style/structure comparison, rollback or Ctrl+Z promise is made. Typed, Problem Chain and Advanced history semantics remain unchanged. Manual native acceptance is user-pending; see CURRENT_STATUS.md and specs/002-data-preparation/backup-removal-plan.md.
 
@@ -55,5 +69,7 @@ The import report shows file and sheet totals, which sheets were created, the au
 `Dùng dữ liệu trong workbook` checks for a header and data rows, warns about empty or non-tabular sheets, and reads the valid sources again. This branch leaves workbook data intact. If validation finds no usable source, `Đề bài` stays disabled. A failed re-read keeps the import report, disables `Đề bài` and offers `Đọc lại nguồn` without importing again.
 
 # Approved assistant source entry (2026-11-14)
+
+> Superseded 2026-11-22 (feature 004): the three-stage journey `1. Nguồn → 2. Làm sạch → 3. Đề bài` described below is no longer in effect — feature 003 removed the cleaning step (2026-11-21) and feature 004 inserted `2. Hiểu dữ liệu`. Kept for history; the entry UX content (authenticated folder dialog, workbook-data branch) moved into the `Assistant source entry` section above.
 
 The assistant's first screen shows compact workbook context (`Book1 · Chưa có dữ liệu`), one three-stage journey (`1. Nguồn → 2. Làm sạch → 3. Đề bài`) and two primary actions: `Chọn thư mục` and `Dùng dữ liệu trong workbook`. Workbook facts remain collapsed. Legacy ingestion form fields are compatibility internals, not a second source workflow shown beneath the new one. The local folder dialog is authenticated, opens only on a button action and handles cancellation without submitting empty input. Workbook selection checks for a header and data rows on the current sheet, then exposes the cleaning controls. Merely listing a directory cannot unlock cleaning or claim a completed import. Later stages remain unavailable until their source/write prerequisites are implemented. Existing data/privacy/approval limits still apply. This correction changes entry UX, not T002 qualification or production write authority.

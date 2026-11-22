@@ -1,0 +1,83 @@
+{
+  "schemaVersion": "1.0",
+  "mode": "per_sheet",
+  "measuredOn": "full",
+  "counts": {
+    "tables": 2,
+    "fact": 0,
+    "dim": 0,
+    "lookup": 0,
+    "bridge": 0,
+    "unclassified": 2,
+    "relationships": 0,
+    "needsConfirm": 0,
+    "warnings": 0
+  },
+  "tables": [
+    {
+      "tableId": "t_sheet_a",
+      "name": "SheetA",
+      "rowCount": 45,
+      "measuredRows": 45,
+      "structural": "unclassified",
+      "confidence": null,
+      "roleQuestionId": null,
+      "grainKind": "unknown",
+      "grainEvidence": null,
+      "grainQuestionId": null,
+      "keys": [],
+      "dateRange": null,
+      "columnCount": 2,
+      "columns": [
+        {
+          "name": "col_a",
+          "type": "text",
+          "role": "unknown",
+          "isKey": false,
+          "isLink": false,
+          "nullRate": 0,
+          "distinctCount": 45
+        },
+        {
+          "name": "col_b",
+          "type": "integer",
+          "role": "unknown",
+          "isKey": false,
+          "isLink": false,
+          "nullRate": 0.02,
+          "distinctCount": 44
+        }
+      ]
+    },
+    {
+      "tableId": "t_sheet_b",
+      "name": "SheetB",
+      "rowCount": 120,
+      "measuredRows": 120,
+      "structural": "unclassified",
+      "confidence": null,
+      "roleQuestionId": null,
+      "grainKind": "unknown",
+      "grainEvidence": null,
+      "grainQuestionId": null,
+      "keys": [],
+      "dateRange": null,
+      "columnCount": 1,
+      "columns": [
+        {
+          "name": "note",
+          "type": "text",
+          "role": "unknown",
+          "isKey": false,
+          "isLink": false,
+          "nullRate": 0,
+          "distinctCount": 120
+        }
+      ]
+    }
+  ],
+  "relationships": [],
+  "warnings": [],
+  "understandHash": "sha256:d8ee423721cd023d2d320fec31d3994bebd7de386a506e23741702d2b457b8cb",
+  "modelViewHash": "sha256:d02ac6a63a1b441af7952803b37238b459f64bf0139a8bb0ca96d34fae4718ca"
+}

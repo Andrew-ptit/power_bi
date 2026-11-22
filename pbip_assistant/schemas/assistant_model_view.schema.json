@@ -1,0 +1,548 @@
+{
+  "$defs": {
+    "column": {
+      "additionalProperties": false,
+      "properties": {
+        "distinctCount": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "isKey": {
+          "type": "boolean"
+        },
+        "isLink": {
+          "type": "boolean"
+        },
+        "name": {
+          "maxLength": 512,
+          "minLength": 1,
+          "type": "string"
+        },
+        "nullRate": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "role": {
+          "enum": [
+            "key",
+            "date",
+            "amount",
+            "percent",
+            "currency",
+            "text",
+            "unknown"
+          ],
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "text",
+            "integer",
+            "decimal",
+            "date"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "role",
+        "isKey",
+        "isLink",
+        "nullRate",
+        "distinctCount"
+      ],
+      "type": "object"
+    },
+    "counts": {
+      "additionalProperties": false,
+      "properties": {
+        "bridge": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "dim": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "fact": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "lookup": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "needsConfirm": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "relationships": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "tables": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "unclassified": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "warnings": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "tables",
+        "fact",
+        "dim",
+        "lookup",
+        "bridge",
+        "unclassified",
+        "relationships",
+        "needsConfirm",
+        "warnings"
+      ],
+      "type": "object"
+    },
+    "dateRange": {
+      "additionalProperties": false,
+      "properties": {
+        "column": {
+          "maxLength": 512,
+          "minLength": 1,
+          "type": "string"
+        },
+        "max": {
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+          "type": "string"
+        },
+        "min": {
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "column",
+        "min",
+        "max"
+      ],
+      "type": "object"
+    },
+    "grainEvidence": {
+      "additionalProperties": false,
+      "properties": {
+        "dateColumn": {
+          "maxLength": 512,
+          "minLength": 1,
+          "type": "string"
+        },
+        "distinctDates": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "entities": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "entityColumns": {
+          "items": {
+            "maxLength": 512,
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "repeatedEntities": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "dateColumn",
+        "entityColumns",
+        "distinctDates",
+        "repeatedEntities",
+        "entities"
+      ],
+      "type": "object"
+    },
+    "relationship": {
+      "additionalProperties": false,
+      "properties": {
+        "cardinality": {
+          "enum": [
+            "N:1",
+            "1:N",
+            "1:1",
+            "N:N"
+          ],
+          "type": "string"
+        },
+        "fanOutRisk": {
+          "enum": [
+            "none",
+            "low",
+            "high"
+          ],
+          "type": "string"
+        },
+        "fromColumns": {
+          "items": {
+            "maxLength": 512,
+            "minLength": 1,
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "fromTable": {
+          "maxLength": 128,
+          "minLength": 1,
+          "type": "string"
+        },
+        "id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "type": "string"
+        },
+        "orphan": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "overlap": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "questionId": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "rowsAfter": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "rowsBefore": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "status": {
+          "enum": [
+            "auto",
+            "needs_confirm",
+            "confirmed",
+            "rejected"
+          ],
+          "type": "string"
+        },
+        "toColumns": {
+          "items": {
+            "maxLength": 512,
+            "minLength": 1,
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "toTable": {
+          "maxLength": 128,
+          "minLength": 1,
+          "type": "string"
+        },
+        "wireState": {
+          "enum": [
+            "safe",
+            "fanout",
+            "orphan"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "fromTable",
+        "fromColumns",
+        "toTable",
+        "toColumns",
+        "cardinality",
+        "status",
+        "fanOutRisk",
+        "overlap",
+        "orphan",
+        "rowsBefore",
+        "rowsAfter",
+        "wireState",
+        "questionId"
+      ],
+      "type": "object"
+    },
+    "table": {
+      "additionalProperties": false,
+      "properties": {
+        "columnCount": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "columns": {
+          "items": {
+            "$ref": "#/$defs/column"
+          },
+          "maxItems": 200,
+          "type": "array"
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "dateRange": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/dateRange"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "grainEvidence": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/grainEvidence"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "grainKind": {
+          "enum": [
+            "event",
+            "snapshot",
+            "unknown"
+          ],
+          "type": "string"
+        },
+        "grainQuestionId": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "keys": {
+          "items": {
+            "items": {
+              "maxLength": 512,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 16,
+            "minItems": 1,
+            "type": "array",
+            "uniqueItems": true
+          },
+          "maxItems": 3,
+          "type": "array"
+        },
+        "measuredRows": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "name": {
+          "maxLength": 512,
+          "minLength": 1,
+          "type": "string"
+        },
+        "roleQuestionId": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "rowCount": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "structural": {
+          "enum": [
+            "fact",
+            "dim",
+            "lookup",
+            "bridge",
+            "unclassified"
+          ],
+          "type": "string"
+        },
+        "tableId": {
+          "maxLength": 128,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "tableId",
+        "name",
+        "rowCount",
+        "measuredRows",
+        "structural",
+        "confidence",
+        "roleQuestionId",
+        "grainKind",
+        "grainEvidence",
+        "grainQuestionId",
+        "keys",
+        "dateRange",
+        "columnCount",
+        "columns"
+      ],
+      "type": "object"
+    },
+    "warning": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "maxLength": 128,
+          "minLength": 1,
+          "type": "string"
+        },
+        "questionId": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "severity": {
+          "enum": [
+            "warning",
+            "blocker"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "severity",
+        "questionId"
+      ],
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "counts": {
+      "$ref": "#/$defs/counts"
+    },
+    "measuredOn": {
+      "enum": [
+        "full",
+        "sample"
+      ],
+      "type": "string"
+    },
+    "mode": {
+      "enum": [
+        "model",
+        "per_sheet"
+      ],
+      "type": "string"
+    },
+    "modelViewHash": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "relationships": {
+      "items": {
+        "$ref": "#/$defs/relationship"
+      },
+      "type": "array"
+    },
+    "schemaVersion": {
+      "const": "1.0",
+      "type": "string"
+    },
+    "tables": {
+      "items": {
+        "$ref": "#/$defs/table"
+      },
+      "type": "array"
+    },
+    "understandHash": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "warnings": {
+      "items": {
+        "$ref": "#/$defs/warning"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "understandHash",
+    "mode",
+    "measuredOn",
+    "counts",
+    "tables",
+    "relationships",
+    "warnings",
+    "modelViewHash"
+  ],
+  "type": "object"
+}
